@@ -19,4 +19,7 @@ object TokenOps {
       case '`' => false
       case ch => !ch.isLetterOrDigit
     }
+
+  def isIdentifierStart(value: String): Boolean =
+    value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
 }
