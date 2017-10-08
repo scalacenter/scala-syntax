@@ -70,5 +70,5 @@ object ScalaToken {
   val `>:` : Doc = text(">:")
   val `<:` : Doc = text("<:")
   val `<%` : Doc = text("<%")
-  val lineBlank: Doc = lineNoFlat + lineNoFlat
+  val lineBlank: Doc = lineNoFlatNoIndent + lineNoFlat
 }

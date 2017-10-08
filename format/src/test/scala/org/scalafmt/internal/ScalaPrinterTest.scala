@@ -4,7 +4,6 @@ import scala.meta.dialects
 import org.scalafmt.Options
 import org.scalafmt.internal.BaseScalaPrinterTest
 
-
 class ScalaPrinterTest extends BaseScalaPrinterTest {
 
   check("package a.b", Options.default)
@@ -51,10 +50,10 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("@a @b def c = 1")
   check("def a(@b c: C) = 1")
   check("def a(implicit b: B) = 1")
-  check("class A[B] extends C with D { val a = 1 }")
-  check("object A extends B with C { val x = 1 }")
-  check("trait a { self: D => }")
-  check("class A extends { var x = 2 } with B")
+  check("class A[B] extends C with D {\n  val a = 1\n}")
+  check("object A extends B with C {\n  val x = 1\n}")
+  check("trait a {\n  self: D =>\n}")
+  check("class A extends {\n  var x = 2\n} with B")
   check("class A extends B[C](1)")
   check("def this(a: A) = this(a)")
   check("def a[A: B]: Unit")
@@ -67,16 +66,22 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   checkType("A#B")
   checkType("b.type")
   checkType("this.type")
-  checkType("A B C")
+  checkType("(A B C)")
   checkType("A => C")
   checkType("(A, B) => C")
   checkType("() => C")
   checkType("implicit A => C")
-  checkType("A & B")
-  checkType("A with B")
-  checkType("A { val b: B }")
-  checkType("{ val b: B }")
-  checkType("A[T] forSome { type T }")
+  checkType("(A & B)")
+  checkType("(A with B)")
+  checkType("""A {
+              |  val b: B
+              |}""".stripMargin)
+  checkType("""{
+              |  val b: B
+              |}""".stripMargin)
+  checkType("""A[T] forSome {
+              |  type T
+              |}""".stripMargin)
   checkType("A @a")
   checkType("A[[B] => B]")
   checkType("A[_]")
@@ -101,6 +106,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
     """
       |{
       |  a
+      |
       |  b
       |}
     """.stripMargin
@@ -112,28 +118,40 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("a(1, 2)")
   check("a(1, 2)(1)")
   check("a(b:_*)")
-  check("a + b")
-  check("a op[T] b")
+  check("(a + (b))")
+  check("(a op[T] (b))")
   check("a(b => c)")
-  check("a { case 1 => }")
+  check("""a {
+          |  case 1 =>
+          |}""".stripMargin)
   check(
     """a {
       |  case 1 =>
+      |
       |  case 2 =>
       |}""".stripMargin
   )
-  check("""if (true) 1 else 2""")
-  check("""for { a <- b } a""")
+  check("""if (true)
+          |  1
+          |else
+          |  2""".stripMargin)
+  check("""for {
+          |  a <- b
+          |} a""".stripMargin)
   check(
     """for {
       |  a <- b
+      |
       |  _ = a
+      |
       |  if c
       |} yield a""".stripMargin
   )
   check("try a catch b")
   check("try a catch { case _: A => } finally c")
-  check("a match { case 1 => }")
+  check("""a match {
+          |  case 1 =>
+          |}""".stripMargin)
   check("this")
   check("super[A].a")
   check("super.a")
@@ -145,6 +163,6 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check(" q\"b$b$c\" ")
   check(" q\"b$b_$c\" ")
   check(" q\"b${b.c}\" ")
-  check(" q\"b${1 + q\"a\"}\" ")
+  check(" q\"b${(1 + (q\"a\"))}\" ")
   check(" q\"b${b}_\" ")
 }

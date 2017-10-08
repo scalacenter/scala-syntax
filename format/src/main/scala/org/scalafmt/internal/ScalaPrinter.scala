@@ -374,7 +374,7 @@ class ScalaPrinter(code: Input, options: Options) {
         case t: Term.ApplyInfix =>
           `(` +
             print(t.lhs) + space +
-            print(t.op) + space +
+            dApplyBracket(print(t.op), t.targs) + space +
             dApplyParen(empty, t.args) +
             `)`
       }
