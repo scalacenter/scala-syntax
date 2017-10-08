@@ -10,19 +10,20 @@ import scala.util.Try
 import scala.util.control.NonFatal
 import scalafix.diff.DiffUtils
 import org.scalafmt.Format
-import org.scalafmt.InternalOptions
 import org.scalameta.logger
 import org.scalatest.Ignore
 
 // Comment out to run these tests, currently it fails with output
 // https://gist.github.com/olafurpg/ea44f3567d4117e53ca818b1911f9be9
-@Ignore
-class BijectionPropertyTest extends BaseScalaPrinterTest {
+//@Ignore
+/** Tests that running printer twice always yields the same results */
+class IdempotencyPropertyTest extends BaseScalaPrinterTest {
+  // first step towards idempotency is to print out the identical AST
+  // as the input source code.
   test("AST is unchanged") {
     val corpus = Corpus
       .files(Corpus.fastparse)
-//      .find(_.filename.contains("actor/ConsistencySpec"))
-      .take(1000)
+      .take(1000) // take files as you please.
       .toBuffer
       .par
     val diffs = SyntaxAnalysis.run[AnyDiff](corpus) { file =>
@@ -38,6 +39,7 @@ class BijectionPropertyTest extends BaseScalaPrinterTest {
           Nil
       }
     }
+    // TODO(olafur) clean up this mess
     def diff(f: CorpusFile, d: AnyDiff): String = {
       def unified(a: String, b: String) = DiffUtils.unifiedDiff(
         f.filename,

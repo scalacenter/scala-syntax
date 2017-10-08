@@ -34,6 +34,10 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     check(original, original, options)
   }
 
+  def check(original: String, expected: String): Unit = {
+    check(original, expected, defaultOptions)
+  }
+
   def check(
       original2: String,
       expected2: String,

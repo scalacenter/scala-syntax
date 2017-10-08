@@ -102,6 +102,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   checkPat("A(a, b)")
 
   // term
+  check("'c'")
   check(
     """
       |{
@@ -165,4 +166,42 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check(" q\"b${b.c}\" ")
   check(" q\"b${(1 + (q\"a\"))}\" ")
   check(" q\"b${b}_\" ")
+  check(
+    """
+      |foo('''
+      |''')
+      |""".stripMargin,
+    """
+      |foo(
+      |  '''
+      |'''
+      |)""".stripMargin
+  )
+
+  check(
+    """
+      |foo(s'''
+      |''')
+      |""".stripMargin,
+    """
+      |foo(
+      |  s'''
+      |'''
+      |)""".stripMargin
+  )
+
+  check(
+    """
+      |foo(s'''
+      | $s
+      |''')
+      |""".stripMargin,
+    """
+      |foo(
+      |  s'''
+      | $s
+      |'''
+      |)""".stripMargin
+  )
+  check(""" s"$$a" """.stripMargin)
 }
