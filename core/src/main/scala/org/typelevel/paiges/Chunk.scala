@@ -15,10 +15,10 @@ private[paiges] object Chunk {
     sealed abstract class ChunkStream
     object ChunkStream {
       case object Empty extends ChunkStream
-      case class Item(str: String, position: Int, stack: List[(Int, Doc)], isBreak: Boolean) extends ChunkStream {
-        def isLine: Boolean = str == null
-        def stringChunk: String = if (isBreak) lineToStr(position) else str
-        private[this] var next: ChunkStream = _
+      case class Item(str: String, position: Int, cache: ChunkStream, stack: List[(Int, Doc)]) extends ChunkStream {
+        def isLine: Boolean = str.startsWith("\n")
+        private[this] var next: ChunkStream = cache
+
         def step: ChunkStream = {
           // do a cheap local computation.
           // lazy val is thread-safe, but more expensive
@@ -39,7 +39,7 @@ private[paiges] object Chunk {
       def hasNext: Boolean = (current != ChunkStream.Empty)
       def next: String = {
         val item = current.asInstanceOf[ChunkStream.Item]
-        val res = item.stringChunk
+        val res = item.str
         current = item.step
         res
       }
@@ -66,7 +66,7 @@ private[paiges] object Chunk {
           LineCombiner.trim(res)
         }
         def addItem(item: ChunkStream.Item): Option[String] =
-          if (item.isBreak) {
+          if (item.isLine) {
             val v = LineCombiner.trim(line.toString)
             line = new StringBuilder(lineToStr(item.position))
             Some(v)
@@ -93,7 +93,7 @@ private[paiges] object Chunk {
         d match {
           case ChunkStream.Empty => true
           case item: ChunkStream.Item =>
-            item.isBreak || fits(item.position, item.step)
+            item.isLine || fits(item.position, item.step)
         }
       }
     /*
@@ -107,8 +107,21 @@ private[paiges] object Chunk {
       case (i, Doc.Concat(a, b)) :: z => loop(pos, (i, a) :: (i, b) :: z)
       case (i, Doc.Nest(j, d)) :: z => loop(pos, ((i + j), d) :: z)
       case (_, Doc.Align(d)) :: z => loop(pos, (pos, d) :: z)
-      case (i, Doc.Text(s)) :: z => ChunkStream.Item(s, pos + s.length, z, false)
-      case (i, Doc.Line(_)) :: z => ChunkStream.Item(null, i, z, true)
+      case (i, Doc.Text(s)) :: z => ChunkStream.Item(s, pos + s.length, null, z)
+      case (i, l@Doc.Line(_)) :: z =>
+        def line = if (l.options.indent) lineToStr(i) else "\n"
+        def indent = if (l.options.indent) i else 0
+        if (!trim) {
+          ChunkStream.Item(line, indent, null, z)
+        } else {
+          // Look ahead to the next token.  If it's a line, left-flush this line.
+          val lookahead = cheat(pos, z)
+          lookahead match {
+            case ChunkStream.Empty => ChunkStream.Item("\n", 0, lookahead, z)
+            case item: ChunkStream.Item if item.isLine => ChunkStream.Item("\n", 0, lookahead, z)
+            case _ => ChunkStream.Item(line, indent, lookahead, z)
+          }
+        }
       case (i, u@Doc.Union(x, _)) :: z =>
         /*
          * If we can fit the next line from x, we take it.
