@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.typelevel.paiges.Doc
+import org.typelevel.paiges.Doc._
 import org.typelevel.paiges.Doc.char
 import org.typelevel.paiges.Doc.lineBreak
 import org.typelevel.paiges.Doc.text
@@ -9,6 +10,7 @@ object ScalaToken {
   val `@` : Doc = char('@')
   val `*` : Doc = char('*')
   val `.` : Doc = char('.')
+  val `#` : Doc = char('#')
   val `(` : Doc = char('(')
   val `)` : Doc = char(')')
   val `[` : Doc = char('[')
@@ -16,11 +18,29 @@ object ScalaToken {
   val `{` : Doc = char('{')
   val `}` : Doc = char('}')
   val `:` : Doc = char(':')
+  val `|` : Doc = char('|')
   val `=` : Doc = char('=')
-  val wilcard: Doc = char('_')
-  val `this` : Doc = text("this")
+  val wildcard: Doc = char('_')
+  val covariant: Doc = char('+')
+  val contravariant: Doc = char('-')
+  val `"` : Doc = char('"')
+  val `$` : Doc = char('$')
+  val `"""` : Doc = text("\"\"\"")
+  val `super`: Doc = text("super")
+  val `this`: Doc = text("this")
   val `=>` : Doc = text("=>")
   val `<-` : Doc = text("<-")
+  val `type`: Doc = text("type")
+  val `forSome`: Doc = text("forSome")
+  val `throw`: Doc = text("throw")
+  val `do`: Doc = text("do")
+  val `while`: Doc = text("while")
+  val `new`: Doc = text("new")
+  val `override`: Doc = text("override")
+  val `lazy`: Doc = text("lazy")
+  val `implicit`: Doc = text("implicit")
+  val `abstract`: Doc = text("abstract")
+  val `sealed`: Doc = text("sealed")
   val `case`: Doc = text("case")
   val `class`: Doc = text("class")
   val `def`: Doc = text("def")
@@ -47,5 +67,8 @@ object ScalaToken {
   val `val`: Doc = text("val")
   val `var`: Doc = text("var")
   val `with`: Doc = text("with")
-  val lineBlank: Doc = lineBreak + lineBreak
+  val `>:` : Doc = text(">:")
+  val `<:` : Doc = text("<:")
+  val `<%` : Doc = text("<%")
+  val lineBlank: Doc = lineNoFlatNoIndent + lineNoFlat
 }
