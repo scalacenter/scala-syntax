@@ -29,11 +29,22 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
   ): Unit = {
     check(original, options.copy(parser = Parse.parsePat))
   }
+
   def check(original: String, options: Options = defaultOptions): Unit = {
+    check(original, original, options)
+  }
+
+  def check(
+      original2: String,
+      expected2: String,
+      options: Options
+  ): Unit = {
+    val original = original2.replace("'''", "\"\"\"")
+    val expected = expected2.replace("'''", "\"\"\"")
     test(logger.revealWhitespace(original)) {
       val obtained = Format.format(original, options)
       import scala.meta._
-      assertNoDiff(obtained, original)
+      assertNoDiff(obtained, expected)
     }
   }
 }

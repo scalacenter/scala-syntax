@@ -6,6 +6,7 @@ import scala.meta.testkit.AnyDiff
 import scala.meta.testkit.Corpus
 import scala.meta.testkit.CorpusFile
 import scala.meta.testkit.SyntaxAnalysis
+import scala.util.Try
 import scala.util.control.NonFatal
 import scalafix.diff.DiffUtils
 import org.scalafmt.Format
@@ -16,7 +17,8 @@ class BijectionPropertyTest extends BaseScalaPrinterTest {
   test("AST is unchanged") {
     val corpus = Corpus
       .files(Corpus.fastparse)
-      .find(_.filename.contains("actor/ConsistencySpec"))
+//      .find(_.filename.contains("actor/ConsistencySpec"))
+      .take(1000)
       .toBuffer
       .par
     val diffs = SyntaxAnalysis.run[AnyDiff](corpus) { file =>
@@ -58,11 +60,15 @@ class BijectionPropertyTest extends BaseScalaPrinterTest {
       }
     }
     val nonEmptyDiff = diffs.filter { d =>
-      val out = diff(d._1, d._2)
-      if (out.nonEmpty) {
-        logger.elem(out)
-        true
-      } else false
+      Try(diff(d._1, d._2)).fold(t => {
+        t.printStackTrace()
+        false
+      }, { out =>
+        if (out.nonEmpty) {
+          logger.elem(out)
+          true
+        } else false
+      })
     }
     if (nonEmptyDiff.nonEmpty) fail("diffs.nonEmpty!")
   }

@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.typelevel.paiges.Doc
+import org.typelevel.paiges.Doc._
 import org.typelevel.paiges.Doc.char
 import org.typelevel.paiges.Doc.lineBreak
 import org.typelevel.paiges.Doc.text
@@ -69,5 +70,5 @@ object ScalaToken {
   val `>:` : Doc = text(">:")
   val `<:` : Doc = text("<:")
   val `<%` : Doc = text("<%")
-  val lineBlank: Doc = text("\n\n")
+  val lineBlank: Doc = lineNoFlat + lineNoFlat
 }

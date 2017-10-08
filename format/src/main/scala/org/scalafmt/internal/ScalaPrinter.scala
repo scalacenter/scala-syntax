@@ -1,5 +1,6 @@
 package org.scalafmt.internal
 
+import scala.annotation.tailrec
 import scala.meta.Case
 import scala.meta.Ctor
 import org.scalafmt.Options
@@ -28,6 +29,8 @@ import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
 import ScalaToken._
 import org.langmeta.inputs.Input
+import org.scalameta.logger
+import org.scalameta.logger.revealWhitespace
 
 class ScalaPrinter(code: Input, options: Options) {
 
@@ -135,21 +138,37 @@ class ScalaPrinter(code: Input, options: Options) {
   def dStats(stats: List[Stat]): Doc =
     intercalate(lineBlank, stats.map(print))
 
+  def dRaw(str: String, start: Int = 0): Doc = {
+    if (start >= str.length) empty
+    else {
+      val idx = str.indexOf('\n', start)
+      if (idx < 0) text(str.substring(start))
+      else {
+        text(str.substring(start, idx)) +
+          lineNoFlatNoIndent +
+          dRaw(str, idx + 1)
+      }
+    }
+  }
+
+  def isMultiline(part: String): Boolean =
+    part.contains("\n") ||
+      (part.contains("\"") && !part.contains("\"\"\""))
+
+  def dQuote(str: String): Doc = if (isMultiline(str)) `"""` else `"`
+
   def dInterpolate(prefix: Name, parts: List[Tree], args: List[Tree]): Doc = {
     val isTripeQuoted = parts.exists {
-      case Lit.String(part) =>
-        part.contains("\n") ||
-          (part.contains("\"") && !part.contains("\"\"\""))
+      case Lit.String(part) => isMultiline(part)
     }
     val dquote = if (isTripeQuoted) `"""` else `"`
-    val dhead = parts.head match { case Lit.String(value) => text(value) }
+    val dhead = parts.head match { case l @ Lit.String(value) => dRaw(value) }
     val sparts = parts.tail.zip(args).foldLeft(empty) {
       case (accum, (Lit.String(part), name: Term.Name))
           if !TokenOps.isIdentifierStart(part) =>
-        pprint.log(part)
-        accum + `$` + print(name) + text(part)
+        accum + `$` + print(name) + dRaw(part)
       case (accum, (Lit.String(part), arg)) =>
-        accum + dApplyBrace(`$`, arg :: Nil) + text(part)
+        accum + dApplyBrace(`$`, arg :: Nil) + dRaw(part)
     }
     print(prefix) + dquote + dhead + sparts + dquote
   }
@@ -170,6 +189,9 @@ class ScalaPrinter(code: Input, options: Options) {
         case t: Lit.Null => `null`
         case t: Lit.Boolean => if (t.value) `true` else `false`
         case t: Lit.Char => char(t.value)
+        case t: Lit.String =>
+          val dquote = dQuote(t.value)
+          dquote + dRaw(t.value) + dquote
         case _ => text(tree.syntax) // ???
       }
     case _: Enumerator =>
