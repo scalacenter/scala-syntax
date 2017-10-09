@@ -12,6 +12,13 @@ lazy val format = project
   .settings(
     moduleName := "scala-format",
     assemblyJarName in assembly := "scalafmt.jar",
+    assemblyMergeStrategy in assembly := {
+      case PathList("org", "typelevel", "paiges", xs @ _*) =>
+        MergeStrategy.first
+      case x =>
+        assemblyMergeStrategy.in(assembly).value(x)
+    },
+    mainClass.in(assembly) := Some("org.scalafmt.Format"),
     scalaVersion := "2.12.3",
     libraryDependencies ++= List(
       "com.lihaoyi" %% "pprint" % "0.5.2",
