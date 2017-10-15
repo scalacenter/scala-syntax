@@ -6,6 +6,7 @@ import scala.meta.testkit.StructurallyEqual
 import scala.meta.testkit.SyntaxAnalysis
 import scala.util.control.NonFatal
 import org.scalafmt.Format
+import org.scalameta.logger
 import org.scalatest.Ignore
 
 // Comment out to run these tests, currently it fails with output
@@ -20,7 +21,7 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
   test("AST is unchanged") {
     val corpus = Corpus
       .files(Corpus.fastparse)
-      .take(1000) // take files as you please.
+      .take(2000) // take files as you please.
       .toBuffer
       .par
     val nonEmptyDiff = SyntaxAnalysis.run[Unit](corpus) { file =>
@@ -33,7 +34,10 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
         if (StructurallyEqual(tree, tree2).isRight) Nil
         else {
           val diff = getDiff(file.jFile.getAbsolutePath, tree, tree2)
-          if (diff.nonEmpty) () :: Nil
+          if (diff.nonEmpty) {
+            logger.elem(diff)
+            () :: Nil
+          }
           else Nil
         }
       } catch {

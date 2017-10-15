@@ -84,7 +84,8 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       val printer2 = new ScalaPrinter(obtained, options)
       isSameTree(testName, printer.root, printer2.root) match {
         case Left(astDiff) =>
-          fail(astDiff)
+          logger.elem(obtained)
+          fail("AST changed!\n" + astDiff)
         case Right(()) =>
           assertNoDiff(obtained, expected)
           val obtained2 =

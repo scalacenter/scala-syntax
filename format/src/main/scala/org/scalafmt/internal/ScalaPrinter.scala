@@ -25,11 +25,15 @@ import scala.meta.Template
 import scala.meta.Type
 import scala.meta.Term
 import scala.meta.Tree
+import scala.meta.internal.prettyprinters.DoubleQuotes
+import scala.meta.internal.prettyprinters.QuoteStyle
+import scala.meta.internal.prettyprinters.TripleQuotes
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
 import ScalaToken._
 import org.langmeta.inputs.Input
 import org.scalameta.logger
+import TreeOps._
 
 class ScalaPrinter(code: Input, options: Options) {
   def this(code: String, options: Options) = this(Input.String(code), options)
@@ -153,33 +157,52 @@ class ScalaPrinter(code: Input, options: Options) {
   def dStats(stats: List[Stat]): Doc =
     intercalate(lineBlank, stats.map(print))
 
-  def dRaw(str: String, start: Int = 0): Doc = {
+  def dRaw(str: String, quoteStyle: QuoteStyle): Doc = dRaw(str, 0, quoteStyle)
+  def dRaw(str: String, start: Int, quoteStyle: QuoteStyle): Doc = {
     if (start >= str.length) empty
     else {
       val idx = str.indexOf('\n', start)
-      if (idx < 0) text(str.substring(start))
-      else {
+      if (idx < 0) {
+        val escaped = SyntaxOps.escape(str.substring(start), quoteStyle)
+        text(escaped)
+      } else {
         text(str.substring(start, idx)) +
           lineNoFlatNoIndent +
-          dRaw(str, idx + 1)
+          dRaw(str, idx + 1, quoteStyle)
       }
     }
   }
 
-  def isMultiline(part: String): Boolean =
+  def isMultiline(part: String): Boolean = {
     part.contains("\n") ||
-      (part.contains("\"") && !part.contains("\"\"\""))
+    (part.contains("\"") && !part.contains("\"\"\""))
+  }
 
-  def dQuote(str: String): Doc = if (isMultiline(str)) `"""` else `"`
+  def dQuote(str: String): (QuoteStyle, Doc) =
+    if (isMultiline(str)) TripleQuotes -> `"""`
+    else DoubleQuotes -> `"`
 
   def dInterpolate(prefix: Name, parts: List[Tree], args: List[Tree]): Doc = {
-    val isTripeQuoted = parts.exists {
+
+    def isMultilineInterpolated(part: String): Boolean =
+      part.contains("\\n") || isMultiline(part)
+    val isTripleQuoted = parts.exists {
       case Lit.String(part) => isMultiline(part)
     }
-
-    def escape(part: String) = dRaw(part.replace("$", "$$"))
-    val dquote = if (isTripeQuoted) `"""` else `"`
-    val dhead = parts.head match { case l @ Lit.String(value) => escape(value) }
+    val quoteStyle: QuoteStyle =
+      if (isTripleQuoted) TripleQuotes
+      else {
+        // TODO(olafur) this should be DoubleQuotes, hacky workaround for
+        // https://github.com/scalameta/scalameta/issues/1134
+        TripleQuotes
+      }
+    def escape(part: String) = dRaw(part.replace("$", "$$"), quoteStyle)
+    val dquote = if (isTripleQuoted) `"""` else `"`
+    val dhead = parts.head match {
+      case Lit.String(value) =>
+        logger.elem(value)
+        escape(value)
+    }
     val sparts = parts.tail.zip(args).foldLeft(empty) {
       case (accum, (Lit.String(part), name: Term.Name))
           if !TokenOps.isIdentifierStart(part) =>
@@ -215,8 +238,9 @@ class ScalaPrinter(code: Input, options: Options) {
           case t: Lit.Null => `null`
           case t: Lit.Boolean => if (t.value) `true` else `false`
           case t: Lit.String =>
-            val dquote = dQuote(t.value)
-            dquote + dRaw(t.value) + dquote
+            val (quoteStyle, dquote) = dQuote(t.value)
+            val dvalue = dRaw(t.value, quoteStyle)
+            dquote + dvalue + dquote
           case _ => text(tree.syntax) // ???
         }
       case _: Enumerator =>
@@ -250,7 +274,7 @@ class ScalaPrinter(code: Input, options: Options) {
           case t: Type.Select => print(t.qual) + `.` + print(t.name)
           case t: Type.Apply => dApplyBracket(print(t.tpe), t.args)
           case t: Type.ApplyInfix =>
-            `(` + print(t.lhs) + space + print(t.op) + space + print(t.rhs) + `)`
+            dInfix(t.lhs, t.op.value, print(t.op), t.rhs :: Nil)
           case t: Type.ImplicitFunction =>
             `implicit` + space + print(Type.Function(t.params, t.res))
           case t: Type.And =>
@@ -258,7 +282,7 @@ class ScalaPrinter(code: Input, options: Options) {
           case t: Type.Or =>
             print(Type.ApplyInfix(t.lhs, Type.Name("|"), t.rhs))
           case t: Type.With =>
-            `(` + print(t.lhs) + space + `with` + space + print(t.rhs) + `)`
+            dInfix(t.lhs, "with", `with`, t.rhs :: Nil)
           case t: Type.Refine =>
             val dtpe = t.tpe.fold(empty) { tpe =>
               val trailingSpace = if (t.stats.nonEmpty) space else empty
@@ -279,7 +303,7 @@ class ScalaPrinter(code: Input, options: Options) {
           case t: Type.Function =>
             val dparams = t.params match {
               case Nil => `(` + `)`
-              case param :: Nil => print(param)
+              case param :: Nil if !param.is[Type.Tuple] => print(param)
               case params => dApplyParen(empty, params)
             }
             dparams + space + `=>` + space + print(t.res)
@@ -313,12 +337,13 @@ class ScalaPrinter(code: Input, options: Options) {
           case t: Term.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Term.Xml =>
+            val quoteStyle = TripleQuotes
             val dhead = t.parts.head match {
-              case Lit.String(part) => dRaw(part)
+              case Lit.String(part) => dRaw(part, quoteStyle)
             }
             val dtail = t.parts.tail.zip(t.args).foldLeft(empty) {
               case (accum, (Lit.String(part), arg)) =>
-                dApplyBrace(accum, arg :: Nil) + text(part)
+                dApplyBrace(accum, arg :: Nil) + dRaw(part, quoteStyle)
             }
             dhead + dtail
           case t: Term.Return => `return` + space + print(t.expr)
@@ -350,7 +375,7 @@ class ScalaPrinter(code: Input, options: Options) {
           case t: Term.Tuple =>
             dApplyParen(empty, t.args)
           case t: Term.Match =>
-            print(t.expr) + space + `match` + space + dBlock(t.cases)
+            t.expr.wrapped + space + `match` + space + dBlock(t.cases)
           case t: Term.Try =>
             val dtry = `try` + space + print(t.expr) + line +
               `catch` + space + dBlock(t.catchp) +
@@ -394,45 +419,8 @@ class ScalaPrinter(code: Input, options: Options) {
             }
           case t: Term.ApplyType => dApplyBracket(print(t.fun), t.targs)
           case t: Term.ApplyInfix =>
-            val opPrecedence = operatorPrecedence(t.op.value)
-            val dlhs: Doc = t.lhs match {
-              case arg @ Term.ApplyInfix(_, Term.Name(lop), _, _) =>
-                val darg = print(arg)
-                val leftPrecedence = operatorPrecedence(lop)
-                if (isRightAssociative(t.op.value)) {
-                  if (leftPrecedence >= opPrecedence) wrapParens(darg)
-                  else darg
-                } else {
-                  if (leftPrecedence < opPrecedence) wrapParens(darg)
-                  else darg
-                }
-              case _ =>
-                if (needsParens(t.lhs)) wrapParens(print(t.lhs))
-                else print(t.lhs)
-            }
-            val dargs: Doc = t.args match {
-              case LambdaArg(doc) => doc
-              case Lit.Unit() :: Nil => `(` + `(` + `)` + `)`
-              case (arg @ Term.ApplyInfix(_, Term.Name(op), _, _)) :: Nil =>
-                val darg = print(arg)
-                val rightPrecedence = operatorPrecedence(op)
-                if (isRightAssociative(op)) {
-                  if (rightPrecedence > opPrecedence) wrapParens(darg)
-                  else darg
-                } else {
-                  if (rightPrecedence <= opPrecedence) wrapParens(darg)
-                  else darg
-                }
-              case arg :: Nil =>
-                if (needsParens(arg)) {
-                  dApplyParen(empty, t.args)
-                } else {
-                  print(arg)
-                }
-              case _ => dApplyParen(empty, t.args)
-            }
-            val dop = space + dApplyBracket(print(t.op), t.targs) + space
-            dlhs + dop + dargs
+            val dop = dApplyBracket(print(t.op), t.targs)
+            dInfix(t.lhs, t.op.value, dop, t.args)
         }
       case t: Type.Bounds =>
         val dlo = t.lo.fold(empty)(lo => `>:` + space + print(lo))
@@ -665,32 +653,87 @@ class ScalaPrinter(code: Input, options: Options) {
             dPat(t.lhs) + space + `|` + space + dPat(t.rhs)
           case t: Pat.Tuple =>
             dApplyParenPat(empty, t.args)
+          case t: Pat.Extract =>
+            dApplyParenPat(print(t.fun), t.args)
           case t: Pat.ExtractInfix =>
-            val drhs = t.rhs match {
-              case Nil => ???
-              case rhs :: Nil => print(rhs)
-              case _ => dApplyParenPat(empty, t.rhs)
-            }
-            print(t.lhs) + space + print(t.op) + space + drhs
+            dInfix(t.lhs, t.op.value, print(t.op), t.rhs)
           case t: Pat.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Pat.Typed =>
             print(t.lhs) + `:` + space + print(t.rhs)
-          case t: Pat.Extract =>
-            dApplyParenPat(print(t.fun), t.args)
         }
     }
 
-  def needsParens(tree: Tree): Boolean = tree match {
-    case _: Term.Name | _: Lit | _: Term.Interpolate | _: Term.Apply |
-        _: Term.ApplyType | _: Term.Select | _: Term.Super | _: Term.This =>
-      false
-    case _ => true
+  // TODO(olafur) verify that different precedence of type/term infix operators
+  // does not affect this method:
+  // https://docs.scala-lang.org/sips/make-types-behave-like-expressions.html
+  def dInfix(
+      lhs: Tree,
+      op: String,
+      opDoc: Doc,
+      args: List[Tree]
+  ): Doc = {
+    val opPrecedence = operatorPrecedence(op)
+    val dlhs: Doc = lhs match {
+      case arg @ Term.ApplyInfix(_, Term.Name(lop), _, _) =>
+        val darg = print(arg)
+        val leftPrecedence = operatorPrecedence(lop)
+        if (isRightAssociative(op)) {
+          if (leftPrecedence >= opPrecedence) wrapParens(darg)
+          else darg
+        } else {
+          if (leftPrecedence < opPrecedence) wrapParens(darg)
+          else darg
+        }
+      case _ =>
+        if (needsParens(lhs)) wrapParens(print(lhs))
+        else print(lhs)
+    }
+    val dargs: Doc = args match {
+      case LambdaArg(doc) => doc
+      case Lit.Unit() :: Nil => `(` + `(` + `)` + `)`
+      case (arg @ Infix(rop)) :: Nil =>
+        val darg = print(arg)
+        val rightPrecedence = operatorPrecedence(rop)
+        if (isRightAssociative(op)) {
+          if (rightPrecedence > opPrecedence) wrapParens(darg)
+          else darg
+        } else {
+          if (rightPrecedence <= opPrecedence) wrapParens(darg)
+          else darg
+        }
+      case arg :: Nil =>
+        if (needsParens(arg)) {
+          dApplyParen(empty, args)
+        } else {
+          print(arg)
+        }
+      case _ => dApplyParen(empty, args)
+    }
+    dlhs + space + opDoc + space + dargs
   }
+
+  object Infix {
+    def unapply(arg: Tree): Option[String] = arg match {
+      case Term.ApplyInfix(_, Term.Name(op), _, _) => Some(op)
+      case Type.ApplyInfix(_, Type.Name(op), _) => Some(op)
+      case Pat.ExtractInfix(_, Term.Name(op), _) => Some(op)
+      case _ => None
+    }
+  }
+
+  // http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
+  def isAssignmentOperator(op: String): Boolean =
+    op.endsWith("=") && {
+      !op.startsWith("=") &&
+      op != "<=" &&
+      op != ">=" &&
+      op != "!="
+    }
 
   // http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
   def operatorPrecedence(op: String): Int =
-    if (op.isEmpty) 1
+    if (op.isEmpty || isAssignmentOperator(op)) 1
     else {
       val head = op.head
       if (head.isLetter) 1
@@ -709,22 +752,33 @@ class ScalaPrinter(code: Input, options: Options) {
       }
     }
 
+  implicit class XtensionTreeDoc(tree: Tree) {
+    def wrapped: Doc = {
+      val doc = print(tree)
+      if (needsParens(tree)) wrapParens(doc)
+      else doc
+    }
+  }
+
   def wrapParens(doc: Doc) = `(` + doc + `)`
   def isRightAssociative(op: String) = op.endsWith(":")
 
   object LambdaArg {
-
+    type Paramss = Vector[List[Term.Param]]
+    @tailrec
     private final def getParamss(
-        f: Term.Function
-    ): (List[List[Term.Param]], Term) =
+        f: Term.Function,
+        accum: Paramss = Vector.empty
+    ): (Paramss, Term) =
       f.body match {
-        case g: Term.Function => {
-          val (pss, body) = getParamss(g)
-          (f.params :: pss, body)
-        }
-        case _ => (f.params :: Nil) -> f.body
+        case g: Term.Function =>
+          getParamss(g, accum :+ f.params)
+        case Term.Block((g: Term.Function) :: Nil) =>
+          getParamss(g, accum :+ f.params)
+        case _ =>
+          (accum :+ f.params, f.body)
       }
-    def unapply(args: List[Term]): Option[Doc] = args match {
+    def unapply(args: List[Tree]): Option[Doc] = args match {
       case (arg: Term.PartialFunction) :: Nil => Some(print(arg))
       case (Term.Block((f: Term.Function) :: Nil)) :: Nil =>
         val (paramss, body) = getParamss(f)

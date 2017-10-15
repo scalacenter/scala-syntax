@@ -66,13 +66,14 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   checkType("A#B")
   checkType("b.type")
   checkType("this.type")
-  checkType("(A B C)")
+  checkType("A B C")
   checkType("A => C")
+  check("def a(b: ((A, B)) => C) = b")
   checkType("(A, B) => C")
   checkType("() => C")
   checkType("implicit A => C")
-  checkType("(A & B)")
-  checkType("(A with B)")
+  checkType("A & B")
+  checkType("A with B")
   checkType("A { val b: B }")
   checkType("{ val b: B }")
   checkType("A[T] forSome { type T }")
@@ -138,6 +139,10 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
           |    <p></p>
           |  </xml>
           |}""".stripMargin)
+  check("""|val a =
+           |  <a>
+           |    <b>{b}</b>
+           |  </a>""".stripMargin)
   check("(a + b) { c => d }")
   check("(a + b) { case c => d }")
   check("return a")
@@ -172,6 +177,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("try a catch b")
   check("try a catch { case _: A => } finally c")
   check("a match { case 1 => }")
+  check("(if (a) b else c) match { case 1 => }")
   check("this")
   check("super[A].a")
   check("super.a")
@@ -182,7 +188,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("new A with B")
   check("new A with B { def a = 1 }")
   check(""" q"b" """)
-  check(" q\"b\\n\" ")
+  check(""" q"b\n" """)
   check(" q\"\"\"b\n\"\"\" ")
   check(" q\"b$b\" ")
   check(" q\"b$b$c\" ")
@@ -238,7 +244,14 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   )
   check(""" s"$$a" """.stripMargin)
   check("a")
+  check("a a { b => c => d }")
+  check("a { b => implicit c => d }")
+  check("a { implicit b => implicit c => d }")
+  check("""a("\\n")""")
+
   // infix precedence/associativity
+  check("(a :!= b) == c")
+  check("b -> (c :: d)")
   check("a + (())")
   check("a :: b :: c")
   check("(a :: b) :: c")
@@ -252,6 +265,8 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("(a + b) * (if (true) c else d)")
   check("b -> (c + d)")
   check("a :: b == c d ==(e)")
-  check("a a { b => c => d }")
-  check("a { b => implicit c => d }")
+  checkCase("case (a :: b) :: c =>")
+  checkCase("case (a @ A()) :: c =>")
+  checkType("(A :: B) :: C")
+  checkType("(A :: b.B) :: C")
 }
