@@ -35,52 +35,164 @@ import org.langmeta.inputs.Input
 import org.scalameta.logger
 import TreeOps._
 
-class ScalaPrinter(code: Input, options: Options) {
-  def this(code: String, options: Options) = this(Input.String(code), options)
+case class Context(options: Options, isPat: Boolean = false)
 
-  lazy val root: Tree = {
-    options.parser.apply(code, options.dialect).get
+object ScalaPrinter {
+
+  def getRoot(input: String, options: Options): Tree = {
+    getRoot(Input.String(input), options)
   }
-//  pprint.log(root)
 
-  def dName(name: Name): Doc = name match {
+  def getRoot(input: Input, options: Options): Tree = {
+    options.parser.apply(input, options.dialect).get
+  }
+
+  def printInput(input: Input, options: Options): Doc = {
+    printTree(getRoot(input, options), options)
+  }
+
+  def printTree(root: Tree, options: Options): Doc = {
+    implicit val ctx = Context(options)
+    print(root)
+  }
+  implicit class XtensionTreeDoc(tree: Tree) {
+    def wrapped(implicit ctx: Context): Doc = {
+      val doc = print(tree)
+      if (needsParens(tree)) wrapParens(doc)
+      else doc
+    }
+  }
+
+  def wrapParens(doc: Doc) = `(` + doc + `)`
+  def isRightAssociative(op: String) = op.endsWith(":")
+
+  object LambdaArg {
+    type Paramss = Vector[List[Term.Param]]
+    @tailrec
+    private final def getParamss(
+        f: Term.Function,
+        accum: Paramss = Vector.empty
+    ): (Paramss, Term) =
+      f.body match {
+        case g: Term.Function =>
+          getParamss(g, accum :+ f.params)
+        case Term.Block((g: Term.Function) :: Nil) =>
+          getParamss(g, accum :+ f.params)
+        case _ =>
+          (accum :+ f.params, f.body)
+      }
+    def unapply(args: List[Tree])(implicit ctx: Context): Option[Doc] =
+      args match {
+        case (arg: Term.PartialFunction) :: Nil => Some(print(arg))
+        case (Term.Block((f: Term.Function) :: Nil)) :: Nil =>
+          val (paramss, body) = getParamss(f)
+          val dbody = body match {
+            case Term.Block(stats) => dStats(stats)
+            case _ => print(body)
+          }
+          val dparamss = paramss.foldLeft(empty) {
+            case (accum, params) =>
+              accum + line + dParams(params) + space + `=>`
+          }
+          val result = `{` +
+            (dparamss.nested(2).grouped + line + dbody).nested(2).grouped +
+            line + `}`
+          Some(result.grouped)
+        case _ => None
+      }
+  }
+  // TODO(olafur) verify that different precedence of type/term infix operators
+  // does not affect this method:
+  // https://docs.scala-lang.org/sips/make-types-behave-like-expressions.html
+  def dInfix(
+      lhs: Tree,
+      op: String,
+      opDoc: Doc,
+      args: List[Tree]
+  )(implicit ctx: Context): Doc = {
+    val opPrecedence = operatorPrecedence(op)
+    val dlhs: Doc = lhs match {
+      case arg @ Term.ApplyInfix(_, Term.Name(lop), _, _) =>
+        val darg = print(arg)
+        val leftPrecedence = operatorPrecedence(lop)
+        if (isRightAssociative(op)) {
+          if (leftPrecedence >= opPrecedence) wrapParens(darg)
+          else darg
+        } else {
+          if (leftPrecedence < opPrecedence) wrapParens(darg)
+          else darg
+        }
+      case _ =>
+        if (needsParens(lhs)) wrapParens(print(lhs))
+        else print(lhs)
+    }
+    val dargs: Doc = args match {
+      case LambdaArg(doc) => doc
+      case Lit.Unit() :: Nil => `(` + `(` + `)` + `)`
+      case (arg @ Infix(rop)) :: Nil =>
+        val darg = print(arg)
+        val rightPrecedence = operatorPrecedence(rop)
+        if (isRightAssociative(op)) {
+          if (rightPrecedence > opPrecedence) wrapParens(darg)
+          else darg
+        } else {
+          if (rightPrecedence <= opPrecedence) wrapParens(darg)
+          else darg
+        }
+      case arg :: Nil =>
+        if (needsParens(arg)) {
+          dApplyParen(empty, args)
+        } else {
+          print(arg)
+        }
+      case _ => dApplyParen(empty, args)
+    }
+    dlhs + space + opDoc + space + dargs
+  }
+  def dName(name: Name)(implicit ctx: Context): Doc = name match {
     case _: Name.Anonymous => wildcard
     case _ => print(name)
   }
-  def dWithin(keyword: Doc, within: Ref): Doc = within match {
-    case Name.Anonymous() => keyword
-    case Term.This(Name.Anonymous()) => keyword + `[` + `this` + `]`
-    case _ => dApplyBracket(keyword, within :: Nil)
-  }
-  def dApplyBrace(fun: Doc, args: List[Tree]): Doc =
+  def dWithin(keyword: Doc, within: Ref)(implicit ctx: Context): Doc =
+    within match {
+      case Name.Anonymous() => keyword
+      case Term.This(Name.Anonymous()) => keyword + `[` + `this` + `]`
+      case _ => dApplyBracket(keyword, within :: Nil)
+    }
+  def dApplyBrace(fun: Doc, args: List[Tree])(implicit ctx: Context): Doc =
     dApply(fun, args, `{`, `}`)
-  def dApplyParen(fun: Doc, args: List[Tree]): Doc =
+  def dApplyParen(fun: Doc, args: List[Tree])(implicit ctx: Context): Doc =
     dApply(fun, args, `(`, `)`)
-  def dApplyBracket(fun: Doc, args: List[Tree]): Doc =
+  def dApplyBracket(fun: Doc, args: List[Tree])(implicit ctx: Context): Doc =
     if (args.isEmpty) fun
     else dApply(fun, args, `[`, `]`)
-  def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc): Doc = {
+  def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc)(
+      implicit ctx: Context
+  ): Doc = {
     val dargs = intercalate(comma + line, args.map(print))
     dargs.tightBracketBy(fun + left, right)
   }
-  def dApplyParenPat(fun: Doc, args: List[Pat]): Doc = {
+  def dApplyParenPat(fun: Doc, args: List[Pat])(implicit ctx: Context): Doc = {
     val dargs = intercalate(comma + line, args.map(dPat))
     dargs.tightBracketBy(fun + `(`, `)`)
   }
 
   // This is a quick hack to prevent unnecessary parens.
-  def dPath(lhs: Tree, lhsDoc: Doc, sep: Doc, rhs: Doc): Doc = {
+  def dPath(lhs: Tree, lhsDoc: Doc, sep: Doc, rhs: Doc)(
+      implicit ctx: Context
+  ): Doc = {
     if (!needsParens(lhs)) lhsDoc + sep + rhs
     else `(` + lhsDoc + `)` + sep + rhs
   }
 
-  def dTyped(lhs: Tree, rhs: Tree) = {
+  def dTyped(lhs: Tree, rhs: Tree)(implicit ctx: Context): Doc = {
     val dlhs = print(lhs)
     dlhs + typedColon(dlhs) + space + print(rhs)
   }
 
-  def dBlock(stats: List[Tree]): Doc = dBlockI(stats).grouped
-  def dBlockI(stats: List[Tree]): Doc = stats match {
+  def dBlock(stats: List[Tree])(implicit ctx: Context): Doc =
+    dBlockI(stats).grouped
+  def dBlockI(stats: List[Tree])(implicit ctx: Context): Doc = stats match {
     case Nil => `{` + `}`
     case head :: Nil =>
       `{` + ((line + print(head)).nested(2) + line) + `}`
@@ -106,25 +218,14 @@ class ScalaPrinter(code: Input, options: Options) {
     if (TokenOps.needsLeadingSpaceBeforeColon(lhs.render(100))) space + `:`
     else `:`
 
-  def dmods(mods: List[Mod]): Doc = intercalate(space, mods.map(print))
-  def ddef(
-      mods: List[Mod],
-      keyword: Doc,
-      pats: List[Pat],
-      tparams: List[Type.Param],
-      paramss: List[List[Term.Param]],
-      decltpe: Option[Type],
-      body: Doc
-  ): Doc = {
-    val dname = commaSeparated(pats.map(print))
-    ddef(mods, keyword, dname, tparams, paramss, decltpe, body)
-  }
-  def dParamss(paramss: List[List[Term.Param]]): Doc =
+  def dMods(mods: List[Mod])(implicit ctx: Context): Doc =
+    intercalate(space, mods.map(print))
+  def dParamss(paramss: List[List[Term.Param]])(implicit ctx: Context): Doc =
     joined(paramss.map(params => dApplyParen(empty, params)))
 
-  def dBody(body: Tree): Doc =
-    dBody(Some(body))
-  def dBody(body: Option[Tree]): Doc =
+  def dBody(body: Tree)(implicit ctx: Context): Doc =
+    dBodyO(Some(body))
+  def dBodyO(body: Option[Tree])(implicit ctx: Context): Doc =
     body.fold(empty) {
       case t: Term.Block =>
         `=` + space + print(t)
@@ -132,7 +233,19 @@ class ScalaPrinter(code: Input, options: Options) {
         `=` + (line + print(t)).nested(2).grouped
     }
 
-  def ddef(
+  def dDefPats(
+      mods: List[Mod],
+      keyword: Doc,
+      pats: List[Pat],
+      tparams: List[Type.Param],
+      paramss: List[List[Term.Param]],
+      decltpe: Option[Type],
+      body: Doc
+  )(implicit ctx: Context): Doc = {
+    val dname = commaSeparated(pats.map(print))
+    dDef(mods, keyword, dname, tparams, paramss, decltpe, body)
+  }
+  def dDef(
       mods: List[Mod],
       keyword: Doc,
       name: Doc,
@@ -140,13 +253,13 @@ class ScalaPrinter(code: Input, options: Options) {
       paramss: List[List[Term.Param]],
       decltpe: Option[Type] = None,
       dbody: Doc = empty
-  ): Doc = {
+  )(implicit ctx: Context): Doc = {
     val dname = dApplyBracket(name, tparams)
     val dparamss = dParamss(paramss)
     val ddecltpe =
       decltpe.fold(empty)(tpe => typedColon(name) + space + print(tpe))
     spaceSeparated(
-      dmods(mods) ::
+      dMods(mods) ::
         keyword ::
         dname + dparamss + ddecltpe ::
         dbody ::
@@ -154,11 +267,12 @@ class ScalaPrinter(code: Input, options: Options) {
     )
   }
 
-  def dStats(stats: List[Stat]): Doc =
+  def dStats(stats: List[Stat])(implicit ctx: Context): Doc =
     intercalate(lineBlank, stats.map(print))
 
-  def dRaw(str: String, quoteStyle: QuoteStyle): Doc = dRaw(str, 0, quoteStyle)
-  def dRaw(str: String, start: Int, quoteStyle: QuoteStyle): Doc = {
+  def dRaw(str: String, quoteStyle: QuoteStyle): Doc =
+    dRawI(str, 0, quoteStyle)
+  def dRawI(str: String, start: Int, quoteStyle: QuoteStyle): Doc = {
     if (start >= str.length) empty
     else {
       val idx = str.indexOf('\n', start)
@@ -168,7 +282,7 @@ class ScalaPrinter(code: Input, options: Options) {
       } else {
         text(str.substring(start, idx)) +
           lineNoFlatNoIndent +
-          dRaw(str, idx + 1, quoteStyle)
+          dRawI(str, idx + 1, quoteStyle)
       }
     }
   }
@@ -182,7 +296,9 @@ class ScalaPrinter(code: Input, options: Options) {
     if (isMultiline(str)) TripleQuotes -> `"""`
     else DoubleQuotes -> `"`
 
-  def dInterpolate(prefix: Name, parts: List[Tree], args: List[Tree]): Doc = {
+  def dInterpolate(prefix: Name, parts: List[Tree], args: List[Tree])(
+      implicit ctx: Context
+  ): Doc = {
 
     def isMultilineInterpolated(part: String): Boolean =
       part.contains("\\n") || isMultiline(part)
@@ -212,26 +328,31 @@ class ScalaPrinter(code: Input, options: Options) {
     }
     print(prefix) + dquote + dhead + sparts + dquote
   }
-  def dParams(params: List[Term.Param]) = params match {
+  def dParams(params: List[Term.Param])(implicit ctx: Context) = params match {
     case Nil => ???
     case param :: Nil => print(param)
     case _ => dApplyParen(empty, params)
   }
 
-  def dPat(pat: Pat): Doc =
+  def dPat(pat: Pat)(implicit ctx: Context): Doc =
     pat match {
       case t: Term.Name if t.value.headOption.exists(_.isLower) =>
         backtick + text(t.value) + backtick
       case _ => print(pat: Tree)
     }
 
-  def print(tree: Tree): Doc =
+  private def print(tree: Tree)(implicit ctx: Context): Doc = {
+    val oldCtx = ctx
     tree match {
       case t: Name =>
         t match {
           case _: Name.Anonymous => empty
           case _ =>
-            text(Identifier.backtickWrap(t.value))
+            logger.elem(t.value, ctx.isPat)
+            val value =
+              if (ctx.isPat) Identifier.backtickWrap(t.value)
+              else t.value
+            text(value)
         }
       case _: Lit =>
         tree match {
@@ -353,6 +474,7 @@ class ScalaPrinter(code: Input, options: Options) {
               case b: Term.Block => space + dBlock(b.stats)
               case _ => (line + print(expr)).nested(2)
             }
+
             val delse =
               if (t.elsep.tokens.isEmpty) empty
               else
@@ -450,7 +572,7 @@ class ScalaPrinter(code: Input, options: Options) {
             space +
               spaceSeparated(cbounds.map(tpe => `:` + space + print(tpe)))
         }
-        dmods(t.mods) +
+        dMods(t.mods) +
           dname +
           dtbounds +
           dvbounds +
@@ -461,7 +583,7 @@ class ScalaPrinter(code: Input, options: Options) {
         val ddefault =
           t.default.fold(empty)(default => space + `=` + print(default))
         spaceSeparated(
-          dmods(t.mods) ::
+          dMods(t.mods) ::
             dname ::
             ddefault ::
             Nil
@@ -475,8 +597,10 @@ class ScalaPrinter(code: Input, options: Options) {
             case None => true
             case _ => true // ???
           }
+
           !isOnlyChildOfOnlyChild(t)
         }
+
         val dstats =
           if (guessHasBraces(t)) space + dBlockI(t.stats)
           else line + dStats(t.stats)
@@ -553,7 +677,7 @@ class ScalaPrinter(code: Input, options: Options) {
           dinits +
           dstats
       case t: Decl.Def =>
-        ddef(
+        dDef(
           t.mods,
           `def`,
           print(t.name),
@@ -562,7 +686,7 @@ class ScalaPrinter(code: Input, options: Options) {
           Some(t.decltpe)
         )
       case t: Defn.Macro =>
-        ddef(
+        dDef(
           t.mods,
           `def`,
           print(t.name),
@@ -572,7 +696,7 @@ class ScalaPrinter(code: Input, options: Options) {
           `=` + space + `macro` + space + print(t.body)
         )
       case t: Defn.Def =>
-        ddef(
+        dDef(
           t.mods,
           `def`,
           print(t.name),
@@ -582,41 +706,41 @@ class ScalaPrinter(code: Input, options: Options) {
           dBody(t.body)
         )
       case t: Defn.Type =>
-        ddef(t.mods, `type`, print(t.name), t.tparams, Nil, None, dBody(t.body))
+        dDef(t.mods, `type`, print(t.name), t.tparams, Nil, None, dBody(t.body))
       case t: Defn.Val =>
-        ddef(t.mods, `val`, t.pats, Nil, Nil, t.decltpe, dBody(t.rhs))
+        dDefPats(t.mods, `val`, t.pats, Nil, Nil, t.decltpe, dBody(t.rhs))
       case t: Defn.Var =>
         val drhs = Some(t.rhs.fold(Term.Placeholder(): Term)(identity))
-        ddef(t.mods, `var`, t.pats, Nil, Nil, t.decltpe, dBody(drhs))
+        dDefPats(t.mods, `var`, t.pats, Nil, Nil, t.decltpe, dBodyO(drhs))
       case t: Decl.Val =>
-        ddef(t.mods, `val`, t.pats, Nil, Nil, Some(t.decltpe), empty)
+        dDefPats(t.mods, `val`, t.pats, Nil, Nil, Some(t.decltpe), empty)
       case t: Decl.Var =>
-        ddef(t.mods, `var`, t.pats, Nil, Nil, Some(t.decltpe), empty)
+        dDefPats(t.mods, `var`, t.pats, Nil, Nil, Some(t.decltpe), empty)
       case t: Decl.Type =>
-        ddef(t.mods, `type`, print(t.name), t.tparams, Nil, None) +
+        dDef(t.mods, `type`, print(t.name), t.tparams, Nil, None) +
           print(t.bounds)
       case t: Defn.Class =>
         val dctormods =
-          if (t.ctor.mods.isEmpty) empty else space + dmods(t.ctor.mods) + space
+          if (t.ctor.mods.isEmpty) empty else space + dMods(t.ctor.mods) + space
         val dsignature =
           dApplyBracket(print(t.name), t.tparams) +
             dctormods +
             dParamss(t.ctor.paramss)
         spaceSeparated(
-          dmods(t.mods) ::
+          dMods(t.mods) ::
             `class` ::
             dsignature ::
             Nil
         ) + print(t.templ)
       case t: Pkg.Object =>
         val ddefn =
-          ddef(t.mods, `package` + space + `object`, print(t.name), Nil, Nil)
+          dDef(t.mods, `package` + space + `object`, print(t.name), Nil, Nil)
         ddefn + print(t.templ)
       case t: Defn.Object =>
-        val ddefn = ddef(t.mods, `object`, print(t.name), Nil, Nil)
+        val ddefn = dDef(t.mods, `object`, print(t.name), Nil, Nil)
         ddefn + print(t.templ)
       case t: Defn.Trait =>
-        val ddefn = ddef(t.mods, `trait`, print(t.name), t.tparams, Nil)
+        val ddefn = dDef(t.mods, `trait`, print(t.name), t.tparams, Nil)
         ddefn + print(t.templ)
       case t: Source =>
         dStats(t.stats)
@@ -624,7 +748,7 @@ class ScalaPrinter(code: Input, options: Options) {
         val dbody =
           if (t.stats.isEmpty) dBody(t.init)
           else `=` + space + dBlock(t.init :: t.stats)
-        ddef(t.mods, `def`, `this`, Nil, t.paramss, None, dbody)
+        dDef(t.mods, `def`, `this`, Nil, t.paramss, None, dbody)
       case m: Mod =>
         m match {
           case t: Mod.Annot => `@` + print(t.init)
@@ -643,6 +767,7 @@ class ScalaPrinter(code: Input, options: Options) {
           case t: Mod.Protected => dWithin(`protected`, t.within)
         }
       case p: Pat =>
+        implicit val ctx: Context = oldCtx.copy(isPat = true)
         p match {
           case t: Pat.Var => print(t.name)
           case t: Pat.Wildcard => wildcard
@@ -664,53 +789,6 @@ class ScalaPrinter(code: Input, options: Options) {
         }
     }
 
-  // TODO(olafur) verify that different precedence of type/term infix operators
-  // does not affect this method:
-  // https://docs.scala-lang.org/sips/make-types-behave-like-expressions.html
-  def dInfix(
-      lhs: Tree,
-      op: String,
-      opDoc: Doc,
-      args: List[Tree]
-  ): Doc = {
-    val opPrecedence = operatorPrecedence(op)
-    val dlhs: Doc = lhs match {
-      case arg @ Term.ApplyInfix(_, Term.Name(lop), _, _) =>
-        val darg = print(arg)
-        val leftPrecedence = operatorPrecedence(lop)
-        if (isRightAssociative(op)) {
-          if (leftPrecedence >= opPrecedence) wrapParens(darg)
-          else darg
-        } else {
-          if (leftPrecedence < opPrecedence) wrapParens(darg)
-          else darg
-        }
-      case _ =>
-        if (needsParens(lhs)) wrapParens(print(lhs))
-        else print(lhs)
-    }
-    val dargs: Doc = args match {
-      case LambdaArg(doc) => doc
-      case Lit.Unit() :: Nil => `(` + `(` + `)` + `)`
-      case (arg @ Infix(rop)) :: Nil =>
-        val darg = print(arg)
-        val rightPrecedence = operatorPrecedence(rop)
-        if (isRightAssociative(op)) {
-          if (rightPrecedence > opPrecedence) wrapParens(darg)
-          else darg
-        } else {
-          if (rightPrecedence <= opPrecedence) wrapParens(darg)
-          else darg
-        }
-      case arg :: Nil =>
-        if (needsParens(arg)) {
-          dApplyParen(empty, args)
-        } else {
-          print(arg)
-        }
-      case _ => dApplyParen(empty, args)
-    }
-    dlhs + space + opDoc + space + dargs
   }
 
   object Infix {
@@ -752,49 +830,4 @@ class ScalaPrinter(code: Input, options: Options) {
       }
     }
 
-  implicit class XtensionTreeDoc(tree: Tree) {
-    def wrapped: Doc = {
-      val doc = print(tree)
-      if (needsParens(tree)) wrapParens(doc)
-      else doc
-    }
-  }
-
-  def wrapParens(doc: Doc) = `(` + doc + `)`
-  def isRightAssociative(op: String) = op.endsWith(":")
-
-  object LambdaArg {
-    type Paramss = Vector[List[Term.Param]]
-    @tailrec
-    private final def getParamss(
-        f: Term.Function,
-        accum: Paramss = Vector.empty
-    ): (Paramss, Term) =
-      f.body match {
-        case g: Term.Function =>
-          getParamss(g, accum :+ f.params)
-        case Term.Block((g: Term.Function) :: Nil) =>
-          getParamss(g, accum :+ f.params)
-        case _ =>
-          (accum :+ f.params, f.body)
-      }
-    def unapply(args: List[Tree]): Option[Doc] = args match {
-      case (arg: Term.PartialFunction) :: Nil => Some(print(arg))
-      case (Term.Block((f: Term.Function) :: Nil)) :: Nil =>
-        val (paramss, body) = getParamss(f)
-        val dbody = body match {
-          case Term.Block(stats) => dStats(stats)
-          case _ => print(body)
-        }
-        val dparamss = paramss.foldLeft(empty) {
-          case (accum, params) =>
-            accum + line + dParams(params) + space + `=>`
-        }
-        val result = `{` +
-          (dparamss.nested(2).grouped + line + dbody).nested(2).grouped +
-          line + `}`
-        Some(result.grouped)
-      case _ => None
-    }
-  }
 }

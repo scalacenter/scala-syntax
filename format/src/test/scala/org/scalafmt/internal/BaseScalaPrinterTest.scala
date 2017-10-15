@@ -79,17 +79,17 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     val expected = expected2.replace("'''", "\"\"\"")
     val testName = logger.revealWhitespace(original)
     test(testName) {
-      val printer = new ScalaPrinter(original, options)
-      val obtained = printer.print(printer.root).render(options.maxColumn)
-      val printer2 = new ScalaPrinter(obtained, options)
-      isSameTree(testName, printer.root, printer2.root) match {
+      val root = ScalaPrinter.getRoot(original, options)
+      val obtained =
+        ScalaPrinter.printTree(root, options).render(options.maxColumn)
+      val root2 = ScalaPrinter.getRoot(obtained, options)
+      isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
-          logger.elem(obtained)
           fail("AST changed!\n" + astDiff)
         case Right(()) =>
           assertNoDiff(obtained, expected)
           val obtained2 =
-            printer2.print(printer2.root).render(options.maxColumn)
+            ScalaPrinter.printTree(root2, options).render(options.maxColumn)
           assertNoDiff(obtained, obtained2, "Idempotency violated!")
       }
     }
