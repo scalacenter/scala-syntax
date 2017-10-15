@@ -7,6 +7,7 @@ import org.typelevel.paiges.Doc.lineBreak
 import org.typelevel.paiges.Doc.text
 
 object ScalaToken {
+  val backtick : Doc = char('`')
   val `@` : Doc = char('@')
   val `*` : Doc = char('*')
   val `.` : Doc = char('.')
@@ -37,6 +38,7 @@ object ScalaToken {
   val `while`: Doc = text("while")
   val `new`: Doc = text("new")
   val `override`: Doc = text("override")
+  val `macro`: Doc = text("macro")
   val `lazy`: Doc = text("lazy")
   val `implicit`: Doc = text("implicit")
   val `abstract`: Doc = text("abstract")

@@ -12,6 +12,7 @@ import org.langmeta.inputs.Input
 import org.langmeta.internal.io.FileIO
 import org.langmeta.internal.io.PathIO
 import org.langmeta.io.AbsolutePath
+import org.scalafmt.internal.Context
 import org.scalafmt.internal.ScalaPrinter
 
 trait Options {
@@ -60,7 +61,12 @@ object Format {
     format(code, Options.default)
   }
   def format(code: String, options: Options): String = {
-    val printer = new ScalaPrinter(Input.String(code), options)
-    printer.print(printer.root).render(options.maxColumn)
+    format(Input.String(code), options)
+  }
+  def format(code: Input, options: Options): String = {
+    implicit val ctx = Context(options)
+    ScalaPrinter
+      .printInput(code, options)
+      .render(options.maxColumn)
   }
 }
