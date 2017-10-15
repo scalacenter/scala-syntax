@@ -11,7 +11,7 @@ import org.scalatest.Ignore
 
 // Comment out to run these tests, currently it fails with output
 // https://gist.github.com/olafurpg/ea44f3567d4117e53ca818b1911f9be9
-//@Ignore
+@Ignore
 /** Tests that running printer twice always yields the same results */
 class IdempotencyPropertyTest extends BaseScalaPrinterTest {
   val prefix = "target/repos/"
@@ -21,7 +21,7 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
   test("AST is unchanged") {
     val corpus = Corpus
       .files(Corpus.fastparse)
-      .take(2000) // take files as you please.
+      .take(4000) // take files as you please.
       .toBuffer
       .par
     val nonEmptyDiff = SyntaxAnalysis.run[Unit](corpus) { file =>

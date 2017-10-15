@@ -34,8 +34,9 @@ import ScalaToken._
 import org.langmeta.inputs.Input
 import org.scalameta.logger
 import TreeOps._
+import scala.meta.internal.format.FormatTree._
 
-case class Context(options: Options, isPat: Boolean = false)
+case class Context(options: Options)
 
 object ScalaPrinter {
 
@@ -55,6 +56,7 @@ object ScalaPrinter {
     implicit val ctx = Context(options)
     print(root)
   }
+
   implicit class XtensionTreeDoc(tree: Tree) {
     def wrapped(implicit ctx: Context): Doc = {
       val doc = print(tree)
@@ -119,21 +121,22 @@ object ScalaPrinter {
           if (leftPrecedence >= opPrecedence) wrapParens(darg)
           else darg
         } else {
-          if (leftPrecedence < opPrecedence) wrapParens(darg)
+          if (isRightAssociative(lop)) wrapParens(darg)
+          else if (leftPrecedence < opPrecedence) wrapParens(darg)
           else darg
         }
       case _ =>
-        if (needsParens(lhs)) wrapParens(print(lhs))
-        else print(lhs)
+        lhs.wrapped
     }
     val dargs: Doc = args match {
       case LambdaArg(doc) => doc
       case Lit.Unit() :: Nil => `(` + `(` + `)` + `)`
       case (arg @ Infix(rop)) :: Nil =>
-        val darg = print(arg)
         val rightPrecedence = operatorPrecedence(rop)
+        val darg = print(arg)
         if (isRightAssociative(op)) {
-          if (rightPrecedence > opPrecedence) wrapParens(darg)
+          if (!isRightAssociative(rop)) wrapParens(darg)
+          else if (rightPrecedence > opPrecedence) wrapParens(darg)
           else darg
         } else {
           if (rightPrecedence <= opPrecedence) wrapParens(darg)
@@ -271,13 +274,15 @@ object ScalaPrinter {
     intercalate(lineBlank, stats.map(print))
 
   def dRaw(str: String, quoteStyle: QuoteStyle): Doc =
-    dRawI(str, 0, quoteStyle)
-  def dRawI(str: String, start: Int, quoteStyle: QuoteStyle): Doc = {
+    dRawI(str, 0, Some(quoteStyle))
+  def dRawI(str: String, start: Int, quoteStyle: Option[QuoteStyle]): Doc = {
     if (start >= str.length) empty
     else {
       val idx = str.indexOf('\n', start)
       if (idx < 0) {
-        val escaped = SyntaxOps.escape(str.substring(start), quoteStyle)
+        val substr = str.substring(start)
+        val escaped =
+          quoteStyle.fold(substr)(style => SyntaxOps.escape(substr, style))
         text(escaped)
       } else {
         text(str.substring(start, idx)) +
@@ -305,18 +310,10 @@ object ScalaPrinter {
     val isTripleQuoted = parts.exists {
       case Lit.String(part) => isMultiline(part)
     }
-    val quoteStyle: QuoteStyle =
-      if (isTripleQuoted) TripleQuotes
-      else {
-        // TODO(olafur) this should be DoubleQuotes, hacky workaround for
-        // https://github.com/scalameta/scalameta/issues/1134
-        TripleQuotes
-      }
-    def escape(part: String) = dRaw(part.replace("$", "$$"), quoteStyle)
+    def escape(part: String) = dRawI(part.replace("$", "$$"), 0, None)
     val dquote = if (isTripleQuoted) `"""` else `"`
     val dhead = parts.head match {
       case Lit.String(value) =>
-        logger.elem(value)
         escape(value)
     }
     val sparts = parts.tail.zip(args).foldLeft(empty) {
@@ -330,29 +327,28 @@ object ScalaPrinter {
   }
   def dParams(params: List[Term.Param])(implicit ctx: Context) = params match {
     case Nil => ???
-    case param :: Nil => print(param)
+    case param :: Nil =>
+      if (param.decltpe.isEmpty) print(param)
+      else param.wrapped
     case _ => dApplyParen(empty, params)
   }
 
-  def dPat(pat: Pat)(implicit ctx: Context): Doc =
+  def dPat(pat: Tree)(implicit ctx: Context): Doc =
+    print(mkPat(pat))
+  def mkPat(pat: Tree)(implicit ctx: Context): Tree =
     pat match {
       case t: Term.Name if t.value.headOption.exists(_.isLower) =>
-        backtick + text(t.value) + backtick
-      case _ => print(pat: Tree)
+        PatName(t.value)
+      case _ => pat
     }
 
   private def print(tree: Tree)(implicit ctx: Context): Doc = {
-    val oldCtx = ctx
     tree match {
       case t: Name =>
         t match {
           case _: Name.Anonymous => empty
-          case _ =>
-            logger.elem(t.value, ctx.isPat)
-            val value =
-              if (ctx.isPat) Identifier.backtickWrap(t.value)
-              else t.value
-            text(value)
+          case _: PatName => backtick + text(t.value) + backtick
+          case _ => text(Identifier.backtickWrap(t.value))
         }
       case _: Lit =>
         tree match {
@@ -424,10 +420,10 @@ object ScalaPrinter {
           case t: Type.Function =>
             val dparams = t.params match {
               case Nil => `(` + `)`
-              case param :: Nil if !param.is[Type.Tuple] => print(param)
+              case param :: Nil if !param.is[Type.Tuple] => param.wrapped
               case params => dApplyParen(empty, params)
             }
-            dparams + space + `=>` + space + print(t.res)
+            dparams + space + `=>` + space + t.res.wrapped
           case t: Type.Tuple => dApplyParen(empty, t.args)
           case t: Type.Project => print(t.qual) + `#` + print(t.name)
           case t: Type.Singleton =>
@@ -539,7 +535,8 @@ object ScalaPrinter {
               case LambdaArg(arg) => dfun + space + arg
               case _ => dApplyParen(dfun, t.args)
             }
-          case t: Term.ApplyType => dApplyBracket(print(t.fun), t.targs)
+          case t: Term.ApplyType =>
+            dApplyBracket(t.fun.wrapped, t.targs)
           case t: Term.ApplyInfix =>
             val dop = dApplyBracket(print(t.op), t.targs)
             dInfix(t.lhs, t.op.value, dop, t.args)
@@ -627,7 +624,7 @@ object ScalaPrinter {
       case t: Init =>
         val dfun = t.tpe match {
           case Type.Singleton(Term.This(Name.Anonymous())) => `this`
-          case _ => print(t.tpe) + print(t.name)
+          case _ => t.tpe.wrapped + print(t.name)
         }
         val dinit = t.argss.foldLeft(dfun) {
           case (accum, args) => dApplyParen(accum, args)
@@ -767,13 +764,13 @@ object ScalaPrinter {
           case t: Mod.Protected => dWithin(`protected`, t.within)
         }
       case p: Pat =>
-        implicit val ctx: Context = oldCtx.copy(isPat = true)
         p match {
           case t: Pat.Var => print(t.name)
           case t: Pat.Wildcard => wildcard
           case t: Pat.SeqWildcard => wildcard + `*`
           case t: Pat.Bind =>
-            print(t.lhs) + space + `@` + space + dPat(t.rhs)
+            val drhs = mkPat(t.rhs).wrapped
+            print(t.lhs) + space + `@` + space + drhs
           case t: Pat.Alternative =>
             dPat(t.lhs) + space + `|` + space + dPat(t.rhs)
           case t: Pat.Tuple =>
@@ -781,7 +778,7 @@ object ScalaPrinter {
           case t: Pat.Extract =>
             dApplyParenPat(print(t.fun), t.args)
           case t: Pat.ExtractInfix =>
-            dInfix(t.lhs, t.op.value, print(t.op), t.rhs)
+            dInfix(mkPat(t.lhs), t.op.value, print(t.op), t.rhs)
           case t: Pat.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Pat.Typed =>
@@ -829,5 +826,4 @@ object ScalaPrinter {
         }
       }
     }
-
 }

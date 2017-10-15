@@ -5,11 +5,11 @@ import scala.meta.Pat
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
+import scala.meta.internal.format.FormatTree.PatName
 import scala.meta.internal.prettyprinters.DoubleQuotes
 import scala.meta.internal.prettyprinters.QuoteStyle
 import scala.meta.internal.prettyprinters.SingleQuotes
 import scala.meta.internal.prettyprinters.TripleQuotes
-import org.scalameta.logger
 
 object TreeOps {
 
@@ -17,8 +17,9 @@ object TreeOps {
   // a small set of whitelisted tree nodes.
   def needsParens(tree: Tree): Boolean = tree match {
     case _: Term.Name | _: Type.Name | _: Lit | _: Term.Interpolate |
-        _: Term.Apply | _: Term.ApplyType | _: Term.Select | _: Type.Select |
-        _: Term.Super | _: Term.This | _: Pat.Var | _: Pat.Tuple =>
+        _: Term.Apply | _: Term.ApplyType | _: Type.Apply | _: Term.Select |
+        _: Type.Select | _: Term.Super | _: Term.This | _: Pat.Var |
+        _: Pat.Tuple | _: PatName | _: Pat.Extract | _: Term.Placeholder | _: Pat.Wildcard =>
       false
     case _ => true
   }
@@ -32,7 +33,6 @@ object SyntaxOps {
       // TODO(olafur) escape triple quotes
       sb.append(s)
     } else {
-      s.foreach(ch => logger.elem(logger.revealWhitespace(ch.toString)))
       s.foreach {
         case '\t' => sb.append("\\t")
         case '\b' => sb.append("\\b")
