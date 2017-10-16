@@ -21,6 +21,7 @@ object TreeOps {
         _: Type.Select | _: Term.Super | _: Term.This | _: Pat.Var |
         _: Pat.Tuple | _: PatName | _: Pat.Extract | _: Term.Placeholder | _: Pat.Wildcard =>
       false
+    case t: Term.New => t.init.argss.isEmpty
     case _ => true
   }
 

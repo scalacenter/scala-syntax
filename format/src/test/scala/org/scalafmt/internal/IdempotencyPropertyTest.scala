@@ -21,7 +21,7 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
   test("AST is unchanged") {
     val corpus = Corpus
       .files(Corpus.fastparse)
-      .take(4000) // take files as you please.
+      .take(7000) // take files as you please.
       .toBuffer
       .par
     val nonEmptyDiff = SyntaxAnalysis.run[Unit](corpus) { file =>
@@ -31,14 +31,15 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
         val tree = in.parse[Source].get
         val formatted = Format.format(in)
         val tree2 = formatted.parse[Source].get
-        if (StructurallyEqual(tree, tree2).isRight) Nil
+        val treeNorm = normalize(tree)
+        val tree2Norm = normalize(tree2)
+        if (StructurallyEqual(treeNorm, tree2Norm).isRight) Nil
         else {
-          val diff = getDiff(file.jFile.getAbsolutePath, tree, tree2)
+          val diff = getDiff(file.jFile.getAbsolutePath, treeNorm, tree2Norm)
           if (diff.nonEmpty) {
             logger.elem(diff)
             () :: Nil
-          }
-          else Nil
+          } else Nil
         }
       } catch {
         case NonFatal(e) =>

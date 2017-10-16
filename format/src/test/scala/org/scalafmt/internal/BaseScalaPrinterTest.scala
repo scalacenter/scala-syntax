@@ -4,7 +4,9 @@ import scala.meta.Tree
 import scala.meta.dialects
 import scala.meta.internal.ScalametaInternal
 import scala.meta.parsers.Parse
+import scala.meta.testkit.AnyDiff
 import scala.meta.testkit.StructurallyEqual
+import scala.meta.transversers.Transformer
 import scalafix.diff.DiffUtils
 import org.langmeta.inputs.Input
 import org.scalafmt.Format
@@ -67,8 +69,31 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     check(original, expected, defaultOptions)
   }
 
-  def isSameTree(filename: String, a: Tree, b: Tree): Either[String, Unit] =
-    StructurallyEqual(a, b).left.map(_ => getDiff(filename, a, b))
+  object normalize extends Transformer {
+    import scala.meta._
+
+    val transform: PartialFunction[Tree, Tree] = {
+      case Term.ApplyInfix(lhs, op, targs, args) =>
+        if (targs.isEmpty) q"$lhs.$op(..$args)"
+        else q"$lhs.$op[..$targs](..$args)"
+      case Term.Block((f @ Term.PartialFunction(_)) :: Nil) =>
+        f
+      case f @ Term.Function(_, Term.Block(_ :: _ :: _))
+          if !f.parent.exists(_.is[Term.Block]) =>
+        Term.Block(f :: Nil)
+    }
+
+    override def apply(tree: Tree): Tree = {
+      super.apply(transform.lift(tree).getOrElse(tree))
+    }
+  }
+
+  def isStructurallyEqual(a: Tree, b: Tree): Either[AnyDiff, Unit] =
+    StructurallyEqual(normalize(a), normalize(b))
+
+  def isSameTree(filename: String, a: Tree, b: Tree): Either[String, Unit] = {
+    isStructurallyEqual(a, b).left.map(_ => getDiff(filename, a, b))
+  }
 
   def check(
       original2: String,
