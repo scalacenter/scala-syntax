@@ -17,7 +17,8 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("var a = 1")
   check("def a = 1")
   check("def a(b: B) = 1")
-  check("def a[A](b: B) = 1")
+  check("def a[A](b: B = c) = 1")
+  check("def a(implicit b: B, c: C) = b")
   check("val a: Int = 1")
   check("var a: Int = 1")
   check("def a: Int = 1")
@@ -104,7 +105,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   checkEnumerator("`a` <- b")
   checkEnumerator("a <- b")
   checkEnumerator("a = b")
-  checkCase("case `elem` :: _ =>")
+  checkCase("case `a` :: `b` :: _ =>")
 
   // term
   check("'c'")
@@ -179,6 +180,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
       |} yield a""".stripMargin
   )
   check("try a catch b")
+  check("try a finally b()")
   check("try a catch { case _: A => } finally c")
   check("a match { case 1 => }")
   check("(if (a) b else c) match { case 1 => }")
@@ -254,6 +256,39 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("a { b => implicit c => d }")
   check("a { implicit b => implicit c => d }")
   check("""a("\\n")""")
+  check("""a("[\" \\u00e4\\u00e4li\\u00f6t\"]") """.stripMargin)
+  check("""
+          |a(
+          |  b,
+          |  { implicit c =>
+          |    d
+          |
+          |    e
+          |  }
+          |)
+        """.stripMargin)
+  check(
+    """
+      |a {
+      |  b
+      |
+      |  c
+      |}
+    """.stripMargin)
+  check(
+    """
+      |if (a)
+      |  b
+      |else if (c)
+      |  d
+      |else {
+      |  a
+      |
+      |  b
+      |}
+    """.stripMargin)
+  check("(new A).a")
+  check("new A().a")
 
   // infix precedence/associativity
   check("(a :!= b) == c")

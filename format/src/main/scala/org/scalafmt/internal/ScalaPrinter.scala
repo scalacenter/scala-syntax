@@ -83,24 +83,32 @@ object ScalaPrinter {
         case _ =>
           (accum :+ f.params, f.body)
       }
+
+    def dFunction(f: Term.Function)(implicit ctx: Context): Doc = {
+      val (paramss, body) = getParamss(f)
+      val dbody = body match {
+        case Term.Block(stats) => dStats(stats)
+        case _ => print(body)
+      }
+      val dparamss = paramss.foldLeft(empty) {
+        case (accum, params) =>
+          accum + line + dParams(params) + space + `=>`
+      }
+      val result = `{` +
+        (dparamss.nested(2).grouped + line + dbody).nested(2).grouped +
+        line + `}`
+      result.grouped
+    }
     def unapply(args: List[Tree])(implicit ctx: Context): Option[Doc] =
       args match {
-        case (arg: Term.PartialFunction) :: Nil => Some(print(arg))
+        case (arg: Term.PartialFunction) :: Nil =>
+          Some(print(arg))
+        case (arg @ Term.Function(_, Term.Block(_ :: _ :: _))) :: Nil =>
+          Some(dFunction(arg))
         case (Term.Block((f: Term.Function) :: Nil)) :: Nil =>
-          val (paramss, body) = getParamss(f)
-          val dbody = body match {
-            case Term.Block(stats) => dStats(stats)
-            case _ => print(body)
-          }
-          val dparamss = paramss.foldLeft(empty) {
-            case (accum, params) =>
-              accum + line + dParams(params) + space + `=>`
-          }
-          val result = `{` +
-            (dparamss.nested(2).grouped + line + dbody).nested(2).grouped +
-            line + `}`
-          Some(result.grouped)
-        case _ => None
+          Some(dFunction(f))
+        case _ =>
+          None
       }
   }
   // TODO(olafur) verify that different precedence of type/term infix operators
@@ -224,7 +232,18 @@ object ScalaPrinter {
   def dMods(mods: List[Mod])(implicit ctx: Context): Doc =
     intercalate(space, mods.map(print))
   def dParamss(paramss: List[List[Term.Param]])(implicit ctx: Context): Doc =
-    joined(paramss.map(params => dApplyParen(empty, params)))
+    joined(paramss.map {
+      case param :: ps if param.mods.has[Mod.Implicit] =>
+        dApplyParen(
+          empty,
+          // TODO(olafur) figure out more efficient way to remove implicit modifiers
+          param :: ps.map(
+            p => p.copy(mods = p.mods.filterNot(_.is[Mod.Implicit]))
+          )
+        )
+      case params =>
+        dApplyParen(empty, params)
+    })
 
   def dBody(body: Tree)(implicit ctx: Context): Doc =
     dBodyO(Some(body))
@@ -293,8 +312,8 @@ object ScalaPrinter {
   }
 
   def isMultiline(part: String): Boolean = {
-    part.contains("\n") ||
-    (part.contains("\"") && !part.contains("\"\"\""))
+    part.contains("\n") &&
+    !part.contains("\"\"\"")
   }
 
   def dQuote(str: String): (QuoteStyle, Doc) =
@@ -468,6 +487,7 @@ object ScalaPrinter {
           case t: Term.If =>
             def body(expr: Term) = expr match {
               case b: Term.Block => space + dBlock(b.stats)
+              case _: Term.If => space + print(expr)
               case _ => (line + print(expr)).nested(2)
             }
 
@@ -484,7 +504,11 @@ object ScalaPrinter {
           case t: Term.ForYield =>
             `for` + space + dBlock(t.enums) + space +
               `yield` + space + print(t.body)
-          case t: Term.Block => dBlock(t.stats)
+          case t: Term.Block =>
+            t.stats match {
+              case LambdaArg(doc) => doc
+              case _ => dBlock(t.stats)
+            }
           case t: Term.PartialFunction =>
             dBlock(t.cases)
           case t: Term.Function =>
@@ -495,10 +519,15 @@ object ScalaPrinter {
           case t: Term.Match =>
             t.expr.wrapped + space + `match` + space + dBlock(t.cases)
           case t: Term.Try =>
-            val dtry = `try` + space + print(t.expr) + line +
-              `catch` + space + dBlock(t.catchp) +
+            val dtry = `try` + space + print(t.expr)
+            val dcatch =
+              if (t.catchp.isEmpty) empty
+              else {
+                line + `catch` + space + dBlock(t.catchp)
+              }
+            val dfinally =
               t.finallyp.fold(empty)(f => line + `finally` + space + print(f))
-            dtry.grouped
+            (dtry + dcatch + dfinally).grouped
           case t: Term.TryWithHandler =>
             val dtry = `try` + space + print(t.expr) + line +
               `catch` + space + print(t.catchp) +
@@ -533,6 +562,7 @@ object ScalaPrinter {
             val dfun = dPath(t.fun, print(t.fun), empty, empty)
             t.args match {
               case LambdaArg(arg) => dfun + space + arg
+              case Term.Block(stats) :: Nil => dfun + space + dBlock(stats)
               case _ => dApplyParen(dfun, t.args)
             }
           case t: Term.ApplyType =>
@@ -578,7 +608,7 @@ object ScalaPrinter {
         val dname =
           t.decltpe.fold(print(t.name))(tpe => dTyped(t.name, tpe))
         val ddefault =
-          t.default.fold(empty)(default => space + `=` + print(default))
+          t.default.fold(empty)(default => `=` + space + print(default))
         spaceSeparated(
           dMods(t.mods) ::
             dname ::
