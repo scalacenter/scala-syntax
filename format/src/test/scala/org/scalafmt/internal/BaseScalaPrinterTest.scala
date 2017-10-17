@@ -73,6 +73,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     import scala.meta._
 
     val transform: PartialFunction[Tree, Tree] = {
+      case Term.Block(a :: Nil) => a
       case Term.ApplyInfix(lhs, op, targs, args) =>
         if (targs.isEmpty) q"$lhs.$op(..$args)"
         else q"$lhs.$op[..$targs](..$args)"
@@ -84,7 +85,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     }
 
     override def apply(tree: Tree): Tree = {
-      super.apply(transform.lift(tree).getOrElse(tree))
+      super.apply(transform.lift(tree).map(this.apply).getOrElse(tree))
     }
   }
 

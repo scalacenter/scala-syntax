@@ -19,10 +19,20 @@ object TreeOps {
     case _: Term.Name | _: Type.Name | _: Lit | _: Term.Interpolate |
         _: Term.Apply | _: Term.ApplyType | _: Type.Apply | _: Term.Select |
         _: Type.Select | _: Term.Super | _: Term.This | _: Pat.Var |
-        _: Pat.Tuple | _: PatName | _: Pat.Extract | _: Term.Placeholder | _: Pat.Wildcard =>
+        _: Pat.Tuple | _: PatName | _: Pat.Extract | _: Term.Placeholder |
+        _: Pat.Wildcard =>
       false
     case t: Term.New => t.init.argss.isEmpty
     case _ => true
+  }
+
+  object Infix {
+    def unapply(arg: Tree): Option[String] = arg match {
+      case Term.ApplyInfix(_, Term.Name(op), _, _) => Some(op)
+      case Type.ApplyInfix(_, Type.Name(op), _) => Some(op)
+      case Pat.ExtractInfix(_, Term.Name(op), _) => Some(op)
+      case _ => None
+    }
   }
 
 }
@@ -54,6 +64,14 @@ object SyntaxOps {
 }
 
 object TokenOps {
+  import scala.meta.internal.trees._
+  // http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
+  def isAssignmentOperator(op: String): Boolean =
+    Term.Name(op).isAssignmentOp
+
+  // http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
+  def operatorPrecedence(op: String): Int =
+    Term.Name(op).precedence
 
   /** Returns true if this token is an identifier that requires a leading space before colon.
     *
@@ -66,9 +84,13 @@ object TokenOps {
     *
     **/
   def needsLeadingSpaceBeforeColon(name: String): Boolean =
-    name.lastOption.exists {
-      case '`' => false
-      case ch => !ch.isLetterOrDigit
+    name match {
+      case "_" => false
+      case _ =>
+        name.lastOption.exists {
+          case '`' => false
+          case ch => !ch.isLetterOrDigit
+        }
     }
 
   def isIdentifierStart(value: String): Boolean =
