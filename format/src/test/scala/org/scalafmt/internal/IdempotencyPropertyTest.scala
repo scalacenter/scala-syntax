@@ -6,6 +6,7 @@ import scala.meta.testkit.StructurallyEqual
 import scala.meta.testkit.SyntaxAnalysis
 import scala.util.control.NonFatal
 import org.scalafmt.Format
+import org.scalafmt.Options
 import org.scalameta.logger
 import org.scalatest.Ignore
 
@@ -24,13 +25,17 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
       .take(7000) // take files as you please.
       .toBuffer
       .par
+    val options = Options.default
     val nonEmptyDiff = SyntaxAnalysis.run[Unit](corpus) { file =>
       try {
         val in = file.read
         import scala.meta._
-        val tree = in.parse[Source].get
-        val formatted = Format.format(in)
-        val tree2 = formatted.parse[Source].get
+        def input(str: String) =
+          Input.VirtualFile(file.jFile.getAbsolutePath, str)
+        val tree = input(in).parse[Source].get
+        val formatted =
+          ScalaPrinter.printTree(tree, options).render(options.maxColumn)
+        val tree2 = input(formatted).parse[Source].get
         val treeNorm = normalize(tree)
         val tree2Norm = normalize(tree2)
         if (StructurallyEqual(treeNorm, tree2Norm).isRight) Nil
@@ -43,7 +48,12 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
         }
       } catch {
         case NonFatal(e) =>
-          Nil
+          val st = e.getStackTrace
+            .filter(_.getClassName.startsWith("org.scalafmt"))
+            .take(10)
+          e.setStackTrace(st)
+//          e.printStackTrace()
+          () :: Nil
       }
     }
     if (nonEmptyDiff.nonEmpty) fail("diffs.nonEmpty!")

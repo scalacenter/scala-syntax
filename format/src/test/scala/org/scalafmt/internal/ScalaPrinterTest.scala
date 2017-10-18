@@ -106,6 +106,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   checkEnumerator("a <- b")
   checkEnumerator("a = b")
   checkCase("case `a` :: `b` :: _ =>")
+  checkCase(""" case a b `c` =>""")
 
   // term
   check("'c'")
@@ -160,7 +161,9 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("a op[T] b")
   check("a(b => c)")
   check("a((b: B) => c)")
+  check("a(() => b)")
   check("a { case 1 => }")
+    check("forAll { (f: Long => Long) => a }")
   check(
     """a {
       |  case 1 =>
@@ -289,6 +292,9 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
     """.stripMargin)
   check("(new A).a")
   check("new A().a")
+  check("a(_ => b)")
+  check("a { _: B => b }")
+  check("a { b: B => b }")
 
   // infix precedence/associativity
   check("(a :!= b) == c")
@@ -313,4 +319,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("(a /: b) to 5")
   check("r /: (1 to 5)")
   check("a(b :: (c d e):_*)")
+  check("(a := b) op c")
+  check("a t_= (a b c)")
+  check("(a b c) +: d")
 }
