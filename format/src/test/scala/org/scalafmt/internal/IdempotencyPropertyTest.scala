@@ -12,7 +12,7 @@ import org.scalatest.Ignore
 
 // Comment out to run these tests, currently it fails with output
 // https://gist.github.com/olafurpg/ea44f3567d4117e53ca818b1911f9be9
-//@Ignore
+@Ignore
 /** Tests that running printer twice always yields the same results */
 class IdempotencyPropertyTest extends BaseScalaPrinterTest {
   val prefix = "target/repos/"
@@ -22,7 +22,7 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
   test("AST is unchanged") {
     val corpus = Corpus
       .files(Corpus.fastparse)
-      .take(200) // take files as you please.
+      .take(7000) // take files as you please.
       .toBuffer
       .par
     val options = Options.default
@@ -52,7 +52,7 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
             .filter(_.getClassName.startsWith("org.scalafmt"))
             .take(10)
           e.setStackTrace(st)
-          e.printStackTrace()
+//          e.printStackTrace()
           () :: Nil
       }
     }

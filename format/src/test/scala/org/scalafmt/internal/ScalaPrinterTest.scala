@@ -187,6 +187,8 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("try a finally b()")
   check("try a catch { case _: A => } finally c")
   check("a match { case 1 => }")
+  check("""(a: @switch) match { case _ => b }""".stripMargin)
+  check("""a((throw b): B)""")
   check("(if (a) b else c) match { case 1 => }")
   check("this")
   check("a((a ++ b)[A] == c)")

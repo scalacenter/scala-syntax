@@ -58,6 +58,12 @@ object ScalaPrinter {
     print(root)
   }
 
+  implicit class XtensionDoc(doc: Doc) {
+    def wrapped(underlying: Tree): Doc =
+      if (needsParens(underlying)) wrapParens(doc)
+      else doc
+  }
+
   implicit class XtensionTreeDoc(tree: Tree) {
     def wrapped(implicit ctx: Context): Doc = {
       val doc = print(tree)
@@ -201,8 +207,12 @@ object ScalaPrinter {
   }
 
   def dTyped(lhs: Tree, rhs: Tree)(implicit ctx: Context): Doc = {
+    dTyped(lhs, print(rhs))
+  }
+  def dTyped(lhs: Tree, rhs: Doc)(implicit ctx: Context): Doc = {
     val dlhs = dName(lhs)
-    dlhs + typedColon(dlhs) + space + print(rhs)
+    if (needsParens(lhs)) wrapParens(dlhs) + `:` + space + rhs
+    else dlhs + typedColon(dlhs) + space + rhs
   }
 
   def dBlock(stats: List[Tree])(implicit ctx: Context): Doc =
@@ -555,11 +565,11 @@ object ScalaPrinter {
           case t: Term.Throw =>
             `throw` + space + print(t.expr)
           case t: Term.Annotate =>
-            `(` + spaceSeparated(print(t.expr) :: t.annots.map(print)) + `)`
+            dTyped(t.expr, spaceSeparated(t.annots.map(print)))
           case t: Term.NewAnonymous =>
             `new` + print(t.templ)
           case t: Term.Ascribe =>
-            `(` + dTyped(t.expr, t.tpe) + `)`
+            dTyped(t.expr, t.tpe)
           case t: Term.Eta =>
             print(t.expr) + space + `wildcard`
           case t: Term.ApplyUnary =>

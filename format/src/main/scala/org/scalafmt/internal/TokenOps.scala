@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import scala.meta.Lit
+import scala.meta.Name
 import scala.meta.Pat
 import scala.meta.Term
 import scala.meta.Tree
@@ -16,13 +17,14 @@ object TreeOps {
   // This method is pessimistic, it assumes all trees requires parens except
   // a small set of whitelisted tree nodes.
   def needsParens(tree: Tree): Boolean = tree match {
-    case _: Term.Name | _: Type.Name | _: Lit | _: Term.Interpolate |
-        _: Term.Apply | _: Term.ApplyType | _: Type.Apply | _: Term.Select |
-        _: Type.Select | _: Term.Super | _: Term.This | _: Pat.Var |
-        _: Pat.Tuple | _: PatName | _: Pat.Extract | _: Term.Placeholder |
-        _: Pat.Wildcard =>
+    case _: Term.Name | _: Type.Name | _: Name.Anonymous | _: Lit |
+        _: Term.Interpolate | _: Term.Apply | _: Term.ApplyType |
+        _: Type.Apply | _: Term.Select | _: Type.Select | _: Term.Super |
+        _: Term.This | _: Pat.Var | _: Pat.Tuple | _: PatName | _: Pat.Extract |
+        _: Term.Placeholder | _: Pat.Wildcard =>
       false
     case t: Term.New => t.init.argss.isEmpty
+//    case t: Term.Annotate => false // NOTE(olafur) because we always wrap Term.Annotate
     case _ => true
   }
 
