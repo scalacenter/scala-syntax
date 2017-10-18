@@ -54,6 +54,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("class A[B] extends C with D { val a = 1 }")
   check("object A extends B with C { val x = 1 }")
   check("trait a { self: D => }")
+  check("trait A { _: A => }")
   check("class A extends { var x = 2 } with B")
   check("class A extends B[C](1)")
   check("def this(a: A) = this(a)")

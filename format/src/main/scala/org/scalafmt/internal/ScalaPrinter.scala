@@ -672,8 +672,11 @@ object ScalaPrinter {
         dinit
       case t: Self =>
         val dname = t.name match {
-          case Name.Anonymous() => empty
-          case _ => print(t.name)
+          case Name.Anonymous() =>
+            if (t.decltpe.isDefined) wildcard
+            else empty
+          case _ =>
+            print(t.name)
         }
         val dtpe = t.decltpe.fold(empty)(tpe => `:` + space + print(tpe))
         dname + dtpe + space + `=>`
