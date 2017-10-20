@@ -1,0 +1,25 @@
+package org.scalafmt.tests
+
+class PatSuite extends BaseScalaPrinterTest {
+  checkPat("1 | 2")
+  checkPat("(c, d)")
+  checkPat("a op b")
+  checkPat("a op (b, c)")
+  checkPat("(a, b) op (c, d)")
+  checkPat(""" q"a" """)
+  checkPat("a @ A")
+  checkPat("A()")
+  checkPat("A(a)")
+  checkPat("A(a, b)")
+  checkPat("A(`a`)")
+  checkCase("case `a` =>")
+  checkCase("case `a` | `b` =>")
+  checkCase("case a @ `b` =>")
+  checkPat("a @ (1 | 2)")
+  checkPat("a @ _*")
+  checkEnumerator("`a` <- b")
+  checkEnumerator("a <- b")
+  checkEnumerator("a = b")
+  checkCase("case `a` :: `b` :: _ =>")
+  checkCase(""" case a b `c` =>""")
+}

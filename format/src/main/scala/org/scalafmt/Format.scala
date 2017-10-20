@@ -13,7 +13,7 @@ import org.langmeta.internal.io.FileIO
 import org.langmeta.internal.io.PathIO
 import org.langmeta.io.AbsolutePath
 import org.scalafmt.internal.Context
-import org.scalafmt.internal.ScalaPrinter
+import org.scalafmt.internal.TreeDocOps
 
 trait Options {
   def maxColumn: Int
@@ -65,7 +65,7 @@ object Format {
   }
   def format(code: Input, options: Options): String = {
     implicit val ctx = Context(options)
-    ScalaPrinter
+    TreeDocOps
       .printInput(code, options)
       .render(options.maxColumn)
   }

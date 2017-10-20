@@ -1,4 +1,4 @@
-package org.scalafmt.internal
+package org.scalafmt.tests
 
 import scala.meta.Tree
 import scala.meta.dialects
@@ -7,13 +7,12 @@ import scala.meta.parsers.Parse
 import scala.meta.testkit.AnyDiff
 import scala.meta.testkit.StructurallyEqual
 import scala.meta.transversers.Transformer
-import scala.util.control.NonFatal
 import scalafix.diff.DiffUtils
-import org.langmeta.inputs.Input
-import org.scalafmt.Format
 import org.scalafmt.InternalOptions
 import org.scalafmt.Options
+import org.scalafmt.internal.DiffSuite
 import org.scalameta.logger
+import org.scalafmt.internal.TreeDocOps
 
 abstract class BaseScalaPrinterTest extends DiffSuite {
 
@@ -120,17 +119,17 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     val expected = expected2.replace("'''", "\"\"\"")
     val testName = logger.revealWhitespace(original)
     test(testName) {
-      val root = ScalaPrinter.getRoot(original, options)
+      val root = TreeDocOps.getRoot(original, options)
       val obtained =
-        ScalaPrinter.printTree(root, options).render(options.maxColumn)
-      val root2 = ScalaPrinter.getRoot(obtained, options)
+        TreeDocOps.printTree(root, options).render(options.maxColumn)
+      val root2 = TreeDocOps.getRoot(obtained, options)
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
           fail("AST changed!\n" + astDiff)
         case Right(()) =>
           assertNoDiff(obtained, expected)
           val obtained2 =
-            ScalaPrinter.printTree(root2, options).render(options.maxColumn)
+            TreeDocOps.printTree(root2, options).render(options.maxColumn)
           assertNoDiff(obtained, obtained2, "Idempotency violated!")
       }
     }
