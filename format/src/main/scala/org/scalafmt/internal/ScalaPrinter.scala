@@ -35,7 +35,6 @@ import scala.meta.internal.format.FormatTree._
 import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.TreeOps._
 import org.scalafmt.internal.TokenOps._
-import org.scalameta.logger
 
 case class Context(options: Options)
 
@@ -246,17 +245,16 @@ object ScalaPrinter {
   def dMods(mods: List[Mod])(implicit ctx: Context): Doc =
     intercalate(space, mods.map(print))
   def dParamss(paramss: List[List[Term.Param]])(implicit ctx: Context): Doc =
-    joined(paramss.map {
-      case param :: ps if param.mods.has[Mod.Implicit] =>
-        dApplyParen(
-          empty,
-          // TODO(olafur) figure out more efficient way to remove implicit modifiers
-          param :: ps.map(
-            p => p.copy(mods = p.mods.filterNot(_.is[Mod.Implicit]))
-          )
-        )
-      case params =>
-        dApplyParen(empty, params)
+    joined(paramss.map { params =>
+      val dimplicit =
+        if (params.exists(_.mods.exists(_.is[Mod.Implicit])))
+          `implicit` + line
+        else empty
+      val dparams = params.map { param =>
+        print(param.copy(mods = param.mods.filterNot(_.is[Mod.Implicit])))
+      }
+      (dimplicit + intercalate(comma + line, dparams))
+        .tightBracketBy(`(`, `)`)
     })
 
   def dBody(body: Tree)(implicit ctx: Context): Doc =
@@ -358,7 +356,9 @@ object ScalaPrinter {
     }
     val sparts = parts.tail.zip(args).foldLeft(empty) {
       case (accum, (Lit.String(part), name: Term.Name))
-          if !isIdentifierStart(part) && !name.value.startsWith("_") =>
+          if !isIdentifierStart(part) &&
+            !name.value.startsWith("_") &&
+            !Identifier.needsBacktick(name.value) =>
         accum + `$` + print(name) + escape(part)
       case (accum, (Lit.String(part), arg)) =>
         accum + dApplyBrace(`$`, arg :: Nil) + escape(part)
@@ -412,7 +412,7 @@ object ScalaPrinter {
           case t: Enumerator.Val =>
             dPat(t.pat) + space + `=` + (line + print(t.rhs)).grouped
           case t: Enumerator.Guard =>
-            `if` + space + print(t.cond)
+            `if` + space + t.cond.wrapped
         }
       case t: Case =>
         val dbody =
@@ -427,8 +427,7 @@ object ScalaPrinter {
           }
         `case` + space + dPat(t.pat) +
           t.cond.fold(empty) { c =>
-            space + `if` + space +
-              print(c)
+            space + `if` + space + c.wrapped
           } + space + `=>` + dbody.nested(2)
       case _: Type =>
         tree match {
@@ -470,7 +469,7 @@ object ScalaPrinter {
             }
             dparams + space + `=>` + space + t.res.wrapped
           case t: Type.Tuple => dApplyParen(empty, t.args)
-          case t: Type.Project => print(t.qual) + `#` + print(t.name)
+          case t: Type.Project => t.qual.wrapped + `#` + print(t.name)
           case t: Type.Singleton =>
             t.ref match {
               case Term.This(Name.Anonymous()) => `this` + `.` + `type`
@@ -509,7 +508,7 @@ object ScalaPrinter {
             }
             dhead + dtail
           case t: Term.Return => `return` + space + print(t.expr)
-          case t: Term.Repeated => print(t.expr) + `:` + wildcard + `*`
+          case t: Term.Repeated => t.expr.wrapped + `:` + wildcard + `*`
           case t: Term.If =>
             def body(expr: Term) = expr match {
               case b: Term.Block => space + dBlock(b.stats)
@@ -568,7 +567,7 @@ object ScalaPrinter {
           case t: Term.While =>
             `while` + space + `(` + print(t.expr) + `)` + space + print(t.body)
           case t: Term.Do =>
-            `do` + print(t.body) + space + `while` + space + `(` + print(t.expr) + `)`
+            `do` + space + print(t.body) + space + `while` + space + `(` + print(t.expr) + `)`
           case t: Term.Throw =>
             `throw` + space + print(t.expr)
           case t: Term.Annotate =>
@@ -643,8 +642,7 @@ object ScalaPrinter {
         spaceSeparated(
           dMods(t.mods) ::
             ddecltpe ::
-            ddefault ::
-            Nil
+            ddefault :: Nil
         )
       case t: Pkg =>
         def guessHasBraces(t: Pkg): Boolean = {
@@ -846,7 +844,7 @@ object ScalaPrinter {
           case t: Pat.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Pat.Typed =>
-            print(t.lhs) + `:` + space + print(t.rhs)
+            print(t.lhs) + `:` + space + t.rhs.wrapped
         }
     }
 
