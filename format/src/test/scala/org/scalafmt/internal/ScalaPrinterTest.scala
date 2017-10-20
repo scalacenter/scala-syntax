@@ -84,6 +84,8 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   checkType("A[[B] => B]")
   checkType("A[_]")
   checkType("A[_ <: B]")
+  check("A[({ type a[c] = d[c] })#a]")
+  checkPat("a: (A => B)")
   check("def a(b: B*): B")
   check("def empty[T <: AnyRef, K[_ <: T]]: TypedMultiMap[T, K]")
 
@@ -267,6 +269,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   )
   check(""" s"$$a" """.stripMargin)
   check(""" s"${_1}" """)
+  check(""" s"${`a..n`}" """)
   check("new A(s\"\"\" \"${a.b}\".\"\"\")")
   check("a")
   check("a a { b => c => d }")
@@ -309,6 +312,9 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   check("a(_ => b)")
   check("a { _: B => b }")
   check("a { b: B => b }")
+  check("A((a match { case 1 => }):_*)")
+  check("while (a) b")
+  check("do a while (b)")
 
   // infix precedence/associativity
   check("(a :!= b) == c")
@@ -332,7 +338,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   checkType("(A :: b.B) :: C")
   check("(a /: b) to 5")
   check("r /: (1 to 5)")
-  check("a(b :: (c d e):_*)")
+  check("a((b :: (c d e)):_*)") // NOTE: redundant parens before :_*
   check("(a := b) op c")
   check("a t_= (a b c)")
   check("(a b c) +: d")
