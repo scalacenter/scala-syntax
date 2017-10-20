@@ -223,7 +223,7 @@ object ScalaPrinter {
       `{` + ((line + print(head)).nested(2) + line) + `}`
     case _ =>
       `{` +
-        (line + intercalate(lineBlank, stats.map(print))).nested(2) +
+        (line + dStats(stats)).nested(2) +
         line + `}`
   }
 
@@ -303,8 +303,12 @@ object ScalaPrinter {
     )
   }
 
-  def dStats(stats: List[Stat])(implicit ctx: Context): Doc =
-    intercalate(lineBlank, stats.map(print))
+  def dStats(stats: List[Tree])(implicit ctx: Context): Doc = {
+    intercalate(lineBlank, stats.map {
+      case t: Term.Xml => t.wrapped
+      case t => print(t)
+    })
+  }
 
   def dRaw(str: String, quoteStyle: QuoteStyle): Doc =
     dRawI(str, 0, Some(quoteStyle))

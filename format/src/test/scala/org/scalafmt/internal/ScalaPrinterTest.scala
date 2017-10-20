@@ -149,6 +149,13 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
            |  <a>
            |    <b>{b}</b>
            |  </a>""".stripMargin)
+  check(
+    """{
+      |  val x = <a></a>
+      |
+      |  (<b></b>)
+      |}
+    """.stripMargin)
   check("(a + b) { c => d }")
   check("(a + b) { case c => d }")
   check("return a")
