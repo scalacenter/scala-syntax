@@ -103,6 +103,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
   checkCase("case `a` | `b` =>")
   checkCase("case a @ `b` =>")
   checkPat("a @ (1 | 2)")
+  checkPat("a @ _*")
   checkEnumerator("`a` <- b")
   checkEnumerator("a <- b")
   checkEnumerator("a = b")
@@ -131,6 +132,7 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
           |}
     """.stripMargin)
   check("def a: A = macro b")
+  check("def a[@b B](c: C) = c")
   check("""0 /: tags((sum, t) => sum + getInt(m, t))""")
   checkSource("""package a {
                 |  class A
@@ -264,6 +266,8 @@ class ScalaPrinterTest extends BaseScalaPrinterTest {
     """.stripMargin
   )
   check(""" s"$$a" """.stripMargin)
+  check(""" s"${_1}" """)
+  check("new A(s\"\"\" \"${a.b}\".\"\"\")")
   check("a")
   check("a a { b => c => d }")
   check("a { b => implicit c => d }")

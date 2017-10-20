@@ -21,7 +21,7 @@ object TreeOps {
         _: Term.Interpolate | _: Term.Apply | _: Term.ApplyType |
         _: Type.Apply | _: Term.Select | _: Type.Select | _: Term.Super |
         _: Term.This | _: Pat.Var | _: Pat.Tuple | _: PatName | _: Pat.Extract |
-        _: Term.Placeholder | _: Pat.Wildcard =>
+        _: Term.Placeholder | _: Pat.Wildcard | _: Pat.SeqWildcard =>
       false
     case t: Term.New => t.init.argss.isEmpty
 //    case t: Term.Annotate => false // NOTE(olafur) because we always wrap Term.Annotate

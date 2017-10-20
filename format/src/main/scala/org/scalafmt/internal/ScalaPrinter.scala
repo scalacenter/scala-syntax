@@ -343,11 +343,14 @@ object ScalaPrinter {
   ): Doc = {
 
     def isMultilineInterpolated(part: String): Boolean =
-      part.contains("\\n") || isMultiline(part)
+      // NOTE(olafur) interpolated strings are unescaped so single quotes must
+      // be wrapped in triple quote interpolated strings.
+      part.contains("\"") || isMultiline(part)
     val isTripleQuoted = parts.exists {
-      case Lit.String(part) => isMultiline(part)
+      case Lit.String(part) => isMultilineInterpolated(part)
     }
-    def escape(part: String) = dRawI(part.replace("$", "$$"), 0, None)
+    def escape(part: String) =
+      dRawI(part.replace("$", "$$"), 0, None)
     val dquote = if (isTripleQuoted) `"""` else `"`
     val dhead = parts.head match {
       case Lit.String(value) =>
@@ -355,7 +358,7 @@ object ScalaPrinter {
     }
     val sparts = parts.tail.zip(args).foldLeft(empty) {
       case (accum, (Lit.String(part), name: Term.Name))
-          if !isIdentifierStart(part) =>
+          if !isIdentifierStart(part) && !name.value.startsWith("_") =>
         accum + `$` + print(name) + escape(part)
       case (accum, (Lit.String(part), arg)) =>
         accum + dApplyBrace(`$`, arg :: Nil) + escape(part)
@@ -623,7 +626,11 @@ object ScalaPrinter {
             space +
               spaceSeparated(cbounds.map(tpe => `:` + space + print(tpe)))
         }
-        dMods(t.mods) +
+        val dmods =
+          if (t.mods.isEmpty) empty
+          else dMods(t.mods) + space
+
+        dmods +
           dname +
           dtbounds +
           dvbounds +

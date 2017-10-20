@@ -22,7 +22,7 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
   test("AST is unchanged") {
     val corpus = Corpus
       .files(Corpus.fastparse)
-      .take(7000) // take files as you please.
+      .take(1000) // take files as you please.
       .toBuffer
       .par
     val options = Options.default
@@ -52,7 +52,7 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
             .filter(_.getClassName.startsWith("org.scalafmt"))
             .take(10)
           e.setStackTrace(st)
-//          e.printStackTrace()
+          e.printStackTrace()
           () :: Nil
       }
     }

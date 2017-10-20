@@ -7,6 +7,7 @@ import scala.meta.parsers.Parse
 import scala.meta.testkit.AnyDiff
 import scala.meta.testkit.StructurallyEqual
 import scala.meta.transversers.Transformer
+import scala.util.control.NonFatal
 import scalafix.diff.DiffUtils
 import org.langmeta.inputs.Input
 import org.scalafmt.Format
@@ -69,11 +70,11 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     check(original, expected, defaultOptions)
   }
 
-  object normalize extends Transformer {
+  object normalizeTransform extends Transformer {
     import scala.meta._
 
     val transform: PartialFunction[Tree, Tree] = {
-      case Term.Block(a :: Nil) => a
+      case Term.Block(a :: Nil) if !a.is[Defn] => a
       case Term.ApplyInfix(lhs, op, targs, args) =>
         if (targs.isEmpty) q"$lhs.$op(..$args)"
         else q"$lhs.$op[..$targs](..$args)"
@@ -86,6 +87,20 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
 
     override def apply(tree: Tree): Tree = {
       super.apply(transform.lift(tree).map(this.apply).getOrElse(tree))
+    }
+
+  }
+
+  def normalize(tree: Tree): Tree = {
+    val input = tree.tokens.head.input match {
+      case scala.meta.Input.VirtualFile(path, _) => path
+      case _ => "<input>"
+    }
+    try {
+      normalizeTransform(tree)
+    } catch {
+      case e: UnsupportedOperationException =>
+        throw new IllegalArgumentException(s"Failed to transform $input", e)
     }
   }
 
