@@ -8,6 +8,7 @@ import scala.meta.testkit.SyntaxAnalysis
 import scala.util.control.NonFatal
 import org.scalafmt.Format
 import org.scalafmt.Options
+import org.scalafmt.tests.BaseScalaPrinterTest
 import org.scalameta.logger
 import org.scalatest.Ignore
 
@@ -41,7 +42,7 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
           Input.VirtualFile(file.jFile.getAbsolutePath, str)
         val tree = input(in).parse[Source].get
         val formatted =
-          ScalaPrinter.printTree(tree, options).render(options.maxColumn)
+          TreeDocOps.printTree(tree, options).render(options.maxColumn)
         val tree2 = input(formatted).parse[Source].get
         val treeNorm = normalize(tree)
         val tree2Norm = normalize(tree2)

@@ -1,28 +1,53 @@
 package org.scalafmt.internal
 
+import scala.annotation.switch
+import scala.meta.Importer
+import scala.meta.Init
 import scala.meta.Lit
+import scala.meta.Mod
 import scala.meta.Name
 import scala.meta.Pat
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
+import scala.meta.internal.fmt.SyntacticGroup
+import scala.meta.internal.fmt.{SyntacticGroup => g}
 import scala.meta.internal.format.FormatTree.PatName
 import scala.meta.internal.prettyprinters.DoubleQuotes
 import scala.meta.internal.prettyprinters.QuoteStyle
 import scala.meta.internal.prettyprinters.SingleQuotes
 import scala.meta.internal.prettyprinters.TripleQuotes
+import org.scalameta.logger
 
 object TreeOps {
 
   // This method is pessimistic, it assumes all trees requires parens except
   // a small set of whitelisted tree nodes.
+  @deprecated
   def needsParens(tree: Tree): Boolean = tree match {
-    case _: Term.Name | _: Type.Name | _: Name.Anonymous | _: Lit |
-        _: Term.Interpolate | _: Term.Apply | _: Term.ApplyType |
-        _: Type.Apply | _: Term.Select | _: Type.Select | _: Term.Super |
-        _: Term.This | _: Pat.Var | _: Pat.Tuple | _: PatName | _: Pat.Extract |
-        _: Term.Placeholder | _: Pat.Wildcard | _: Pat.SeqWildcard =>
-      false
+    // format: off
+    case
+         _: Lit |
+         _: Name.Anonymous |
+         _: Pat.Extract |
+         _: Pat.SeqWildcard |
+         _: Pat.Tuple |
+         _: Pat.Var |
+         _: Pat.Wildcard |
+         _: PatName |
+         _: Term.Apply |
+         _: Term.ApplyType |
+         _: Term.Interpolate |
+         _: Term.Name |
+         _: Term.Placeholder |
+         _: Term.Select |
+         _: Term.Super |
+         _: Term.This |
+         _: Type.Apply |
+         _: Type.Name |
+         _: Type.Select
+       => false
+    // format: on
     case t: Term.New => t.init.argss.isEmpty
 //    case t: Term.Annotate => false // NOTE(olafur) because we always wrap Term.Annotate
     case _ => true
@@ -35,6 +60,60 @@ object TreeOps {
       case Pat.ExtractInfix(_, Term.Name(op), _) => Some(op)
       case _ => None
     }
+  }
+
+  def opNeedsParens(
+      oo: String,
+      io: String,
+      customAssoc: Boolean,
+      customPrecedence: Boolean,
+      side: Side
+  ): Boolean = {
+    def isleftassoc(name: String): Boolean =
+      if (customAssoc) name.last != ':' else true
+    def precedence(name: String): Int =
+      if (customPrecedence) Term.Name(name).precedence else 0
+    val (ol, il) = (isleftassoc(oo), isleftassoc(io))
+    if (ol ^ il) true
+    else {
+      val (l, r) = (ol, !ol)
+      val (op, ip) = (precedence(oo), precedence(io))
+      if (op < ip) r
+      else if (op > ip) l
+      else l ^ side.isLeft
+    }
+  }
+
+  def groupNeedsParens(
+      og: SyntacticGroup,
+      ig: SyntacticGroup,
+      side: Side
+  ): Boolean = (og, ig) match {
+    case (g.Term.InfixExpr(oo), g.Term.InfixExpr(io)) =>
+      opNeedsParens(
+        oo,
+        io,
+        customAssoc = true,
+        customPrecedence = true,
+        side
+      )
+    case (g.Type.InfixTyp(oo), g.Type.InfixTyp(io)) =>
+      opNeedsParens(
+        oo,
+        io,
+        customAssoc = true,
+        customPrecedence = false,
+        side
+      )
+    case (g.Pat.Pattern3(oo), g.Pat.Pattern3(io)) =>
+      opNeedsParens(
+        oo,
+        io,
+        customAssoc = true,
+        customPrecedence = true,
+        side
+      )
+    case _ => og.precedence > ig.precedence
   }
 
 }
