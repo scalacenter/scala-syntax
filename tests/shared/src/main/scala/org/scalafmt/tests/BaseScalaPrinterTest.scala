@@ -16,7 +16,7 @@ import org.scalafmt.internal.TreeDocOps
 
 abstract class BaseScalaPrinterTest extends DiffSuite {
 
-  val defaultOptions = InternalOptions(100).copy(
+  val defaultOptions: InternalOptions = InternalOptions(100).copy(
     dialect = dialects.Sbt1.copy(
       allowTypeLambdas = true,
       allowAndTypes = true,
