@@ -1,6 +1,6 @@
 package org.scalafmt.tests
 
-class TermSuite extends BaseScalaPrinterTest {
+object TermSuite extends BaseScalaPrinterTest {
   check("(a + b).c")
   check("(if (a) b else c).d")
   check("(if (a) b else c) + d")

@@ -1,6 +1,6 @@
 package org.scalafmt.tests
 
-class TypeSuite extends BaseScalaPrinterTest {
+object TypeSuite extends BaseScalaPrinterTest {
   checkType("(A, A)")
   checkType("b.B")
   checkType("A#B")

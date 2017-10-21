@@ -20,7 +20,7 @@ import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
-import scala.meta.internal.format.FormatTree.PatName
+import scala.meta.internal.format.CustomFormatTrees.PatName
 import scala.meta.internal.prettyprinters.TripleQuotes
 import org.scalafmt.internal.ScalaToken._
 import org.typelevel.paiges.Doc
@@ -38,7 +38,7 @@ import scala.meta.internal.fmt.SyntacticGroup.Pat._
 
 object TreePrinter {
   import TreeDocOps._
-  def print(tree: Tree)(implicit ctx: Context): Doc = {
+  def print(tree: Tree): Doc = {
     tree match {
       case t: Name =>
         t match {

@@ -1,9 +1,6 @@
-package org.scalafmt.internal
+package org.scalafmt.tests
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.exceptions.TestFailedException
-
-trait DiffSuite extends FunSuiteLike {
+trait DiffSuite extends FunSuite {
   def assertNoDiff(
       obtained: String,
       expected: String,
@@ -26,9 +23,8 @@ trait DiffSuite extends FunSuiteLike {
       expected: String,
       obtained: String,
       diff: String
-  ) extends TestFailedException(
-        title + "\n" + error2message(obtained, expected),
-        3
+  ) extends Exception(
+        title + "\n" + error2message(obtained, expected)
       )
 
   private def error2message(obtained: String, expected: String): String = {

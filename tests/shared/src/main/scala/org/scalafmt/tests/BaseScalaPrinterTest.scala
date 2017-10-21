@@ -10,7 +10,6 @@ import scala.meta.transversers.Transformer
 import scalafix.diff.DiffUtils
 import org.scalafmt.InternalOptions
 import org.scalafmt.Options
-import org.scalafmt.internal.DiffSuite
 import org.scalameta.logger
 import org.scalafmt.internal.TreeDocOps
 
@@ -24,12 +23,14 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     ),
     parser = Parse.parseStat
   )
+
   def checkType(
       original: String,
       options: InternalOptions = defaultOptions
   ): Unit = {
     check(original, options.copy(parser = Parse.parseType))
   }
+
   def checkPat(
       original: String,
       options: InternalOptions = defaultOptions
@@ -125,7 +126,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       val root2 = TreeDocOps.getRoot(obtained, options)
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
-          fail("AST changed!\n" + astDiff)
+          sys.error("AST changed!\n" + astDiff)
         case Right(()) =>
           assertNoDiff(obtained, expected)
           val obtained2 =

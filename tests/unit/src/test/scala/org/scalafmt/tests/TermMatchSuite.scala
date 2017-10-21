@@ -1,6 +1,6 @@
 package org.scalafmt.tests
 
-class TermMatchSuite extends BaseScalaPrinterTest {
+object TermMatchSuite extends BaseScalaPrinterTest {
   check("A((a match { case 1 => }):_*)")
   check("(a => b) match { case _ => }")
   check("(a, b) match { case _ => }")

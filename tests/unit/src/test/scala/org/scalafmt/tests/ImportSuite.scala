@@ -3,7 +3,7 @@ package org.scalafmt.tests
 import scala.meta.dialects
 import org.scalafmt.Options
 
-class ImportSuite extends BaseScalaPrinterTest {
+object ImportSuite extends BaseScalaPrinterTest {
   checkSource("package a.b")
   check("import a.b")
   check("import a.b, c.d")

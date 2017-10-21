@@ -1,6 +1,6 @@
 package org.scalafmt.tests
 
-class TermInterpolateSuite extends BaseScalaPrinterTest {
+object TermInterpolateSuite extends BaseScalaPrinterTest {
   check(""" s"$$a" """.stripMargin)
   check(""" s"${_1}" """)
   check(""" s"${`a..n`}" """)
