@@ -12,7 +12,6 @@ import org.langmeta.inputs.Input
 import org.langmeta.internal.io.FileIO
 import org.langmeta.internal.io.PathIO
 import org.langmeta.io.AbsolutePath
-import org.scalafmt.internal.Context
 import org.scalafmt.internal.TreeDocOps
 
 trait Options {
@@ -64,7 +63,6 @@ object Format {
     format(Input.String(code), options)
   }
   def format(code: Input, options: Options): String = {
-    implicit val ctx = Context(options)
     TreeDocOps
       .printInput(code, options)
       .render(options.maxColumn)
