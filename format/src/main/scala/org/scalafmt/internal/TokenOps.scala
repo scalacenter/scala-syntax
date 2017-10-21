@@ -12,7 +12,7 @@ import scala.meta.Tree
 import scala.meta.Type
 import scala.meta.internal.fmt.SyntacticGroup
 import scala.meta.internal.fmt.{SyntacticGroup => g}
-import scala.meta.internal.format.CustomFormatTrees.PatName
+import scala.meta.internal.format.CustomTrees.PatName
 import scala.meta.internal.prettyprinters.DoubleQuotes
 import scala.meta.internal.prettyprinters.QuoteStyle
 import scala.meta.internal.prettyprinters.SingleQuotes

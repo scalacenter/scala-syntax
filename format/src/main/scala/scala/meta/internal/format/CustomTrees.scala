@@ -2,22 +2,24 @@ package scala.meta.internal.format
 
 import scala.meta.Name
 import scala.meta.Tree
+import scala.meta.internal.trees.Origin
 
 /**
- * Custom scala.meta.Tree nodes that
+ * Custom scala.meta.Tree nodes that are only relevant for pretty printing.
  */
-object CustomFormatTrees {
+object CustomTrees {
   sealed trait CustomTree extends Tree {
-    private def unsupported = throw new UnsupportedOperationException(
-      s"Custom scala-format tree '$productPrefix' does not support this operation."
-    )
+    private def unsupported(implicit enclosing: sourcecode.Enclosing) =
+      throw new UnsupportedOperationException(
+        s"$productPrefix.${enclosing.value.replaceFirst(".*#", "")} is not supported"
+      )
     def privateCopy(
         prototype: scala.meta.Tree,
         parent: scala.meta.Tree,
         destination: String,
         origin: scala.meta.internal.trees.Origin
     ): scala.meta.Tree = unsupported
-    def privateOrigin: scala.meta.internal.trees.Origin = unsupported
+    def privateOrigin: scala.meta.internal.trees.Origin = Origin.None
     def privateParent: scala.meta.Tree = unsupported
     def privatePrototype: scala.meta.Tree = unsupported
   }
@@ -25,7 +27,10 @@ object CustomFormatTrees {
   /**
    * PatName is a backticked name in a pattern.
    *
-   * Example: case `a` =>
+   * Example, `a` from below:
+   *   case `a` =>
+   *   case A(`a`, b) =>
+   *   case `a` :: b =>
    *
    * By default, Term.Name represents this tree node in Scalameta when it's
    * not the child of a Pat.Var. This greatly complicates print(Term.Name)
