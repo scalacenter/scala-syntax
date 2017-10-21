@@ -19,14 +19,31 @@ lazy val format = project
         assemblyMergeStrategy.in(assembly).value(x)
     },
     mainClass.in(assembly) := Some("org.scalafmt.Format"),
-    scalaVersion := "2.12.3",
     libraryDependencies ++= List(
       "com.lihaoyi" %% "pprint" % "0.5.2",
       "org.scalameta" %% "scalameta" % "2.0.1",
-      "org.scalameta" %% "contrib" % "2.0.1",
-      "ch.epfl.scala" %% "scalafix-diff" % "0.5.1" % Test,
-      "org.scalameta" %% "testkit" % "2.0.1" % Test,
-      "org.scalatest" %% "scalatest" % "3.0.1" % Test
+      "org.scalameta" %% "contrib" % "2.0.1"
     )
   )
   .dependsOn(paiges)
+
+// IntegrationTest configuration is not worth the complexity, reusing code across
+// configuration is annoying. Easier to create more projects.
+lazy val testsShared = project
+  .in(file("tests/shared"))
+  .settings(
+    libraryDependencies ++= List(
+      "ch.epfl.scala" %% "scalafix-diff" % "0.5.1",
+      "org.scalameta" %% "testkit" % "2.0.1",
+      "org.scalatest" %% "scalatest" % "3.0.1"
+    )
+  )
+  .dependsOn(format)
+
+lazy val unit = project
+  .in(file("tests/unit"))
+  .dependsOn(testsShared)
+
+lazy val slow = project
+  .in(file("tests/slow"))
+  .dependsOn(testsShared)
