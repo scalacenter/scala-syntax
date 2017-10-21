@@ -7,7 +7,7 @@ import org.typelevel.paiges.Doc.lineBreak
 import org.typelevel.paiges.Doc.text
 
 object ScalaToken {
-  val backtick : Doc = char('`')
+  val backtick: Doc = char('`')
   val `@` : Doc = char('@')
   val `*` : Doc = char('*')
   val `.` : Doc = char('.')

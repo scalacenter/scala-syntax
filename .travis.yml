@@ -1,5 +1,6 @@
 language: scala
 script:
+- ./scalafmt --test
 - sbt unit/test
 jdk:
 - oraclejdk8

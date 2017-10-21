@@ -4,8 +4,8 @@ import scala.meta.Name
 import scala.meta.Tree
 
 /**
-  * Custom scala.meta.Tree nodes that
-  */
+ * Custom scala.meta.Tree nodes that
+ */
 object CustomFormatTrees {
   sealed trait CustomTree extends Tree {
     private def unsupported = throw new UnsupportedOperationException(

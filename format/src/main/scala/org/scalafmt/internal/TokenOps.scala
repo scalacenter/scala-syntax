@@ -155,14 +155,14 @@ object TokenOps {
     Term.Name(op).precedence
 
   /** Returns true if this token is an identifier that requires a leading space before colon.
-    *
-    * Example:
-    *   needsLeadingSpaceBeforeColon(foo_) // true
-    *   needsLeadingSpaceBeforeColon(foo)  // false
-    *   val foo_ : Int = 2 // OK
-    *   val foo_: Int = 2  // ERROR
-    *   val foo: Int = 2   // OK
-    *
+   *
+   * Example:
+   *   needsLeadingSpaceBeforeColon(foo_) // true
+   *   needsLeadingSpaceBeforeColon(foo)  // false
+   *   val foo_ : Int = 2 // OK
+   *   val foo_: Int = 2  // ERROR
+   *   val foo: Int = 2   // OK
+   *
     **/
   def needsLeadingSpaceBeforeColon(name: String): Boolean =
     name match {
