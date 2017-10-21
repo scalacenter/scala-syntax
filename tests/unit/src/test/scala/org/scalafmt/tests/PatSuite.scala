@@ -1,6 +1,6 @@
 package org.scalafmt.tests
 
-class PatSuite extends BaseScalaPrinterTest {
+object PatSuite extends BaseScalaPrinterTest {
   checkPat("1 | 2")
   checkPat("(c, d)")
   checkPat("a op b")

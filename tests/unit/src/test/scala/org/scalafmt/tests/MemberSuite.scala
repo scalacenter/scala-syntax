@@ -1,6 +1,6 @@
 package org.scalafmt.tests
 
-class MemberSuite extends BaseScalaPrinterTest {
+object MemberSuite extends BaseScalaPrinterTest {
   check("val a = 1")
   check("var a = 1")
   check("def a = 1")

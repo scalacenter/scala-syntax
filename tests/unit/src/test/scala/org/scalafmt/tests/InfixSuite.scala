@@ -1,6 +1,6 @@
 package org.scalafmt.tests
 
-class InfixSuite extends BaseScalaPrinterTest {
+object InfixSuite extends BaseScalaPrinterTest {
   check("(a :!= b) == c")
   check("b -> (c :: d)")
   check("a + (())")

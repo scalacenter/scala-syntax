@@ -16,7 +16,7 @@ import org.scalatest.Ignore
 // https://gist.github.com/olafurpg/ea44f3567d4117e53ca818b1911f9be9
 @Ignore
 /** Tests that running printer twice always yields the same results */
-class IdempotencyPropertyTest extends BaseScalaPrinterTest {
+object IdempotencyPropertyTest extends BaseScalaPrinterTest {
   val prefix = "target/repos/"
 
   def isOk(file: CorpusFile): Boolean =
@@ -64,6 +64,6 @@ class IdempotencyPropertyTest extends BaseScalaPrinterTest {
           () :: Nil
       }
     }
-    if (nonEmptyDiff.nonEmpty) fail("diffs.nonEmpty!")
+    if (nonEmptyDiff.nonEmpty) sys.error("diffs.nonEmpty!")
   }
 }

@@ -1,6 +1,6 @@
 package org.scalafmt.tests
 
-class LiteralSuite extends BaseScalaPrinterTest {
+object LiteralSuite extends BaseScalaPrinterTest {
   check(
     """
       |foo('''
