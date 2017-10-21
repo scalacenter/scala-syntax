@@ -32,7 +32,7 @@ import scala.meta.internal.prettyprinters.TripleQuotes
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
 import org.langmeta.inputs.Input
-import scala.meta.internal.format.CustomFormatTrees._
+import scala.meta.internal.format.CustomTrees._
 import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.TreeOps._
 import org.scalafmt.internal.TokenOps._

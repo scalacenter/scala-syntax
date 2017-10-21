@@ -20,7 +20,7 @@ import scala.meta.Template
 import scala.meta.Term
 import scala.meta.Tree
 import scala.meta.Type
-import scala.meta.internal.format.CustomFormatTrees.PatName
+import scala.meta.internal.format.CustomTrees.PatName
 import scala.meta.internal.prettyprinters.TripleQuotes
 import org.scalafmt.internal.ScalaToken._
 import org.typelevel.paiges.Doc
@@ -35,11 +35,12 @@ import scala.meta.internal.fmt.SyntacticGroup.Literal
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
 import scala.meta.internal.fmt.SyntacticGroup.Pat._
+import scala.meta.internal.format.Comments
 
 object TreePrinter {
   import TreeDocOps._
   def print(tree: Tree): Doc = {
-    tree match {
+    val result = tree match {
       case t: Name =>
         t match {
           case _: Name.Anonymous => empty
@@ -512,7 +513,7 @@ object TreePrinter {
             print(t.lhs) + `:` + space + drhs
         }
     }
-
+    Comments.doc(tree, result)
   }
 
 }
