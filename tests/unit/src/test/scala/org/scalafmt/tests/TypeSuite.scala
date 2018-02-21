@@ -28,4 +28,5 @@ object TypeSuite extends BaseScalaPrinterTest {
   check("def empty[T <: AnyRef, K[_ <: T]]: TypedMultiMap[T, K]")
   checkCase("case a: (A, B) =>")
   checkType("(A with B) @annot")
+  checkType("(A => B) { def a: A }") 
 }

@@ -99,7 +99,7 @@ object TreePrinter {
           case t: Type.Refine =>
             val dtpe = t.tpe.fold(empty) { tpe =>
               val trailingSpace = if (t.stats.nonEmpty) space else empty
-              print(tpe) + trailingSpace
+              RefineTyp.wrap(tpe) + trailingSpace
             }
             dtpe + dBlock(t.stats)
           case t: Type.Existential =>
