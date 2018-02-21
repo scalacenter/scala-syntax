@@ -56,6 +56,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
       .files(Corpus.fastparse)
       .filter(f => isOk(f))
       .toBuffer
+      // .reverse
       .par
 
     val progress = new PB(
