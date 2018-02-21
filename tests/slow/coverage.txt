@@ -1,5 +1,4 @@
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/table/CPathTraversal.scala
-playframework/framework/src/play-integration-test/src/test/scala/play/it/libs/JavaFormSpec.scala
 sbt/main/src/main/scala/sbt/ConsoleProject.scala
 sbt/main/src/main/scala/sbt/Defaults.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/Bits.scala
@@ -7,17 +6,11 @@ scala-js/scalalib/overrides-2.10/scala/Console.scala
 scala-js/scalalib/overrides-2.11/scala/Console.scala
 scala-js/scalalib/overrides-2.12/scala/Console.scala
 scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
-scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/jsinterop/ExportsTest.scala
 scala/src/compiler/scala/tools/nsc/transform/Constructors.scala
 scala/src/compiler/scala/tools/nsc/transform/SpecializeTypes.scala
 scala/src/library/scala/Console.scala
-scala/src/library/scala/collection/immutable/RedBlackTree.scala
-scala/test/files/jvm/annotations.scala
 scala/test/files/jvm/javaReflection/Classes_1.scala
-scala/test/files/pos/annotations.scala
 scala/test/files/pos/t9050.scala
-scala/test/files/run/reify_ann3.scala
-scala/test/files/run/reify_ann5.scala
 scala/test/files/run/t6506.scala
 scala/test/files/specialized/arrays.scala
 scalafx/scalafx/src/test/scala/scalafx/util/DurationSpec.scala
@@ -27,6 +20,4 @@ scalaz/core/src/main/scala/scalaz/NullResult.scala
 scalaz/tests/src/test/scala/scalaz/UnapplyTest.scala
 shapeless/core/src/main/scala/shapeless/ops/zipper.scala
 shapeless/core/src/main/scala/shapeless/package.scala
-spark/core/src/test/scala/org/apache/spark/scheduler/DAGSchedulerSuite.scala
-spark/core/src/test/scala/org/apache/spark/serializer/SerializationDebuggerSuite.scala
 util/util-core/src/test/scala/com/twitter/util/DurationTest.scala

@@ -37,6 +37,8 @@ object MemberSuite extends BaseScalaPrinterTest {
   check("@a def b = 1")
   check("@a(1) def b = 1")
   check("@a @b def c = 1")
+  check("@(a @b) @c val x = 1")
+  check("@(a @b(1, 2)(3)) val x = 1")
   check("def a(@b c: C) = 1")
   check("def a(implicit b: B) = 1")
   check("class A[B] extends C with D { val a = 1 }")

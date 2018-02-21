@@ -472,7 +472,8 @@ object TreePrinter {
         dDef(t.mods, `def`, `this`, Nil, t.paramss, None, dbody)
       case m: Mod =>
         m match {
-          case t: Mod.Annot => `@` + print(t.init)
+          case t: Mod.Annot =>
+            `@` + SimpleTyp.wrap(t.init.tpe) + dArgss(t.init.argss)
           case _: Mod.Final => `final`
           case _: Mod.Case => `case`
           case _: Mod.Sealed => `sealed`
