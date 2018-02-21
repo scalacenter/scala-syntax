@@ -86,22 +86,23 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     }
 
     override def apply(tree: Tree): Tree = {
-      var newTree = tree
-      var i = 0
-      val limit = 100
-      var again = true
-      do {
-        transform.lift(newTree) match {
-          case Some(t) =>
-            newTree = t
-            again = false
-          case None => 
-            again = true
-        }
-        i += 1
-      } while(again && i < limit)
+      super.apply(transform.lift(tree).map(this.apply).getOrElse(tree))
+      // var newTree = tree
+      // var i = 0
+      // val limit = 100
+      // var again = true
+      // do {
+      //   transform.lift(newTree) match {
+      //     case Some(t) =>
+      //       newTree = t
+      //       again = false
+      //     case None => 
+      //       again = true
+      //   }
+      //   i += 1
+      // } while(again && i < limit)
 
-      super.apply(newTree)
+      // super.apply(newTree)
     }
   }
 
@@ -140,6 +141,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       val root2 = TreeDocOps.getRoot(obtained, options)
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
+          println(obtained)
           sys.error("AST changed!\n" + astDiff)
         case Right(()) =>
           assertNoDiff(obtained, expected)
