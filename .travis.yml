@@ -1,6 +1,6 @@
 language: scala
 script:
-- bash $CI_TEST
+- bash -c $CI_TEST
 jdk:
 - oraclejdk8
 
