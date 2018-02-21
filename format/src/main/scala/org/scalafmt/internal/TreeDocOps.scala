@@ -196,6 +196,8 @@ object TreeDocOps {
     dApplyBracket(empty, targs)
   def dArgs(args: List[Tree]): Doc =
     dApplyParen(empty, args)
+  def dArgss(argss: List[List[Term]]): Doc =
+    joined(argss.map(dArgs))
   def dApplyParen(fun: Doc, args: List[Tree]): Doc =
     dApply(fun, args, `(`, `)`)
 

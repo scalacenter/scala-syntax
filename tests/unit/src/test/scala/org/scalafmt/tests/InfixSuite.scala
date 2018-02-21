@@ -30,4 +30,5 @@ object InfixSuite extends BaseScalaPrinterTest {
   check("a + b")
   check("a op[T] b")
   check("a b ((c, d))")
+  check("a op (a:_*)")
 }

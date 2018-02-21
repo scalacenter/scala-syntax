@@ -4,7 +4,6 @@ import scala.meta.Tree
 import scala.meta.testkit.Corpus
 import scala.meta.testkit.CorpusFile
 import scala.meta.testkit.StructurallyEqual
-import scala.meta.testkit.SyntaxAnalysis
 import scala.util.control.NonFatal
 import org.scalafmt.Format
 import org.scalafmt.Options
@@ -88,6 +87,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
           } else {
             val diff = getDiff(file.jFile.getAbsolutePath, treeNorm, tree2Norm)
             if (diff.nonEmpty) {
+              println("")
               logger.elem(diff)
               failureCount.incrementAndGet()
               failed += file.jFile -> true
@@ -109,19 +109,12 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
               .take(10)
             e.setStackTrace(st)
             // e.printStackTrace()
-            failed += file.jFile -> true
-            failureCount.incrementAndGet()
             () :: Nil
         }
 
       progress.synchronized {
         progress.step()
-
-        val currentFailures = failureCount.get
-        val currentSuccess = successCount.get
-
-        val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
-        progress.setExtraMessage(f"Success: ${rate}%.2f%%")
+        progress.setExtraMessage(s"Failures: ${failureCount.get}")
       }
 
       result
@@ -140,9 +133,6 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
         StandardOpenOption.TRUNCATE_EXISTING
       )
     }
-
-    val percentage = 100.0 - (nonEmptyDiff.size.toDouble / corpus.size.toDouble * 100)
-    println(f"Success Rate: $percentage%.2f%%")
 
     if (regressions.nonEmpty) {
       val sep = nl + "  "

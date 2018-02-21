@@ -1,6 +1,9 @@
-The goal is to get the success rate of `slow/test` to 100%.
+The goal is to get the failures of `slow/test` to 0.
 
-There is a corpus of more than 26 000 scala files. We check for the following correctness property:
+As of Feburary 21, there is 23 files to fix. There is a corpus of 26 368 scala files.
+Only 24 946 scala files parses.
+
+We check for the following correctness property:
 
 ```scala
 val ast0 = parse(source0)
