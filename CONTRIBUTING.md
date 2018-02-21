@@ -1,7 +1,7 @@
-The goal is to get the success rate of `slow/test` to 100%.
+The goal is to get the failures of `slow/test` to 0.
 
-As of Feburary 21, the success rate is 99.87%. There is a corpus of 26 368 scala files.
-Only 24 946 scala files parses, this means there is 32 files left to fix.
+As of Feburary 21, there is 23 files to fix. There is a corpus of 26 368 scala files.
+Only 24 946 scala files parses.
 
 We check for the following correctness property:
 

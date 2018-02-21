@@ -67,13 +67,6 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
     )
     progress.start()
 
-    def currentRate: String = {
-      val currentFailures = failureCount.get
-      val currentSuccess = successCount.get
-      val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
-      f"$rate%.2f%%"
-    }
-
     val options = Options.default
     val nonEmptyDiff = SyntaxAnalysis.run[Unit](corpus) { file =>
       val result =
@@ -121,12 +114,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
 
       progress.synchronized {
         progress.step()
-
-        val currentFailures = failureCount.get
-        val currentSuccess = successCount.get
-
-        val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
-        progress.setExtraMessage(s"Success: $currentRate")
+        progress.setExtraMessage(s"Failures: ${failureCount.get}")
       }
 
       result
