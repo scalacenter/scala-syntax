@@ -57,25 +57,27 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
           val tree2 = input(formatted).parse[Source].get
           val treeNorm = normalize(tree)
           val tree2Norm = normalize(tree2)
-          val ok = 
-            if (StructurallyEqual(treeNorm, tree2Norm).isRight) Nil
-            else {
-              val diff = getDiff(file.jFile.getAbsolutePath, treeNorm, tree2Norm)
-              if (diff.nonEmpty) {
-                logger.elem(diff)
-                () :: Nil
-              } else Nil
+          if (StructurallyEqual(treeNorm, tree2Norm).isRight) {
+            success.incrementAndGet()
+            Nil
+          } else {
+            val diff = getDiff(file.jFile.getAbsolutePath, treeNorm, tree2Norm)
+            if (diff.nonEmpty) {
+              logger.elem(diff)
+              failures.incrementAndGet()
+              () :: Nil
+            } else {
+              success.incrementAndGet()
+              Nil
             }
-          success.incrementAndGet()
-
-          ok
+          }
         } catch {
           case NonFatal(e) =>
             val st = e.getStackTrace
               .filter(_.getClassName.startsWith("org.scalafmt"))
               .take(10)
             e.setStackTrace(st)
-  //          e.printStackTrace()
+            // e.printStackTrace()
             failures.incrementAndGet()
             () :: Nil
         }
@@ -85,8 +87,9 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
 
         val currentFailures = failures.get
         val currentSuccess = success.get
+
         val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
-        progress.setExtraMessage(f"Success Rate: ${rate}%.0f%%")
+        progress.setExtraMessage(f"Success: ${rate}%.2f%%")
       }
 
       result
