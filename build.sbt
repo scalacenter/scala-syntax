@@ -52,12 +52,8 @@ lazy val slow = project
     fork in (Test, test) := true,
     cancelable in Global := true,
     javaOptions in (Test, test) ++= Seq(
-      "-Xss20m",
-      "-Xms4G",
-      "-Xmx16G",
-      "-XX:ReservedCodeCacheSize=1024m",
-      "-XX:+TieredCompilation",
-      "-XX:+CMSClassUnloadingEnabled"
+      "-Xss20m", "-Xms4G", "-Xmx16G", "-XX:ReservedCodeCacheSize=1024m",
+      "-XX:+TieredCompilation", "-XX:+CMSClassUnloadingEnabled"
     )
   )
   .dependsOn(testsShared)

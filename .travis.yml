@@ -1,9 +1,15 @@
 language: scala
 script:
-- ./scalafmt --test
-- sbt unit/test
+- $CI_TEST
 jdk:
 - oraclejdk8
+
+env:
+  matrix:
+    - CI_TEST: sbt unit/test
+    - CI_TEST: sbt slow/test
+    - CI_TEST: ./scalafmt --test
+
 cache:
   directories:
   - "$HOME/.sbt/0.13/dependency"
