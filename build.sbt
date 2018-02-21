@@ -8,6 +8,8 @@ lazy val Paiges = RootProject(
 )
 lazy val paiges = ProjectRef(Paiges.build, "coreJVM")
 
+val metaV = "3.2.0"
+
 lazy val format = project
   .settings(
     moduleName := "scala-format",
@@ -20,9 +22,9 @@ lazy val format = project
     },
     mainClass.in(assembly) := Some("org.scalafmt.Format"),
     libraryDependencies ++= List(
-      "com.lihaoyi" %% "pprint" % "0.5.2",
-      "org.scalameta" %% "scalameta" % "2.0.1",
-      "org.scalameta" %% "contrib" % "2.0.1"
+      "com.lihaoyi" %% "pprint" % "0.5.2",       // for debugging
+      "org.scalameta" %% "scalameta" % metaV,
+      "org.scalameta" %% "contrib" % metaV
     )
   )
   .dependsOn(paiges)
@@ -34,9 +36,9 @@ lazy val testsShared = project
   .settings(
     libraryDependencies ++= List(
       "ch.epfl.scala" %% "scalafix-diff" % "0.5.1",
-      "org.scalameta" %% "testkit" % "2.0.1",
+      "org.scalameta" %% "testkit" % metaV,
       "com.lihaoyi" %% "utest" % "0.5.4",
-      "org.scalatest" %% "scalatest" % "3.0.1"
+      "org.scalatest" %% "scalatest" % "3.0.4"
     )
   )
   .dependsOn(format)
