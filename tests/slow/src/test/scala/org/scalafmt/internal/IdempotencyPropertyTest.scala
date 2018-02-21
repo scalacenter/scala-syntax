@@ -24,6 +24,8 @@ import java.io.File
 /** Tests that running printer twice always yields the same results */
 object IdempotencyPropertyTest extends BaseScalaPrinterTest {
 
+  val todo = Paths.get("todo.diff")
+
   val coverageFile = Paths.get("coverage.txt")
   val failed = TrieMap.empty[File, Boolean]
   val regressions = TrieMap.empty[File, Boolean]
@@ -31,6 +33,10 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
   val nl = "\n"
 
   val prefix = "target/repos/"
+
+  if (Files.exists(todo)) {
+    Files.delete(todo)
+  }
 
   val previouslyFailed: Set[File] =
     if (Files.exists(coverageFile)) {
@@ -88,6 +94,14 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
             val diff = getDiff(file.jFile.getAbsolutePath, treeNorm, tree2Norm)
             if (diff.nonEmpty) {
               println("")
+
+              Files.write(
+                todo,
+                diff.toString.getBytes("utf-8"),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.APPEND
+              )
+
               logger.elem(diff)
               failureCount.incrementAndGet()
               failed += file.jFile -> true
