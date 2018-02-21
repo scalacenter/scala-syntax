@@ -4,7 +4,6 @@ import scala.meta.Tree
 import scala.meta.testkit.Corpus
 import scala.meta.testkit.CorpusFile
 import scala.meta.testkit.StructurallyEqual
-import scala.meta.testkit.SyntaxAnalysis
 import scala.util.control.NonFatal
 import org.scalafmt.Format
 import org.scalafmt.Options
@@ -68,6 +67,13 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
     )
     progress.start()
 
+    def currentRate: String = {
+      val currentFailures = failureCount.get
+      val currentSuccess = successCount.get
+      val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
+      f"$rate%.2f%%"
+    }
+
     val options = Options.default
     val nonEmptyDiff = SyntaxAnalysis.run[Unit](corpus) { file =>
       val result =
@@ -110,7 +116,6 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
             e.setStackTrace(st)
             // e.printStackTrace()
             failed += file.jFile -> true
-            failureCount.incrementAndGet()
             () :: Nil
         }
 
@@ -121,7 +126,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
         val currentSuccess = successCount.get
 
         val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
-        progress.setExtraMessage(f"Success: ${rate}%.2f%%")
+        progress.setExtraMessage(s"Success: $currentRate")
       }
 
       result
@@ -141,8 +146,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
       )
     }
 
-    val percentage = 100.0 - (nonEmptyDiff.size.toDouble / corpus.size.toDouble * 100)
-    println(f"Success Rate: $percentage%.2f%%")
+    println(s"Success Rate: $currentRate")
 
     if (regressions.nonEmpty) {
       val sep = nl + "  "
