@@ -2,13 +2,9 @@ platform/yggdrasil/src/main/scala/com/precog/yggdrasil/table/CPathTraversal.scal
 sbt/main/src/main/scala/sbt/ConsoleProject.scala
 sbt/main/src/main/scala/sbt/Defaults.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/Bits.scala
-scala-js/scalalib/overrides-2.10/scala/Console.scala
-scala-js/scalalib/overrides-2.11/scala/Console.scala
-scala-js/scalalib/overrides-2.12/scala/Console.scala
 scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
 scala/src/compiler/scala/tools/nsc/transform/Constructors.scala
 scala/src/compiler/scala/tools/nsc/transform/SpecializeTypes.scala
-scala/src/library/scala/Console.scala
 scala/test/files/jvm/javaReflection/Classes_1.scala
 scala/test/files/pos/t9050.scala
 scala/test/files/run/t6506.scala

@@ -41,7 +41,7 @@ object TreeSyntacticGroup {
     case _: Term.New => g.Term.SimpleExpr
     case _: Term.Placeholder => g.Term.SimpleExpr1
     case _: Term.Eta => g.Term.SimpleExpr
-    case _: Term.Repeated => g.Path // ???
+    case _: Term.Repeated => g.Term.PostfixExpr
     case _: Term.Param => g.Path // ???
     // Type
     case _: Type.Name => g.Path
