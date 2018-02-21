@@ -47,4 +47,5 @@ lazy val unit = project
 
 lazy val slow = project
   .in(file("tests/slow"))
+  .settings(libraryDependencies += "me.tongfei" % "progressbar" % "0.5.5")
   .dependsOn(testsShared)
