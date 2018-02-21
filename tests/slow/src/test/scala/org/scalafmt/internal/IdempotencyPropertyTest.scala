@@ -94,6 +94,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
           } else {
             val diff = getDiff(file.jFile.getAbsolutePath, treeNorm, tree2Norm)
             if (diff.nonEmpty) {
+              println("")
               logger.elem(diff)
               failureCount.incrementAndGet()
               failed += file.jFile -> true
@@ -115,7 +116,6 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
               .take(10)
             e.setStackTrace(st)
             // e.printStackTrace()
-            failed += file.jFile -> true
             () :: Nil
         }
 
@@ -145,8 +145,6 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
         StandardOpenOption.TRUNCATE_EXISTING
       )
     }
-
-    println(s"Success Rate: $currentRate")
 
     if (regressions.nonEmpty) {
       val sep = nl + "  "
