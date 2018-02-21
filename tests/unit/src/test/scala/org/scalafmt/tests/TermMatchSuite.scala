@@ -10,5 +10,4 @@ object TermMatchSuite extends BaseScalaPrinterTest {
   check("a match { case 1 => }")
   check("(a: @switch) match { case _ => b }")
   check("(if (a) b else c) match { case 1 => }")
-  check("a match {case _ => { f op { b } } }")
 }
