@@ -87,22 +87,6 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
 
     override def apply(tree: Tree): Tree = {
       super.apply(transform.lift(tree).map(this.apply).getOrElse(tree))
-      // var newTree = tree
-      // var i = 0
-      // val limit = 100
-      // var again = true
-      // do {
-      //   transform.lift(newTree) match {
-      //     case Some(t) =>
-      //       newTree = t
-      //       again = false
-      //     case None => 
-      //       again = true
-      //   }
-      //   i += 1
-      // } while(again && i < limit)
-
-      // super.apply(newTree)
     }
   }
 
