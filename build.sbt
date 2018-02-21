@@ -47,4 +47,13 @@ lazy val unit = project
 
 lazy val slow = project
   .in(file("tests/slow"))
+  .settings(
+    libraryDependencies += "me.tongfei" % "progressbar" % "0.5.5",
+    fork in (Test, test) := true,
+    cancelable in Global := true,
+    javaOptions in (Test, test) ++= Seq(
+      "-Xss20m", "-Xms4G", "-Xmx16G", "-XX:ReservedCodeCacheSize=1024m",
+      "-XX:+TieredCompilation", "-XX:+CMSClassUnloadingEnabled"
+    )
+  )
   .dependsOn(testsShared)

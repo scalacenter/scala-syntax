@@ -99,13 +99,13 @@ object TreePrinter {
           case t: Type.Refine =>
             val dtpe = t.tpe.fold(empty) { tpe =>
               val trailingSpace = if (t.stats.nonEmpty) space else empty
-              print(tpe) + trailingSpace
+              RefineTyp.wrap(tpe) + trailingSpace
             }
             dtpe + dBlock(t.stats)
           case t: Type.Existential =>
             print(t.tpe) + space + `forSome` + space + dBlock(t.stats)
           case t: Type.Annotate =>
-            print(t.tpe) + space + spaceSeparated(t.annots.map(print))
+            AnnotTyp.wrap(t.tpe) + space + spaceSeparated(t.annots.map(print))
           case t: Type.Lambda =>
             dApplyBracket(empty, t.tparams) + space + `=>` + space + print(
               t.tpe

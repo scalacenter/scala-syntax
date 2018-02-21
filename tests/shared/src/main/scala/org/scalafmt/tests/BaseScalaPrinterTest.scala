@@ -88,7 +88,6 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     override def apply(tree: Tree): Tree = {
       super.apply(transform.lift(tree).map(this.apply).getOrElse(tree))
     }
-
   }
 
   def normalize(tree: Tree): Tree = {
@@ -126,6 +125,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       val root2 = TreeDocOps.getRoot(obtained, options)
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
+          println(obtained)
           sys.error("AST changed!\n" + astDiff)
         case Right(()) =>
           assertNoDiff(obtained, expected)

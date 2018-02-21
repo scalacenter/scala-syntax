@@ -21,3 +21,6 @@ project/plugins/project/
 # ENSIME specific
 .ensime_cache/
 .ensime
+
+tests/slow/repos.tar.gz
+PlaygroundSuite.scala
