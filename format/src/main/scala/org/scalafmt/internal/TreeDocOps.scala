@@ -1,27 +1,13 @@
 package org.scalafmt.internal
 
 import scala.annotation.tailrec
-import scala.meta.Case
-import scala.meta.Ctor
 import org.scalafmt.Options
-import scala.meta.Decl
-import scala.meta.Defn
-import scala.meta.Enumerator
-import scala.meta.Import
-import scala.meta.Token
-import scala.meta.Importee
-import scala.meta.Importer
-import scala.meta.Init
 import scala.meta.Lit
 import scala.meta.Mod
 import scala.meta.Name
 import scala.meta.Pat
-import scala.meta.Pkg
 import scala.meta.Ref
 import scala.meta.Self
-import scala.meta.Source
-import scala.meta.Stat
-import scala.meta.Template
 import scala.meta.Type
 import scala.meta.Term
 import scala.meta.Tree

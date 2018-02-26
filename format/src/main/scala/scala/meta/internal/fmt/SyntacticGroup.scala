@@ -1,6 +1,5 @@
 package scala.meta.internal.fmt
 
-import scala.meta.Tree
 
 sealed trait SyntacticGroup {
   def categories: List[String]

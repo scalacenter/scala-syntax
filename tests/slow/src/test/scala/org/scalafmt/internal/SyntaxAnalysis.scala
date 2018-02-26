@@ -25,7 +25,6 @@ object SyntaxAnalysis {
       f: CorpusFile => List[T]
   ): mutable.Buffer[(CorpusFile, T)] = Phase.run("syntax analysis") {
     val results = new CopyOnWriteArrayList[(CorpusFile, T)]
-    val counter = new AtomicInteger()
     val errors = new AtomicInteger()
     def analyze(file: CorpusFile): Unit = {
       try {

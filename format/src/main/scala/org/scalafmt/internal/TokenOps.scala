@@ -1,10 +1,6 @@
 package org.scalafmt.internal
 
-import scala.annotation.switch
-import scala.meta.Importer
-import scala.meta.Init
 import scala.meta.Lit
-import scala.meta.Mod
 import scala.meta.Name
 import scala.meta.Pat
 import scala.meta.Term
@@ -17,13 +13,12 @@ import scala.meta.internal.prettyprinters.DoubleQuotes
 import scala.meta.internal.prettyprinters.QuoteStyle
 import scala.meta.internal.prettyprinters.SingleQuotes
 import scala.meta.internal.prettyprinters.TripleQuotes
-import org.scalameta.logger
 
 object TreeOps {
 
   // This method is pessimistic, it assumes all trees requires parens except
   // a small set of whitelisted tree nodes.
-  @deprecated
+  @deprecated("we need to migrate to SyntacticGroup", "forever")
   def needsParens(tree: Tree): Boolean = tree match {
     // format: off
     case

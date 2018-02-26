@@ -203,7 +203,7 @@ object TreeSyntax {
 
       // Branches
       // TODO: this match is not exhaustive: if I remove Mod.Package, then I get no warning
-      implicit def syntaxTree[T <: Tree]: Syntax[T] = Syntax {
+      implicit def syntaxTree[S <: Tree]: Syntax[S] = Syntax {
         // Bottom
         case t: Quasi =>
           if (!dialect.allowUnquotes)
@@ -215,11 +215,11 @@ object TreeSyntax {
           } else {
             val allowBraceless = t.tree.is[Term.Name] || t.tree
               .is[Pat.Var] || t.tree.is[Term.This] || t.tree.is[Pat.Wildcard]
-            implicit val syntaxDialect = dialect.copy(
-              allowTermUnquotes = false,
-              allowPatUnquotes = false,
-              allowMultilinePrograms = true
-            )
+            // implicit val syntaxDialect = dialect.copy(
+            //   allowTermUnquotes = false,
+            //   allowPatUnquotes = false,
+            //   allowMultilinePrograms = true
+            // )
             s("$", w("{", t.tree.syntax, "}", !allowBraceless))
           }
 
