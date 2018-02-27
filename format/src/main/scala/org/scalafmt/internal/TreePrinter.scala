@@ -39,6 +39,7 @@ import scala.meta.internal.format.Comments
 
 object TreePrinter {
   import TreeDocOps._
+  import TreeOps._
   def print(tree: Tree): Doc = {
     val result = tree match {
       case t: Name =>
@@ -507,7 +508,23 @@ object TreePrinter {
           case t: Pat.Extract =>
             dApplyParenPat(print(t.fun), t.args)
           case t: Pat.ExtractInfix =>
-            dInfixOld(mkPat(t.lhs), t.op.value, print(t.op), t.rhs.map(mkPat))
+            val operator = t.op.value
+            val right = 
+              t.rhs.map(mkPat) match {
+                case single :: Nil => {
+                  Pattern3(operator).wrap(single, Side.Right)
+                }
+                case multiple => {
+                  dApplyParen(empty, multiple)
+                }
+              }
+            
+            Pattern3(operator).wrap(mkPat(t.lhs)) + 
+              space + 
+              print(t.op) + 
+              space +
+              right
+
           case t: Pat.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Pat.Typed =>

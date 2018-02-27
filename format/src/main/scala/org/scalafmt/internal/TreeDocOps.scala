@@ -120,60 +120,6 @@ object TreeDocOps {
     InfixTyp(op).wrap(left) + space + operator + space + InfixTyp(op).wrap(right, Side.Right)
   }
 
-  // TODO(olafur) verify that different precedence of type/term infix operators
-  // does not affect this method:
-  // https://docs.scala-lang.org/sips/make-types-behave-like-expressions.html
-  def dInfixOld(
-      lhs: Tree,
-      op: String,
-      opDoc: Doc,
-      args: List[Tree]
-  ): Doc = {
-    val opPrecedence = operatorPrecedence(op)
-    // TODO(olafur) generalize over lhs/rhs comparison, there is so much
-    // duplication between the two cases.
-    val dlhs: Doc = lhs match {
-      case arg @ Term.ApplyInfix(_, Term.Name(lop), _, _) =>
-        val darg = print(arg)
-        val leftPrecedence = operatorPrecedence(lop)
-        if (isRightAssociative(op)) {
-          if (!isRightAssociative(lop)) wrapParens(darg)
-          else if (leftPrecedence >= opPrecedence) wrapParens(darg)
-          else darg
-        } else {
-          if (isRightAssociative(lop)) wrapParens(darg)
-          else if (leftPrecedence < opPrecedence) wrapParens(darg)
-          else darg
-        }
-      case _ =>
-        lhs.wrapped
-    }
-    val dargs: Doc = args match {
-      case LambdaArg(doc) => doc
-      case Lit.Unit() :: Nil => `(` + `(` + `)` + `)`
-      case Term.Block(stats) :: Nil => dBlock(stats)
-      case (arg @ Infix(rop)) :: Nil =>
-        val rightPrecedence = operatorPrecedence(rop)
-        val darg = print(arg)
-        if (isRightAssociative(op)) {
-          if (!isRightAssociative(rop)) wrapParens(darg)
-          else if (rightPrecedence > opPrecedence) wrapParens(darg)
-          else darg
-        } else {
-          if (rightPrecedence <= opPrecedence) wrapParens(darg)
-          else darg
-        }
-      case arg :: Nil =>
-        if (needsParens(arg)) {
-          dApplyParen(empty, args)
-        } else {
-          print(arg)
-        }
-      case _ => dApplyParen(empty, args)
-    }
-    dlhs + space + opDoc + space + dargs
-  }
-
   def dName(name: Tree): Doc = name match {
     case _: Name.Anonymous => wildcard
     case _ => print(name)
