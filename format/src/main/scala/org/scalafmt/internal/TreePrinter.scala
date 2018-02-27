@@ -146,8 +146,8 @@ object TreePrinter {
               case superp => dApplyBracket(`super`, superp :: Nil)
             }
             dthisp + dsuperp
-          case t: Term.Select =>
-            dPath(t.qual, print(t.qual), `.`, print(t.name))
+          case t: Term.Select =>            
+            dPath(t.qual, `.`, print(t.name))
           case t: Term.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Term.Xml =>
@@ -213,7 +213,11 @@ object TreePrinter {
               t.finallyp.fold(empty)(f => line + `finally` + space + print(f))
             dtry.grouped
           case t: Term.New =>
-            `new` + space + print(t.init)
+            val output = `new` + space + print(t.init)
+
+            if(t.init.argss.isEmpty) wrapParens(output)
+            else output
+
           case t: Term.Assign =>
             print(t.lhs) + space + `=` + space + print(t.rhs)
           case t: Term.Placeholder =>
@@ -237,7 +241,7 @@ object TreePrinter {
           case t: Term.ApplyUnary =>
             print(t.op) + SimpleExpr.wrap(t.arg)
           case t: Term.Apply =>
-            val dfun = dPath(t.fun, print(t.fun), empty, empty)
+            val dfun = dPath(t.fun, empty, empty)
             t.args match {
               case LambdaArg(arg) =>
                 dfun + space + arg.grouped

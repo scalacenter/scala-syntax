@@ -23,6 +23,8 @@ import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.TreeOps._
 import org.scalafmt.internal.TokenOps._
 
+import scala.meta.internal.fmt.SyntacticGroup.Term._
+
 object TreeDocOps {
   import TreePrinter._
 
@@ -47,11 +49,12 @@ object TreeDocOps {
     def wrap(tree: Tree, side: Side = Side.Left): Doc = {
       val rightGroup = TreeSyntacticGroup(tree)
       val doc = print(tree)
-      if (TreeOps.groupNeedsParens(leftGroup, rightGroup, side)) `(` + doc + `)`
+      if (TreeOps.groupNeedsParens(leftGroup, rightGroup, side)) wrapParens(doc)
       else doc
     }
   }
-  implicit class XtensionTreeDoc(val tree: Tree) extends AnyVal {
+  implicit class XtensionTreeDoc(val tree: Tree) extends AnyVal {    
+    @deprecated("let's use SyntacticGroup", "forever")
     def wrapped: Doc = {
       val doc = print(tree)
       if (needsParens(tree)) wrapParens(doc)
@@ -202,9 +205,8 @@ object TreeDocOps {
   }
 
   // This is a quick hack to prevent unnecessary parens.
-  def dPath(lhs: Tree, lhsDoc: Doc, sep: Doc, rhs: Doc): Doc = {
-    if (!needsParens(lhs)) lhsDoc + sep + rhs
-    else `(` + lhsDoc + `)` + sep + rhs
+  def dPath(lhs: Tree, sep: Doc, rhs: Doc): Doc = {
+    SimpleExpr.wrap(lhs) + sep + rhs
   }
 
   def dTyped(lhs: Tree, rhs: Tree): Doc = {
