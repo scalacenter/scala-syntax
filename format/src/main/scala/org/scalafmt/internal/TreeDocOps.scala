@@ -47,8 +47,10 @@ object TreeDocOps {
   implicit class XtensionSyntacticGroup(val leftGroup: SyntacticGroup)
       extends AnyVal {
     def wrap(tree: Tree, side: Side = Side.Left): Doc = {
+      wrap0(tree, print(tree), side)
+    }
+    def wrap0(tree: Tree, doc: Doc, side: Side = Side.Left): Doc = {
       val rightGroup = TreeSyntacticGroup(tree)
-      val doc = print(tree)
       if (TreeOps.groupNeedsParenthesis(leftGroup, rightGroup, side)) wrapParens(doc)
       else doc
     }
@@ -209,14 +211,13 @@ object TreeDocOps {
     SimpleExpr.wrap(lhs) + sep + rhs
   }
 
-  def dTyped(lhs: Tree, rhs: Tree): Doc = {
-    dTyped(lhs, print(rhs))
+  def dAscription(lhs: Tree, rhs: Tree): Doc = {
+    dAscription(lhs, print(rhs))
   }
 
-  def dTyped(lhs: Tree, rhs: Doc): Doc = {
+  def dAscription(lhs: Tree, rhs: Doc): Doc = {
     val dlhs = dName(lhs)
-    if (needsParens(lhs)) wrapParens(dlhs) + `:` + space + rhs
-    else dlhs + typedColon(dlhs) + space + rhs
+    Ascription.wrap0(lhs, dlhs) + typedColon(dlhs) + space + rhs
   }
 
   def dBlock(stats: List[Tree]): Doc =

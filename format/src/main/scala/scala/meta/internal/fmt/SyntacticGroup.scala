@@ -26,6 +26,7 @@ object SyntacticGroup {
   object Term {
     case object Expr extends Term { def precedence = 0 }
     case object Expr1 extends Term { def precedence = 1 }
+    case object Ascription extends Term { def precedence = 2 }
     case object PostfixExpr extends Term { def precedence = 2 }
     case class InfixExpr(operator: String) extends Term { def precedence = 3 }
     case object PrefixExpr extends Term { def precedence = 4 }

@@ -231,11 +231,11 @@ object TreePrinter {
           case t: Term.Throw =>
             `throw` + space + print(t.expr)
           case t: Term.Annotate =>
-            dTyped(t.expr, spaceSeparated(t.annots.map(print)))
+            dAscription(t.expr, spaceSeparated(t.annots.map(print)))
           case t: Term.NewAnonymous =>
             `new` + print(t.templ)
           case t: Term.Ascribe =>
-            dTyped(t.expr, t.tpe)
+            dAscription(t.expr, t.tpe)
           case t: Term.Eta =>
             print(t.expr) + space + `wildcard`
           case t: Term.ApplyUnary =>
@@ -302,7 +302,7 @@ object TreePrinter {
           dcbounds
       case t: Term.Param =>
         val ddecltpe =
-          t.decltpe.fold(dName(t.name))(tpe => dTyped(t.name, tpe))
+          t.decltpe.fold(dName(t.name))(tpe => dAscription(t.name, tpe))
         val ddefault =
           t.default.fold(empty)(default => `=` + space + print(default))
         spaceSeparated(

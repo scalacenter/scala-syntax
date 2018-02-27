@@ -93,13 +93,6 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
             if (diff.nonEmpty) {
               println("")
 
-              Files.write(
-                todo,
-                diff.toString.getBytes("utf-8"),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.APPEND
-              )
-
               logger.elem(diff)
               failureCount.incrementAndGet()
               failed += file.jFile -> true
@@ -107,6 +100,13 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
               if (!previouslyFailed.contains(file.jFile)) {
                 regressions += file.jFile -> true
                 println("Regression: " + file.jFile)
+              } else {
+                Files.write(
+                  todo,
+                  diff.toString.getBytes("utf-8"),
+                  StandardOpenOption.CREATE,
+                  StandardOpenOption.APPEND
+                )
               }
               () :: Nil
             } else {
