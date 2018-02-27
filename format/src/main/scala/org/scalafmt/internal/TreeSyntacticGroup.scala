@@ -52,7 +52,7 @@ object TreeSyntacticGroup {
     case t: Type.ApplyInfix => g.Type.InfixTyp(t.op.value)
     case _: Type.Function => g.Type.Typ
     case _: Type.Tuple => g.Type.SimpleTyp
-    case _: Type.With => g.Type.InfixTyp("with")
+    case _: Type.With => g.Type.WithTyp
     case _: Type.And => g.Type.InfixTyp("&")
     case _: Type.Or => g.Type.InfixTyp("|")
     case _: Type.Refine => g.Type.RefineTyp
