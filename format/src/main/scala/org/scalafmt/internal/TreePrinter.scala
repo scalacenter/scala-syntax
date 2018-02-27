@@ -87,15 +87,15 @@ object TreePrinter {
           case t: Type.Select => print(t.qual) + `.` + print(t.name)
           case t: Type.Apply => dApplyBracket(print(t.tpe), t.args)
           case t: Type.ApplyInfix =>
-            dInfix(t.lhs, t.op.value, print(t.op), t.rhs :: Nil)
+            dInfixType(t.lhs, print(t.op), t.rhs)
           case t: Type.ImplicitFunction =>
             `implicit` + space + print(Type.Function(t.params, t.res))
           case t: Type.And =>
-            print(Type.ApplyInfix(t.lhs, Type.Name("&"), t.rhs))
+            dInfixType(t.lhs, `&`, t.rhs)
           case t: Type.Or =>
-            print(Type.ApplyInfix(t.lhs, Type.Name("|"), t.rhs))
+            dInfixType(t.lhs, `|`, t.rhs)
           case t: Type.With =>
-            dInfix(t.lhs, "with", `with`, t.rhs :: Nil)
+            dInfixType(t.lhs, `with`, t.rhs)
           case t: Type.Refine =>
             val dtpe = t.tpe.fold(empty) { tpe =>
               val trailingSpace = if (t.stats.nonEmpty) space else empty
@@ -507,7 +507,7 @@ object TreePrinter {
           case t: Pat.Extract =>
             dApplyParenPat(print(t.fun), t.args)
           case t: Pat.ExtractInfix =>
-            dInfix(mkPat(t.lhs), t.op.value, print(t.op), t.rhs.map(mkPat))
+            dInfixOld(mkPat(t.lhs), t.op.value, print(t.op), t.rhs.map(mkPat))
           case t: Pat.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Pat.Typed =>

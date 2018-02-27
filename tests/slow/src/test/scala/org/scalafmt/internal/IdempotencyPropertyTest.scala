@@ -99,7 +99,11 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
 
               if (!previouslyFailed.contains(file.jFile)) {
                 regressions += file.jFile -> true
+                print(Console.RED)
+                println("*************************")
                 println("Regression: " + file.jFile)
+                println("*************************")
+                print(Console.RESET)
               } else {
                 Files.write(
                   todo,

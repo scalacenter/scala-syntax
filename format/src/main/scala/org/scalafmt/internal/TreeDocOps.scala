@@ -24,6 +24,7 @@ import org.scalafmt.internal.TreeOps._
 import org.scalafmt.internal.TokenOps._
 
 import scala.meta.internal.fmt.SyntacticGroup.Term._
+import scala.meta.internal.fmt.SyntacticGroup.Type._
 
 object TreeDocOps {
   import TreePrinter._
@@ -114,10 +115,15 @@ object TreeDocOps {
       }
   }
 
+  def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
+    val op = operator.render(100)
+    InfixTyp(op).wrap(left) + space + operator + space + InfixTyp(op).wrap(right, Side.Right)
+  }
+
   // TODO(olafur) verify that different precedence of type/term infix operators
   // does not affect this method:
   // https://docs.scala-lang.org/sips/make-types-behave-like-expressions.html
-  def dInfix(
+  def dInfixOld(
       lhs: Tree,
       op: String,
       opDoc: Doc,
@@ -364,8 +370,10 @@ object TreeDocOps {
       case Lit.String(part) => isMultilineInterpolated(part)
     }
 
-    def escape(part: String) =
-      dRawI(part.replace("$", "$$"), 0, None)
+    def escape(part: String) = {
+      val dollar = "$"
+      dRawI(part.replace(dollar, dollar + dollar), 0, None)
+    }
 
     val dquote = if (isTripleQuoted) `"""` else `"`
     val dhead = parts.head match {

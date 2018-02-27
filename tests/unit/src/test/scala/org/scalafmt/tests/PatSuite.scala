@@ -22,4 +22,5 @@ object PatSuite extends BaseScalaPrinterTest {
   checkEnumerator("a = b")
   checkCase("case `a` :: `b` :: _ =>")
   checkCase(""" case a b `c` =>""")
+  checkCase("case _ op (a | b) =>")
 }
