@@ -1,6 +1,5 @@
 package org.scalafmt.tests
 import org.scalameta.logger
-import utest.ufansi.Str
 
 trait DiffSuite extends FunSuite {
   def assertNoDiff(

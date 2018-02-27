@@ -11,9 +11,5 @@ scala/test/files/run/t6506.scala
 scala/test/files/specialized/arrays.scala
 scalafx/scalafx/src/test/scala/scalafx/util/DurationSpec.scala
 scalaz/core/src/main/scala/scalaz/Foldable.scala
-scalaz/core/src/main/scala/scalaz/Isomorphism.scala
-scalaz/core/src/main/scala/scalaz/NullResult.scala
-scalaz/tests/src/test/scala/scalaz/UnapplyTest.scala
 shapeless/core/src/main/scala/shapeless/ops/zipper.scala
-shapeless/core/src/main/scala/shapeless/package.scala
 util/util-core/src/test/scala/com/twitter/util/DurationTest.scala

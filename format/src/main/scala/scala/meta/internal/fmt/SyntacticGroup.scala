@@ -1,6 +1,5 @@
 package scala.meta.internal.fmt
 
-import scala.meta.Tree
 
 sealed trait SyntacticGroup {
   def categories: List[String]
@@ -15,7 +14,7 @@ object SyntacticGroup {
     case object ParamTyp extends Type { def precedence = 0 }
     case object Typ extends Type { def precedence = 1 }
     case object AnyInfixTyp extends Type { def precedence = 1.5 }
-    case class InfixTyp(op: String) extends Type { def precedence = 2 }
+    case class InfixTyp(operator: String) extends Type { def precedence = 2 }
     case object RefineTyp extends Type { def precedence = 3 }
     case object WithTyp extends Type { def precedence = 3.5 }
     case object AnnotTyp extends Type { def precedence = 4 }
@@ -27,8 +26,9 @@ object SyntacticGroup {
   object Term {
     case object Expr extends Term { def precedence = 0 }
     case object Expr1 extends Term { def precedence = 1 }
+    case object Ascription extends Term { def precedence = 2 }
     case object PostfixExpr extends Term { def precedence = 2 }
-    case class InfixExpr(op: String) extends Term { def precedence = 3 }
+    case class InfixExpr(operator: String) extends Term { def precedence = 3 }
     case object PrefixExpr extends Term { def precedence = 4 }
     case object SimpleExpr extends Term { def precedence = 5 }
     case object SimpleExpr1 extends Term { def precedence = 6 }
@@ -41,7 +41,7 @@ object SyntacticGroup {
     case object Pattern1 extends Pat { def precedence = 1 }
     case object Pattern2 extends Pat { def precedence = 2 }
     case object AnyPattern3 extends Pat { def precedence = 2.5 }
-    case class Pattern3(op: String) extends Pat { def precedence = 3 }
+    case class Pattern3(operator: String) extends Pat { def precedence = 3 }
     case object SimplePattern extends Pat { def precedence = 6 }
   }
   case object Literal extends Term with Pat {

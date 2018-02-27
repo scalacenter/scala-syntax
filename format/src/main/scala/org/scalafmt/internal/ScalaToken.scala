@@ -3,7 +3,6 @@ package org.scalafmt.internal
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
 import org.typelevel.paiges.Doc.char
-import org.typelevel.paiges.Doc.lineBreak
 import org.typelevel.paiges.Doc.text
 
 object ScalaToken {
@@ -20,6 +19,7 @@ object ScalaToken {
   val `}` : Doc = char('}')
   val `:` : Doc = char(':')
   val `|` : Doc = char('|')
+  val `&` : Doc = char('&')
   val `=` : Doc = char('=')
   val wildcard: Doc = char('_')
   val covariant: Doc = char('+')

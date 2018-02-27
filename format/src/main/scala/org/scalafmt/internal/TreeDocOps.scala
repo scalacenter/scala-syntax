@@ -1,27 +1,13 @@
 package org.scalafmt.internal
 
 import scala.annotation.tailrec
-import scala.meta.Case
-import scala.meta.Ctor
 import org.scalafmt.Options
-import scala.meta.Decl
-import scala.meta.Defn
-import scala.meta.Enumerator
-import scala.meta.Import
-import scala.meta.Token
-import scala.meta.Importee
-import scala.meta.Importer
-import scala.meta.Init
 import scala.meta.Lit
 import scala.meta.Mod
 import scala.meta.Name
 import scala.meta.Pat
-import scala.meta.Pkg
 import scala.meta.Ref
 import scala.meta.Self
-import scala.meta.Source
-import scala.meta.Stat
-import scala.meta.Template
 import scala.meta.Type
 import scala.meta.Term
 import scala.meta.Tree
@@ -36,6 +22,9 @@ import scala.meta.internal.format.CustomTrees._
 import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.TreeOps._
 import org.scalafmt.internal.TokenOps._
+
+import scala.meta.internal.fmt.SyntacticGroup.Term._
+import scala.meta.internal.fmt.SyntacticGroup.Type._
 
 object TreeDocOps {
   import TreePrinter._
@@ -59,13 +48,16 @@ object TreeDocOps {
   implicit class XtensionSyntacticGroup(val leftGroup: SyntacticGroup)
       extends AnyVal {
     def wrap(tree: Tree, side: Side = Side.Left): Doc = {
+      wrap0(tree, print(tree), side)
+    }
+    def wrap0(tree: Tree, doc: Doc, side: Side = Side.Left): Doc = {
       val rightGroup = TreeSyntacticGroup(tree)
-      val doc = print(tree)
-      if (TreeOps.groupNeedsParens(leftGroup, rightGroup, side)) `(` + doc + `)`
+      if (TreeOps.groupNeedsParenthesis(leftGroup, rightGroup, side)) wrapParens(doc)
       else doc
     }
   }
-  implicit class XtensionTreeDoc(val tree: Tree) extends AnyVal {
+  implicit class XtensionTreeDoc(val tree: Tree) extends AnyVal {    
+    @deprecated("let's use SyntacticGroup", "forever")
     def wrapped: Doc = {
       val doc = print(tree)
       if (needsParens(tree)) wrapParens(doc)
@@ -123,58 +115,9 @@ object TreeDocOps {
       }
   }
 
-  // TODO(olafur) verify that different precedence of type/term infix operators
-  // does not affect this method:
-  // https://docs.scala-lang.org/sips/make-types-behave-like-expressions.html
-  def dInfix(
-      lhs: Tree,
-      op: String,
-      opDoc: Doc,
-      args: List[Tree]
-  ): Doc = {
-    val opPrecedence = operatorPrecedence(op)
-    // TODO(olafur) generalize over lhs/rhs comparison, there is so much
-    // duplication between the two cases.
-    val dlhs: Doc = lhs match {
-      case arg @ Term.ApplyInfix(_, Term.Name(lop), _, _) =>
-        val darg = print(arg)
-        val leftPrecedence = operatorPrecedence(lop)
-        if (isRightAssociative(op)) {
-          if (!isRightAssociative(lop)) wrapParens(darg)
-          else if (leftPrecedence >= opPrecedence) wrapParens(darg)
-          else darg
-        } else {
-          if (isRightAssociative(lop)) wrapParens(darg)
-          else if (leftPrecedence < opPrecedence) wrapParens(darg)
-          else darg
-        }
-      case _ =>
-        lhs.wrapped
-    }
-    val dargs: Doc = args match {
-      case LambdaArg(doc) => doc
-      case Lit.Unit() :: Nil => `(` + `(` + `)` + `)`
-      case Term.Block(stats) :: Nil => dBlock(stats)
-      case (arg @ Infix(rop)) :: Nil =>
-        val rightPrecedence = operatorPrecedence(rop)
-        val darg = print(arg)
-        if (isRightAssociative(op)) {
-          if (!isRightAssociative(rop)) wrapParens(darg)
-          else if (rightPrecedence > opPrecedence) wrapParens(darg)
-          else darg
-        } else {
-          if (rightPrecedence <= opPrecedence) wrapParens(darg)
-          else darg
-        }
-      case arg :: Nil =>
-        if (needsParens(arg)) {
-          dApplyParen(empty, args)
-        } else {
-          print(arg)
-        }
-      case _ => dApplyParen(empty, args)
-    }
-    dlhs + space + opDoc + space + dargs
+  def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
+    val op = operator.render(100)
+    InfixTyp(op).wrap(left) + space + operator + space + InfixTyp(op).wrap(right, Side.Right)
   }
 
   def dName(name: Tree): Doc = name match {
@@ -216,19 +159,17 @@ object TreeDocOps {
   }
 
   // This is a quick hack to prevent unnecessary parens.
-  def dPath(lhs: Tree, lhsDoc: Doc, sep: Doc, rhs: Doc): Doc = {
-    if (!needsParens(lhs)) lhsDoc + sep + rhs
-    else `(` + lhsDoc + `)` + sep + rhs
+  def dPath(lhs: Tree, sep: Doc, rhs: Doc): Doc = {
+    SimpleExpr.wrap(lhs) + sep + rhs
   }
 
-  def dTyped(lhs: Tree, rhs: Tree): Doc = {
-    dTyped(lhs, print(rhs))
+  def dAscription(lhs: Tree, rhs: Tree): Doc = {
+    dAscription(lhs, print(rhs))
   }
 
-  def dTyped(lhs: Tree, rhs: Doc): Doc = {
+  def dAscription(lhs: Tree, rhs: Doc): Doc = {
     val dlhs = dName(lhs)
-    if (needsParens(lhs)) wrapParens(dlhs) + `:` + space + rhs
-    else dlhs + typedColon(dlhs) + space + rhs
+    Ascription.wrap0(lhs, dlhs) + typedColon(dlhs) + space + rhs
   }
 
   def dBlock(stats: List[Tree]): Doc =
@@ -375,8 +316,10 @@ object TreeDocOps {
       case Lit.String(part) => isMultilineInterpolated(part)
     }
 
-    def escape(part: String) =
-      dRawI(part.replace("$", "$$"), 0, None)
+    def escape(part: String) = {
+      val dollar = "$"
+      dRawI(part.replace(dollar, dollar + dollar), 0, None)
+    }
 
     val dquote = if (isTripleQuoted) `"""` else `"`
     val dhead = parts.head match {

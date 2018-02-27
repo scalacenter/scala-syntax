@@ -39,6 +39,7 @@ import scala.meta.internal.format.Comments
 
 object TreePrinter {
   import TreeDocOps._
+  import TreeOps._
   def print(tree: Tree): Doc = {
     val result = tree match {
       case t: Name =>
@@ -87,15 +88,15 @@ object TreePrinter {
           case t: Type.Select => print(t.qual) + `.` + print(t.name)
           case t: Type.Apply => dApplyBracket(print(t.tpe), t.args)
           case t: Type.ApplyInfix =>
-            dInfix(t.lhs, t.op.value, print(t.op), t.rhs :: Nil)
+            dInfixType(t.lhs, print(t.op), t.rhs)
           case t: Type.ImplicitFunction =>
             `implicit` + space + print(Type.Function(t.params, t.res))
           case t: Type.And =>
-            print(Type.ApplyInfix(t.lhs, Type.Name("&"), t.rhs))
+            dInfixType(t.lhs, `&`, t.rhs)
           case t: Type.Or =>
-            print(Type.ApplyInfix(t.lhs, Type.Name("|"), t.rhs))
+            dInfixType(t.lhs, `|`, t.rhs)
           case t: Type.With =>
-            dInfix(t.lhs, "with", `with`, t.rhs :: Nil)
+            dInfixType(t.lhs, `with`, t.rhs)
           case t: Type.Refine =>
             val dtpe = t.tpe.fold(empty) { tpe =>
               val trailingSpace = if (t.stats.nonEmpty) space else empty
@@ -146,8 +147,8 @@ object TreePrinter {
               case superp => dApplyBracket(`super`, superp :: Nil)
             }
             dthisp + dsuperp
-          case t: Term.Select =>
-            dPath(t.qual, print(t.qual), `.`, print(t.name))
+          case t: Term.Select =>            
+            dPath(t.qual, `.`, print(t.name))
           case t: Term.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Term.Xml =>
@@ -213,7 +214,11 @@ object TreePrinter {
               t.finallyp.fold(empty)(f => line + `finally` + space + print(f))
             dtry.grouped
           case t: Term.New =>
-            `new` + space + print(t.init)
+            val output = `new` + space + print(t.init)
+
+            if(t.init.argss.isEmpty) wrapParens(output)
+            else output
+
           case t: Term.Assign =>
             print(t.lhs) + space + `=` + space + print(t.rhs)
           case t: Term.Placeholder =>
@@ -227,17 +232,17 @@ object TreePrinter {
           case t: Term.Throw =>
             `throw` + space + print(t.expr)
           case t: Term.Annotate =>
-            dTyped(t.expr, spaceSeparated(t.annots.map(print)))
+            dAscription(t.expr, spaceSeparated(t.annots.map(print)))
           case t: Term.NewAnonymous =>
             `new` + print(t.templ)
           case t: Term.Ascribe =>
-            dTyped(t.expr, t.tpe)
+            dAscription(t.expr, t.tpe)
           case t: Term.Eta =>
             print(t.expr) + space + `wildcard`
           case t: Term.ApplyUnary =>
             print(t.op) + SimpleExpr.wrap(t.arg)
           case t: Term.Apply =>
-            val dfun = dPath(t.fun, print(t.fun), empty, empty)
+            val dfun = dPath(t.fun, empty, empty)
             t.args match {
               case LambdaArg(arg) =>
                 dfun + space + arg.grouped
@@ -298,7 +303,7 @@ object TreePrinter {
           dcbounds
       case t: Term.Param =>
         val ddecltpe =
-          t.decltpe.fold(dName(t.name))(tpe => dTyped(t.name, tpe))
+          t.decltpe.fold(dName(t.name))(tpe => dAscription(t.name, tpe))
         val ddefault =
           t.default.fold(empty)(default => `=` + space + print(default))
         spaceSeparated(
@@ -503,7 +508,23 @@ object TreePrinter {
           case t: Pat.Extract =>
             dApplyParenPat(print(t.fun), t.args)
           case t: Pat.ExtractInfix =>
-            dInfix(mkPat(t.lhs), t.op.value, print(t.op), t.rhs.map(mkPat))
+            val operator = t.op.value
+            val right = 
+              t.rhs.map(mkPat) match {
+                case single :: Nil => {
+                  Pattern3(operator).wrap(single, Side.Right)
+                }
+                case multiple => {
+                  dApplyParen(empty, multiple)
+                }
+              }
+            
+            Pattern3(operator).wrap(mkPat(t.lhs)) + 
+              space + 
+              print(t.op) + 
+              space +
+              right
+
           case t: Pat.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Pat.Typed =>

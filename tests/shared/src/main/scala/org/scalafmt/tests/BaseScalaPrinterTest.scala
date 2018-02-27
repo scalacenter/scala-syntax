@@ -125,8 +125,14 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       val root2 = TreeDocOps.getRoot(obtained, options)
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
-          println(obtained)
-          sys.error("AST changed!\n" + astDiff)
+          sys.error(
+            s"""|AST changed
+                |  obtained: $obtained
+                |  expected: $expected
+                |
+                |---------------------------------""".stripMargin
+          )
+
         case Right(()) =>
           assertNoDiff(obtained, expected)
           val obtained2 =

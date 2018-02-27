@@ -1,11 +1,9 @@
 package org.scalafmt.internal
 
-import scala.meta.Tree
 import scala.meta.testkit.Corpus
 import scala.meta.testkit.CorpusFile
 import scala.meta.testkit.StructurallyEqual
 import scala.util.control.NonFatal
-import org.scalafmt.Format
 import org.scalafmt.Options
 import org.scalafmt.tests.BaseScalaPrinterTest
 import org.scalameta.logger
@@ -74,7 +72,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
     progress.start()
 
     val options = Options.default
-    val nonEmptyDiff = SyntaxAnalysis.run[Unit](corpus) { file =>
+    SyntaxAnalysis.run[Unit](corpus) { file =>
       val result =
         try {
           val in = file.read
@@ -95,20 +93,24 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
             if (diff.nonEmpty) {
               println("")
 
-              Files.write(
-                todo,
-                diff.toString.getBytes("utf-8"),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.APPEND
-              )
-
               logger.elem(diff)
               failureCount.incrementAndGet()
               failed += file.jFile -> true
 
               if (!previouslyFailed.contains(file.jFile)) {
                 regressions += file.jFile -> true
+                print(Console.RED)
+                println("*************************")
                 println("Regression: " + file.jFile)
+                println("*************************")
+                print(Console.RESET)
+              } else {
+                Files.write(
+                  todo,
+                  diff.toString.getBytes("utf-8"),
+                  StandardOpenOption.CREATE,
+                  StandardOpenOption.APPEND
+                )
               }
               () :: Nil
             } else {

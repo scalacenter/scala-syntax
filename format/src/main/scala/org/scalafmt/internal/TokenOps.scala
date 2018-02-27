@@ -1,10 +1,6 @@
 package org.scalafmt.internal
 
-import scala.annotation.switch
-import scala.meta.Importer
-import scala.meta.Init
 import scala.meta.Lit
-import scala.meta.Mod
 import scala.meta.Name
 import scala.meta.Pat
 import scala.meta.Term
@@ -17,13 +13,12 @@ import scala.meta.internal.prettyprinters.DoubleQuotes
 import scala.meta.internal.prettyprinters.QuoteStyle
 import scala.meta.internal.prettyprinters.SingleQuotes
 import scala.meta.internal.prettyprinters.TripleQuotes
-import org.scalameta.logger
 
 object TreeOps {
 
   // This method is pessimistic, it assumes all trees requires parens except
   // a small set of whitelisted tree nodes.
-  @deprecated
+  @deprecated("we need to migrate to SyntacticGroup", "forever")
   def needsParens(tree: Tree): Boolean = tree match {
     // format: off
     case
@@ -62,58 +57,72 @@ object TreeOps {
     }
   }
 
-  def opNeedsParens(
-      oo: String,
-      io: String,
-      customAssoc: Boolean,
+  def operatorNeedsParenthesis(
+      outerOperator: String,
+      innerOperator: String,
+      customAssociativity: Boolean,
       customPrecedence: Boolean,
       side: Side
   ): Boolean = {
-    def isleftassoc(name: String): Boolean =
-      if (customAssoc) name.last != ':' else true
+    // The associativity of an operator is determined by the operator's last character.
+    // Operators ending in a colon ‘:’ are right-associative. All
+    // other operators are left-associative.
+    // https://www.scala-lang.org/files/archive/spec/2.13/06-expressions.html#infix-operations
+    def isLeftAssociative(name: String): Boolean =
+      if (customAssociativity) name.last != ':' else true
+
     def precedence(name: String): Int =
       if (customPrecedence) Term.Name(name).precedence else 0
-    val (ol, il) = (isleftassoc(oo), isleftassoc(io))
-    if (ol ^ il) true
+
+    val outerOperatorIsLeftAssociative = isLeftAssociative(outerOperator)
+    val innerOperatorIsLeftAssociative = isLeftAssociative(innerOperator)
+
+    if (outerOperatorIsLeftAssociative ^ innerOperatorIsLeftAssociative) true
     else {
-      val (l, r) = (ol, !ol)
-      val (op, ip) = (precedence(oo), precedence(io))
-      if (op < ip) r
-      else if (op > ip) l
-      else l ^ side.isLeft
+      val isLeft = outerOperatorIsLeftAssociative
+      val isRight = !outerOperatorIsLeftAssociative
+
+      val outerOperatorPrecedence = precedence(outerOperator)
+      val innerOperatorPrecedence = precedence(innerOperator)
+
+      if (outerOperatorPrecedence < innerOperatorPrecedence) isRight
+      else if (outerOperatorPrecedence > innerOperatorPrecedence) isLeft
+      else isLeft ^ side.isLeft
     }
   }
 
-  def groupNeedsParens(
-      og: SyntacticGroup,
-      ig: SyntacticGroup,
+  def groupNeedsParenthesis(
+      outerGroup: SyntacticGroup,
+      innerGroup: SyntacticGroup,
       side: Side
-  ): Boolean = (og, ig) match {
-    case (g.Term.InfixExpr(oo), g.Term.InfixExpr(io)) =>
-      opNeedsParens(
-        oo,
-        io,
-        customAssoc = true,
+  ): Boolean = (outerGroup, innerGroup) match {
+    case (g.Term.InfixExpr(outerOperator), g.Term.InfixExpr(innerOperator)) =>
+      operatorNeedsParenthesis(
+        outerOperator,
+        innerOperator,
+        customAssociativity = true,
         customPrecedence = true,
         side
       )
-    case (g.Type.InfixTyp(oo), g.Type.InfixTyp(io)) =>
-      opNeedsParens(
-        oo,
-        io,
-        customAssoc = true,
+    case (g.Type.InfixTyp(outerOperator), g.Type.InfixTyp(innerOperator)) =>
+      operatorNeedsParenthesis(
+        outerOperator,
+        innerOperator,
+        customAssociativity = true,
         customPrecedence = false,
         side
       )
-    case (g.Pat.Pattern3(oo), g.Pat.Pattern3(io)) =>
-      opNeedsParens(
-        oo,
-        io,
-        customAssoc = true,
+    case (g.Pat.Pattern3(outerOperator), g.Pat.Pattern3(innerOperator)) =>
+      operatorNeedsParenthesis(
+        outerOperator,
+        innerOperator,
+        customAssociativity = true,
         customPrecedence = true,
         side
       )
-    case _ => og.precedence > ig.precedence
+    case _ => {
+      outerGroup.precedence > innerGroup.precedence
+    }
   }
 
 }
