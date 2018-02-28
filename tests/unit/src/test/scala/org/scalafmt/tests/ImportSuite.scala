@@ -1,6 +1,5 @@
 package org.scalafmt.tests
 
-
 object ImportSuite extends BaseScalaPrinterTest {
   checkSource("package a.b")
   check("import a.b")

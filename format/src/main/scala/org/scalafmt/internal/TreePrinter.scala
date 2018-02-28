@@ -147,7 +147,7 @@ object TreePrinter {
               case superp => dApplyBracket(`super`, superp :: Nil)
             }
             dthisp + dsuperp
-          case t: Term.Select =>            
+          case t: Term.Select =>
             dPath(t.qual, `.`, print(t.name))
           case t: Term.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
@@ -216,7 +216,7 @@ object TreePrinter {
           case t: Term.New =>
             val output = `new` + space + print(t.init)
 
-            if(t.init.argss.isEmpty) wrapParens(output)
+            if (t.init.argss.isEmpty) wrapParens(output)
             else output
 
           case t: Term.Assign =>
@@ -509,7 +509,7 @@ object TreePrinter {
             dApplyParenPat(print(t.fun), t.args)
           case t: Pat.ExtractInfix =>
             val operator = t.op.value
-            val right = 
+            val right =
               t.rhs.map(mkPat) match {
                 case single :: Nil => {
                   Pattern3(operator).wrap(single, Side.Right)
@@ -518,10 +518,10 @@ object TreePrinter {
                   dApplyParen(empty, multiple)
                 }
               }
-            
-            Pattern3(operator).wrap(mkPat(t.lhs)) + 
-              space + 
-              print(t.op) + 
+
+            Pattern3(operator).wrap(mkPat(t.lhs)) +
+              space +
+              print(t.op) +
               space +
               right
 

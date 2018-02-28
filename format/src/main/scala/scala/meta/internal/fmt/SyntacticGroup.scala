@@ -1,6 +1,5 @@
 package scala.meta.internal.fmt
 
-
 sealed trait SyntacticGroup {
   def categories: List[String]
   def precedence: Double

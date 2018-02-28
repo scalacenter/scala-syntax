@@ -52,11 +52,12 @@ object TreeDocOps {
     }
     def wrap0(tree: Tree, doc: Doc, side: Side = Side.Left): Doc = {
       val rightGroup = TreeSyntacticGroup(tree)
-      if (TreeOps.groupNeedsParenthesis(leftGroup, rightGroup, side)) wrapParens(doc)
+      if (TreeOps.groupNeedsParenthesis(leftGroup, rightGroup, side))
+        wrapParens(doc)
       else doc
     }
   }
-  implicit class XtensionTreeDoc(val tree: Tree) extends AnyVal {    
+  implicit class XtensionTreeDoc(val tree: Tree) extends AnyVal {
     @deprecated("let's use SyntacticGroup", "forever")
     def wrapped: Doc = {
       val doc = print(tree)
@@ -117,7 +118,8 @@ object TreeDocOps {
 
   def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
     val op = operator.render(100)
-    InfixTyp(op).wrap(left) + space + operator + space + InfixTyp(op).wrap(right, Side.Right)
+    InfixTyp(op).wrap(left) + space + operator + space + InfixTyp(op)
+      .wrap(right, Side.Right)
   }
 
   def dName(name: Tree): Doc = name match {

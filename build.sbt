@@ -22,7 +22,7 @@ lazy val format = project
     },
     mainClass.in(assembly) := Some("org.scalafmt.Format"),
     libraryDependencies ++= List(
-      "com.lihaoyi" %% "pprint" % "0.5.2",       // for debugging
+      "com.lihaoyi" %% "pprint" % "0.5.2", // for debugging
       "org.scalameta" %% "scalameta" % metaV,
       "org.scalameta" %% "contrib" % metaV
     )
