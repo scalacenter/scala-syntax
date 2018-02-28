@@ -39,7 +39,6 @@ import scala.meta.internal.format.Comments
 
 object TreePrinter {
   import TreeDocOps._
-  import TreeOps._
   def print(tree: Tree): Doc = {
     val result = tree match {
       case t: Name =>

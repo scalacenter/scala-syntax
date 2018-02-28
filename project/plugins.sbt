@@ -4,3 +4,4 @@ addSbtPlugin(
   "io.get-coursier" % "sbt-coursier" % coursier.util.Properties.version
 )
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.5.10")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
