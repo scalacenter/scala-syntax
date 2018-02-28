@@ -1,3 +1,9 @@
+scala-syntax
+[![Travis Build Status](https://travis-ci.org/scalacenter/scala-syntax.svg?branch=master)](https://travis-ci.org/scalacenter/scala-syntax)
+[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/ys1uejcy2y2tgamf/branch/master?svg=true)](https://ci.appveyor.com/project/scalacenter/scala-syntax/branch/master)
+[![Join the chat at https://gitter.im/scalacenter/scalafix](https://badges.gitter.im/scala-syntax.svg)](https://gitter.im/scala-syntax)
+========
+
 # Scalameta tree pretty printer
 
 Pretty printer for [Scalameta](http://scalameta.org/) trees using
