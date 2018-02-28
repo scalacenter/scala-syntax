@@ -22,7 +22,7 @@ object InfixSuite extends BaseScalaPrinterTest {
   checkType("(A :: b.B) :: C")
   check("(a /: b) to 5")
   check("r /: (1 to 5)")
-  check("a(b :: (c d e):_*)")
+  check("a(b :: (c d e): _*)")
   check("(a := b) op c")
   check("a t_= (a b c)")
   check("(a b c) +: d")
@@ -30,5 +30,5 @@ object InfixSuite extends BaseScalaPrinterTest {
   check("a + b")
   check("a op[T] b")
   check("a b ((c, d))")
-  check("a op (a:_*)")
+  check("a op (a: _*)")
 }

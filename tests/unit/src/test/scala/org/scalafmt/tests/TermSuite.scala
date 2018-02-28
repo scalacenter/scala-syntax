@@ -54,7 +54,7 @@ object TermSuite extends BaseScalaPrinterTest {
   check("a[A]")
   check("a(1, 2)")
   check("a(1, 2)(1)")
-  check("a(b:_*)")
+  check("a(b: _*)")
   check("a(b => c)")
   check("a((b: B) => c)")
   check("a(() => b)")

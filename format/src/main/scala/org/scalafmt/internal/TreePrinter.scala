@@ -31,11 +31,11 @@ import org.typelevel.paiges.Doc.line
 import org.typelevel.paiges.Doc.space
 import org.typelevel.paiges.Doc.text
 import org.scalafmt.internal.ScalaToken._
-import scala.meta.internal.fmt.SyntacticGroup.Literal
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
 import scala.meta.internal.fmt.SyntacticGroup.Pat._
 import scala.meta.internal.format.Comments
+import scala.meta.internal.prettyprinters.SingleQuotes
 
 object TreePrinter {
   import TreeDocOps._
@@ -55,7 +55,18 @@ object TreePrinter {
             val (quoteStyle, dquote) = dQuote(t.value)
             val dvalue = dRaw(t.value, quoteStyle)
             dquote + dvalue + dquote
-          case _ => text(tree.syntax) // ???
+          case t: Lit.Unit => `(` + `)`
+          case t: Lit.Int => text(t.value.toString)
+          case t: Lit.Double => text(t.format + "D")
+          case t: Lit.Float => text(t.format + "F")
+          case t: Lit.Long => text(t.value + "L")
+          case t: Lit.Byte => text(t.value + "Z")
+          case t: Lit.Short => text(t.value + "S")
+          case t: Lit.Char =>
+            SingleQuotes + text(
+              SyntaxOps.escape(t.value.toString, SingleQuotes)
+            ) + SingleQuotes
+          case t: Lit.Symbol => SingleQuotes + text(t.value.name)
         }
       case _: Enumerator =>
         tree match {
@@ -162,7 +173,7 @@ object TreePrinter {
             dhead + dtail
           case t: Term.Return => `return` + space + print(t.expr)
           case t: Term.Repeated =>
-            PostfixExpr.wrap(t.expr) + `:` + wildcard + `*`
+            PostfixExpr.wrap(t.expr) + `:` + space + wildcard + `*`
           case t: Term.If =>
             def body(expr: Term) = expr match {
               case b: Term.Block => space + dBlock(b.stats)
@@ -317,7 +328,9 @@ object TreePrinter {
               isOnlyChildOfOnlyChild(pkg) && pkg.stats.length == 1
             case Some(source: Source) => source.stats.length == 1
             case None => true
-            case _ => true // ???
+            // $COVERAGE-OFF$
+            case _ => true // Impossible ???
+            // $COVERAGE-ON$
           }
 
           !isOnlyChildOfOnlyChild(t)
@@ -341,10 +354,9 @@ object TreePrinter {
       case t: Importer =>
         val fun = print(t.ref) + `.`
         t.importees match {
-          case Importee.Name(n) :: Nil => fun + print(n)
-          case Importee.Wildcard() :: Nil => fun + wildcard
-          case _ =>
-            dApply(fun, t.importees, `{` + space, space + `}`)
+          case (name: Importee.Name) :: Nil => fun + print(name)
+          case (wildcard: Importee.Wildcard) :: Nil => fun + print(wildcard)
+          case _ => dApply(fun, t.importees, `{` + space, space + `}`)
         }
       case t: Init =>
         val dfun = t.tpe match {
@@ -359,7 +371,10 @@ object TreePrinter {
         val dname = t.name match {
           case Name.Anonymous() =>
             if (t.decltpe.isDefined) wildcard
+            // $COVERAGE-OFF$
+            // since `trait A { this => }` is simply `trait A { }`
             else empty
+          // $COVERAGE-ON$
           case _ =>
             print(t.name)
         }
@@ -491,6 +506,7 @@ object TreePrinter {
           case _: Mod.ValParam => `val`
           case t: Mod.Private => dWithin(`private`, t.within)
           case t: Mod.Protected => dWithin(`protected`, t.within)
+          case _: Mod.Inline => `inline`
         }
       case p: Pat =>
         p match {
@@ -527,11 +543,9 @@ object TreePrinter {
           case t: Pat.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Pat.Typed =>
-            val drhs = t.rhs match {
-              case l: Lit => Literal.wrap(l)
-              case rhs => RefineTyp.wrap(rhs)
-            }
-            print(t.lhs) + `:` + space + drhs
+            print(t.lhs) + `:` + space + RefineTyp.wrap(t.rhs) // TypedPat.wrap
+          case t: Pat.Xml =>
+            dPatXml(t)
         }
     }
     Comments.doc(tree, result)

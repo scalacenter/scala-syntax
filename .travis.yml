@@ -1,17 +1,23 @@
 language: scala
-script:
-- bash -c "$CI_TEST"
+
+dist: trusty
+
+group: edge
+
 jdk:
 - oraclejdk8
 
+script:
+- "./ci.sh $CI_TEST"
+
+install:
+  - pip install --user codecov
+
 env:
   matrix:
-    - CI_TEST: sbt "unit/test"
-
-    - CI_TEST: sbt ";clean;coverage;slow/test;coverageReport"
-      CI_COVERAGE: true
-
-    - CI_TEST: ./scalafmt --test
+    - CI_TEST: "unit"
+    - CI_TEST: "slow"
+    - CI_TEST: "scalafmt"
 
 cache:
   directories:
@@ -28,5 +34,4 @@ before_cache:
 - find $HOME/.ivy2/cache -name "ivydata-*.properties" -type f -delete
 - rm -rf $HOME/.ivy2/local
 
-after_success:
-  - bash "[[ -v CI_COVERAGE ]] && bash <(curl -s https://codecov.io/bash)"
+

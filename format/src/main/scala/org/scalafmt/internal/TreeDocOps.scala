@@ -26,8 +26,12 @@ import org.scalafmt.internal.TokenOps._
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
 
+import scala.language.implicitConversions
+
 object TreeDocOps {
   import TreePrinter._
+
+  implicit def toDoc(quote: QuoteStyle): Doc = text(quote.toString)
 
   def getRoot(input: String, options: Options): Tree = {
     getRoot(Input.String(input), options)
@@ -57,18 +61,8 @@ object TreeDocOps {
       else doc
     }
   }
-  implicit class XtensionTreeDoc(val tree: Tree) extends AnyVal {
-    @deprecated("let's use SyntacticGroup", "forever")
-    def wrapped: Doc = {
-      val doc = print(tree)
-      if (needsParens(tree)) wrapParens(doc)
-      else doc
-    }
-  }
 
   def wrapParens(doc: Doc): Doc = `(` + doc + `)`
-
-  def isRightAssociative(op: String): Boolean = op.endsWith(":")
 
   object LambdaArg {
     type Paramss = Vector[List[Term.Param]]
@@ -361,4 +355,30 @@ object TreeDocOps {
         PatName(t.value)
       case _ => pat
     }
+
+  def dPatXml(pat: Pat.Xml): Doc = {
+    val parts = pat.parts.map(Some(_))
+    val args = pat.args.map(Some(_))
+    parts.zipAll(args, None, None).foldLeft(empty) {
+      case (acc, (part, argument)) => {
+        val printedPart =
+          part match {
+            case Some(p: Lit.String) => {
+              val (quoteStyle, _) = dQuote(p.value)
+              dRaw(p.value, quoteStyle)
+            }
+            // $COVERAGE-OFF$
+            case Some(_) =>
+              sys.error("xml part expect Lit.String: " + part.structure)
+            case _ => empty // impossible, parts.size = args.size + 1
+            // $COVERAGE-ON$
+          }
+
+        val printedArgument =
+          argument.map(a => `{` + print(a) + `}`).getOrElse(empty)
+
+        acc + printedPart + printedArgument
+      }
+    }
+  }
 }
