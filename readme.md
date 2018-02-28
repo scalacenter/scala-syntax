@@ -1,6 +1,7 @@
 scala-syntax
 [![Travis Build Status](https://travis-ci.org/scalacenter/scala-syntax.svg?branch=master)](https://travis-ci.org/scalacenter/scala-syntax)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/ys1uejcy2y2tgamf/branch/master?svg=true)](https://ci.appveyor.com/project/scalacenter/scala-syntax/branch/master)
+[![codecov.io](http://codecov.io/github/scalacenter/scala-syntax/coverage.svg?branch=master)](http://codecov.io/github/scalacenter/scala-syntax?branch=master)
 [![Join the chat at https://gitter.im/scalacenter/scalafix](https://badges.gitter.im/scala-syntax.svg)](https://gitter.im/scala-syntax)
 ========
 

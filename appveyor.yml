@@ -6,8 +6,7 @@ environment:
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
   APPVEYOR_CACHE_ENTRY_ZIP_ARGS: "-t7z -m0=lzma -mx=9"
   matrix:
-    - CI_TEST: sbt unit/test
-    - CI_TEST: sbt slow/test
+    - CI_TEST: unit/test
 
 install:
   - SET PATH=%JAVA_HOME%\bin;%PATH%
@@ -26,3 +25,4 @@ cache:
   - '%USERPROFILE%\.sbt'
   - '%LOCALAPPDATA%\Coursier\cache'
   - '%USERPROFILE%\scoop\cache'
+
