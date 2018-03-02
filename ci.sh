@@ -9,12 +9,11 @@ case "$TEST" in
     ;;
 
   "slow" )
-    ./scalafmt --test
-    sbt ";clean;coverage;slow/test;coverageReport"
-    bash <(curl -s https://codecov.io/bash)
+    sbt "slow/test"
     ;;
 
   "unit" )
-    sbt "unit/test"
+    sbt ";clean;coverage;unit/test;coverageReport"
+    bash <(curl -s https://codecov.io/bash)
     ;;
 esac

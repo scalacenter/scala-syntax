@@ -1,17 +1,12 @@
 language: scala
 
-dist: trusty
-
-group: edge
+dist: precise
 
 jdk:
 - oraclejdk8
 
 script:
 - "./ci.sh $CI_TEST"
-
-install:
-  - pip install --user codecov
 
 env:
   matrix:
