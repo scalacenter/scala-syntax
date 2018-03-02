@@ -22,5 +22,6 @@ project/plugins/project/
 .ensime_cache/
 .ensime
 
-tests/slow/repos.tar.gz
+tests/slow/repos.tar.gz*
+tests/slow/todo.diff
 PlaygroundSuite.scala

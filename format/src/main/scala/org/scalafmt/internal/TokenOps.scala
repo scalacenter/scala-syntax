@@ -48,15 +48,6 @@ object TreeOps {
     case _ => true
   }
 
-  object Infix {
-    def unapply(arg: Tree): Option[String] = arg match {
-      case Term.ApplyInfix(_, Term.Name(op), _, _) => Some(op)
-      case Type.ApplyInfix(_, Type.Name(op), _) => Some(op)
-      case Pat.ExtractInfix(_, Term.Name(op), _) => Some(op)
-      case _ => None
-    }
-  }
-
   def operatorNeedsParenthesis(
       outerOperator: String,
       innerOperator: String,
@@ -154,14 +145,6 @@ object SyntaxOps {
 }
 
 object TokenOps {
-  import scala.meta.internal.trees._
-  // http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#assignment-operators
-  def isAssignmentOperator(op: String): Boolean =
-    Term.Name(op).isAssignmentOp
-
-  // http://scala-lang.org/files/archive/spec/2.11/06-expressions.html#infix-operations
-  def operatorPrecedence(op: String): Int =
-    Term.Name(op).precedence
 
   /** Returns true if this token is an identifier that requires a leading space before colon.
    *

@@ -45,11 +45,28 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     check(original, options.copy(parser = Parse.parseCase))
   }
 
+  def checkCaseStructural(
+      original: String,
+      options: InternalOptions = defaultOptions
+  ): Unit = {
+    checkStructural(original, options.copy(parser = Parse.parseCase))
+  }
+
   def checkSource(
       original: String,
       options: InternalOptions = defaultOptions
   ): Unit = {
     check(
+      original,
+      options.copy(parser = Parse.parseSource, dialect = dialects.Scala212)
+    )
+  }
+
+  def checkSourceStructural(
+      original: String,
+      options: InternalOptions = defaultOptions
+  ): Unit = {
+    checkStructural(
       original,
       options.copy(parser = Parse.parseSource, dialect = dialects.Scala212)
     )
@@ -64,6 +81,13 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
 
   def check(original: String, options: Options = defaultOptions): Unit = {
     check(original, original, options)
+  }
+
+  def checkStructural(
+      original: String,
+      options: Options = defaultOptions
+  ): Unit = {
+    checkStructural(original, original, options)
   }
 
   def check(original: String, expected: String): Unit = {
@@ -110,18 +134,44 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     isStructurallyEqual(a, b).left.map(_ => getDiff(filename, a, b))
   }
 
+  def checkStructural(
+      original2: String,
+      expected2: String,
+      options: Options
+  ): Unit = {
+    checkFromString(
+      original2,
+      expected2,
+      options,
+      structuralOnly = true
+    )
+  }
+
   def check(
       original2: String,
       expected2: String,
       options: Options
+  ): Unit = {
+    checkFromString(
+      original2,
+      expected2,
+      options,
+      structuralOnly = false
+    )
+  }
+
+  private def checkFromString(
+      original2: String,
+      expected2: String,
+      options: Options,
+      structuralOnly: Boolean
   ): Unit = {
     val original = original2.replace("'''", "\"\"\"")
     val expected = expected2.replace("'''", "\"\"\"")
     val testName = logger.revealWhitespace(original)
     test(testName) {
       val root = TreeDocOps.getRoot(original, options)
-      val obtained =
-        TreeDocOps.printTree(root, options).render(options.maxColumn)
+      val obtained = printTree(root, options)
       val root2 = TreeDocOps.getRoot(obtained, options)
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
@@ -134,10 +184,35 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
           )
 
         case Right(()) =>
-          assertNoDiff(obtained, expected)
-          val obtained2 =
-            TreeDocOps.printTree(root2, options).render(options.maxColumn)
-          assertNoDiff(obtained, obtained2, "Idempotency violated!")
+          if (!structuralOnly) {
+            assertNoDiff(obtained, expected)
+            val obtained2 = printTree(root2, options)
+            assertNoDiff(obtained, obtained2, "Idempotency violated!")
+          }
+      }
+    }
+  }
+
+  def checkTreeSource(root: Tree): Unit = {
+    val options = defaultOptions.copy(
+      parser = Parse.parseSource,
+      dialect = dialects.Scala212
+    )
+    val testName = root.syntax
+
+    test(testName) {
+      val obtained = printTree(root, options)
+      val root2 = TreeDocOps.getRoot(obtained, options).children.head
+      isSameTree(testName, root, root2) match {
+        case Left(astDiff) =>
+          sys.error(
+            s"""|AST changed
+                |  obtained: ${root2.structure} ${root2.syntax}
+                |  expected: ${root.structure} ${root2.syntax}
+                |
+                |---------------------------------""".stripMargin
+          )
+        case Right(()) => ()
       }
     }
   }
@@ -156,5 +231,13 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     val y = ScalametaInternal.resetOrigin(tree2).syntax
     val result = unified(x, y)
     result
+  }
+
+  def printTree(root: Tree, options: Options = defaultOptions): String = {
+    TreeDocOps.printTree(root, options).render(options.maxColumn)
+  }
+
+  def check(tree: Tree, expected: String): Unit = {
+    assertNoDiff(printTree(tree), expected)
   }
 }

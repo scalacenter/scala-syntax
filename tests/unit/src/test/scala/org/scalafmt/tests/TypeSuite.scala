@@ -14,6 +14,8 @@ object TypeSuite extends BaseScalaPrinterTest {
   checkType("() => C")
   checkType("implicit A => C")
   checkType("A & B")
+  checkType("A | B")
+  checkType("A & B | (C & D)")
   checkType("A with B")
   checkType("A { val b: B }")
   checkType("{ val b: B }")

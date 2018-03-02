@@ -53,9 +53,19 @@ lazy val slow = project
     libraryDependencies += "me.tongfei" % "progressbar" % "0.5.5",
     fork in (Test, test) := true,
     cancelable in Global := true,
-    javaOptions in (Test, test) ++= Seq(
-      "-Xss20m", "-Xms4G", "-Xmx16G", "-XX:ReservedCodeCacheSize=1024m",
-      "-XX:+TieredCompilation", "-XX:+CMSClassUnloadingEnabled"
-    )
+    javaOptions in (Test, test) ++= {
+      val mem =
+        if (sys.env.get("CI").isDefined) 4
+        else 20
+
+      Seq(
+        "-Xss20m",
+        "-Xms4G",
+        s"-Xmx${mem}G",
+        "-XX:ReservedCodeCacheSize=1024m",
+        "-XX:+TieredCompilation",
+        "-XX:+CMSClassUnloadingEnabled"
+      )
+    }
   )
   .dependsOn(testsShared)
