@@ -31,5 +31,4 @@ object InfixSuite extends BaseScalaPrinterTest {
   check("a op[T] b")
   check("a b ((c, d))")
   check("a op (a: _*)")
-  check("new {} OP S")
 }
