@@ -20,7 +20,6 @@ import org.typelevel.paiges.Doc._
 import org.langmeta.inputs.Input
 import scala.meta.internal.format.CustomTrees._
 import org.scalafmt.internal.ScalaToken._
-import org.scalafmt.internal.TreeOps._
 import org.scalafmt.internal.TokenOps._
 
 import scala.meta.internal.fmt.SyntacticGroup.Term._
@@ -339,8 +338,9 @@ object TreeDocOps {
       case param :: Nil =>
         val dparam = print(param)
         param.decltpe match {
-          case Some(tpe) if forceParens || needsParens(tpe) =>
-            `(` + dparam + `)`
+          case Some(tpe) =>
+            if (forceParens) wrapParens(dparam)
+            else SimpleExpr.wrap0(tpe, dparam)
           case _ => dparam
         }
       case _ => dApplyParen(empty, params)

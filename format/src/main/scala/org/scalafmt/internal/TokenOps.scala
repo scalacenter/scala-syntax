@@ -1,53 +1,14 @@
 package org.scalafmt.internal
 
-import scala.meta.Lit
-import scala.meta.Name
-import scala.meta.Pat
 import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.Type
 import scala.meta.internal.fmt.SyntacticGroup
 import scala.meta.internal.fmt.{SyntacticGroup => g}
-import scala.meta.internal.format.CustomTrees.PatName
 import scala.meta.internal.prettyprinters.DoubleQuotes
 import scala.meta.internal.prettyprinters.QuoteStyle
 import scala.meta.internal.prettyprinters.SingleQuotes
 import scala.meta.internal.prettyprinters.TripleQuotes
 
 object TreeOps {
-
-  // This method is pessimistic, it assumes all trees requires parens except
-  // a small set of whitelisted tree nodes.
-  @deprecated("we need to migrate to SyntacticGroup", "forever")
-  def needsParens(tree: Tree): Boolean = tree match {
-    // format: off
-    case
-         _: Lit |
-         _: Name.Anonymous |
-         _: Pat.Extract |
-         _: Pat.SeqWildcard |
-         _: Pat.Tuple |
-         _: Pat.Var |
-         _: Pat.Wildcard |
-         _: PatName |
-         _: Term.Apply |
-         _: Term.ApplyType |
-         _: Term.Interpolate |
-         _: Term.Name |
-         _: Term.Placeholder |
-         _: Term.Select |
-         _: Term.Super |
-         _: Term.This |
-         _: Type.Apply |
-         _: Type.Name |
-         _: Type.Select
-       => false
-    // format: on
-    case t: Term.New => t.init.argss.isEmpty
-//    case t: Term.Annotate => false // NOTE(olafur) because we always wrap Term.Annotate
-    case _ => true
-  }
-
   def operatorNeedsParenthesis(
       outerOperator: String,
       innerOperator: String,
