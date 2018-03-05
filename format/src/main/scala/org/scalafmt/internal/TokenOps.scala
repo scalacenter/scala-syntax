@@ -82,15 +82,14 @@ object TreeOps {
         side
       )
 
-    case (_: g.Term.PrefixExpr, _: g.Term.PrefixExpr) =>
+    case (_: g.Term.PrefixExpr, g.Term.PrefixArg(_, _: g.Term.PrefixExpr)) =>
       true
 
-    case (g.Term.PrefixExpr("-"), g.Path(Term.Select(tree, _)))
+    case (g.Term.PrefixExpr("-"), g.Term.PrefixArg(Term.Select(tree, _), _))
         if isNumericLiteral(tree) =>
       true
-    case _ => {
+    case _ =>
       outerGroup.precedence > innerGroup.precedence
-    }
   }
 
 }

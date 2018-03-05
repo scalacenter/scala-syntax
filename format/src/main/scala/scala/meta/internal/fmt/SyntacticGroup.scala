@@ -2,6 +2,8 @@ package scala.meta.internal.fmt
 
 import scala.meta.Tree
 
+import org.scalafmt.internal.TreeSyntacticGroup
+
 sealed trait SyntacticGroup {
   def categories: List[String]
   def precedence: Double
@@ -31,6 +33,13 @@ object SyntacticGroup {
     case object PostfixExpr extends Term { def precedence = 2 }
     case class InfixExpr(operator: String) extends Term { def precedence = 3 }
     case class PrefixExpr(operator: String) extends Term { def precedence = 4 }
+    object PrefixArg {
+      def apply(tree: Tree): PrefixArg =
+        PrefixArg(tree, TreeSyntacticGroup(tree))
+    }
+    case class PrefixArg(tree: Tree, innerGroup: SyntacticGroup) extends Term {
+      def precedence = innerGroup.precedence
+    }
     case object SimpleExpr extends Term { def precedence = 5 }
     case object SimpleExpr1 extends Term { def precedence = 6 }
   }
@@ -52,8 +61,13 @@ object SyntacticGroup {
     Literal.precedence == Term.SimpleExpr1.precedence &&
       Literal.precedence == Pat.SimplePattern.precedence
   )
-  case class Path(tree: Tree) extends Type with Term with Pat {
+  case object Path extends Type with Term with Pat {
     override def categories = List("Type", "Term", "Pat");
     def precedence = 6
   }
+  require(
+    Path.precedence == Type.SimpleTyp.precedence &&
+      Path.precedence == Term.SimpleExpr1.precedence &&
+      Path.precedence == Pat.SimplePattern.precedence
+  )
 }

@@ -251,7 +251,7 @@ object TreePrinter {
             print(t.expr) + space + `wildcard`
           case t: Term.ApplyUnary =>
             val group = TreeSyntacticGroup(t)
-            print(t.op) + group.wrap(t.arg)
+            print(t.op) + group.wrap1(PrefixArg(t.arg), print(t.arg))
           case t: Term.Apply =>
             val dfun = dPath(t.fun, empty, empty)
             t.args match {
