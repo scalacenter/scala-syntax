@@ -339,8 +339,9 @@ object TreeDocOps {
       case param :: Nil =>
         val dparam = print(param)
         param.decltpe match {
-          case Some(tpe) if forceParens || needsParens(tpe) =>
-            `(` + dparam + `)`
+          case Some(tpe) =>
+            if (forceParens) wrapParens(dparam)
+            else SimpleExpr.wrap0(tpe, dparam)
           case _ => dparam
         }
       case _ => dApplyParen(empty, params)
