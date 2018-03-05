@@ -11,4 +11,3 @@ scala/test/files/run/t2378.scala
 scala/test/files/specialized/arrays.scala
 scalaz/core/src/main/scala/scalaz/Foldable.scala
 shapeless/core/src/main/scala/shapeless/ops/zipper.scala
-util/util-core/src/test/scala/com/twitter/util/DurationTest.scala

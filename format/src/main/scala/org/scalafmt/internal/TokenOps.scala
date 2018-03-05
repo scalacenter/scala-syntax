@@ -43,11 +43,12 @@ object TreeOps {
     }
   }
 
-  def isNumericLiteral(tree: Tree): Boolean = {
+  def startsWithNumericLiteral(tree: Tree): Boolean = {
     tree match {
       case _: Lit.Int | _: Lit.Long | _: Lit.Double | _: Lit.Float |
           _: Lit.Byte | _: Lit.Short =>
         true
+      case Term.Select(tree0, _) => startsWithNumericLiteral(tree0)
       case _ => false
     }
   }
@@ -86,7 +87,7 @@ object TreeOps {
       true
 
     case (g.Term.PrefixExpr("-"), g.Term.PrefixArg(Term.Select(tree, _), _))
-        if isNumericLiteral(tree) =>
+        if startsWithNumericLiteral(tree) =>
       true
     case _ =>
       outerGroup.precedence > innerGroup.precedence

@@ -11,4 +11,5 @@ object TermApplyUnarySuite extends BaseScalaPrinterTest {
   check("-(1.0D.s)")
   check("-(1.0F.s)")
   check("-(-a)")
+  check("-(10.s.s)")
 }
