@@ -55,6 +55,13 @@ object TreeDocOps {
     }
     def wrap0(tree: Tree, doc: Doc, side: Side = Side.Left): Doc = {
       val rightGroup = TreeSyntacticGroup(tree)
+      wrap1(rightGroup, doc, side)
+    }
+    def wrap1(
+        rightGroup: SyntacticGroup,
+        doc: Doc,
+        side: Side = Side.Left
+    ): Doc = {
       if (TreeOps.groupNeedsParenthesis(leftGroup, rightGroup, side))
         wrapParens(doc)
       else doc
