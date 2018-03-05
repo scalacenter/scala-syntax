@@ -162,4 +162,5 @@ object TermSuite extends BaseScalaPrinterTest {
           |}
         """.stripMargin)
   check("new {}")
+  check("(new A())()")
 }

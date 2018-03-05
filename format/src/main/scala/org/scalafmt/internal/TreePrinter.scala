@@ -253,7 +253,7 @@ object TreePrinter {
             val group = TreeSyntacticGroup(t)
             print(t.op) + group.wrap1(PrefixArg(t.arg), print(t.arg))
           case t: Term.Apply =>
-            val dfun = dPath(t.fun, empty, empty)
+            val dfun = SimpleExpr1.wrap0(t.fun, dPath2(t.fun, empty, empty))
             t.args match {
               case LambdaArg(arg) =>
                 dfun + space + arg.grouped

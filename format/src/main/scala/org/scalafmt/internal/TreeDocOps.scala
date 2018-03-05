@@ -165,6 +165,10 @@ object TreeDocOps {
     SimpleExpr.wrap(lhs) + sep + rhs
   }
 
+  def dPath2(lhs: Tree, sep: Doc, rhs: Doc): Doc = {
+    print(lhs) + sep + rhs
+  }
+
   def dAscription(lhs: Tree, rhs: Tree): Doc = {
     dAscription(lhs, print(rhs))
   }
