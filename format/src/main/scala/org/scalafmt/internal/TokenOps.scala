@@ -1,6 +1,6 @@
 package org.scalafmt.internal
 
-import scala.meta.Term
+import scala.meta.{Term, Tree, Lit}
 import scala.meta.internal.fmt.SyntacticGroup
 import scala.meta.internal.fmt.{SyntacticGroup => g}
 import scala.meta.internal.prettyprinters.DoubleQuotes
@@ -43,6 +43,15 @@ object TreeOps {
     }
   }
 
+  def isNumericLiteral(tree: Tree): Boolean = {
+    tree match {
+      case _: Lit.Int | _: Lit.Long | _: Lit.Double | _: Lit.Float |
+          _: Lit.Byte | _: Lit.Short =>
+        true
+      case _ => false
+    }
+  }
+
   def groupNeedsParenthesis(
       outerGroup: SyntacticGroup,
       innerGroup: SyntacticGroup,
@@ -72,6 +81,13 @@ object TreeOps {
         customPrecedence = true,
         side
       )
+
+    case (_: g.Term.PrefixExpr, _: g.Term.PrefixExpr) =>
+      true
+
+    case (g.Term.PrefixExpr("-"), g.Path(Term.Select(tree, _)))
+        if isNumericLiteral(tree) =>
+      true
     case _ => {
       outerGroup.precedence > innerGroup.precedence
     }

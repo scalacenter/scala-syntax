@@ -12,14 +12,14 @@ object TreeSyntacticGroup {
   def apply(tree: Tree): SyntacticGroup = tree match {
     case _: Lit => g.Literal
     // Term
-    case _: Term.Name => g.Path
-    case _: Term.Select => g.Path
+    case t: Term.Name => g.Path(t)
+    case t: Term.Select => g.Path(t)
     case _: Term.Interpolate => g.Term.SimpleExpr1
     case _: Term.Xml => g.Term.SimpleExpr1
     case _: Term.Apply => g.Term.SimpleExpr1
     case _: Term.ApplyType => g.Term.SimpleExpr1
     case t: Term.ApplyInfix => g.Term.InfixExpr(t.op.value)
-    case _: Term.ApplyUnary => g.Term.PrefixExpr
+    case t: Term.ApplyUnary => g.Term.PrefixExpr(t.op.value)
     case _: Term.Assign => g.Term.Expr1
     case _: Term.Return => g.Term.Expr1
     case _: Term.Throw => g.Term.Expr1
@@ -42,9 +42,9 @@ object TreeSyntacticGroup {
     case _: Term.Placeholder => g.Term.SimpleExpr1
     case _: Term.Eta => g.Term.SimpleExpr
     case _: Term.Repeated => g.Term.PostfixExpr
-    case _: Term.Param => g.Path // ???
+    case t: Term.Param => g.Path(t) // ???
     // Type
-    case _: Type.Name => g.Path
+    case t: Type.Name => g.Path(t)
     case _: Type.Select => g.Type.SimpleTyp
     case _: Type.Project => g.Type.SimpleTyp
     case _: Type.Singleton => g.Type.SimpleTyp
@@ -61,11 +61,11 @@ object TreeSyntacticGroup {
     case _: Type.Lambda => g.Type.Typ
     case _: Type.Method => g.Type.Typ
     case _: Type.Placeholder => g.Type.SimpleTyp
-    case _: Type.Bounds => g.Path // ???
+    case t: Type.Bounds => g.Path(t) // ???
     case _: Type.Repeated => g.Type.ParamTyp
     case _: Type.ByName => g.Type.ParamTyp
     case _: Type.Var => g.Type.ParamTyp
-    case _: Type.Param => g.Path // ???
+    case t: Type.Param => g.Path(t) // ???
     // Pat
     case _: Pat.Var => g.Pat.SimplePattern
     case _: Pat.Wildcard => g.Pat.SimplePattern
@@ -80,6 +80,6 @@ object TreeSyntacticGroup {
     case _: Pat.Typed => g.Pat.Pattern1
 
     // Misc
-    case _ => g.Path
+    case t => g.Path(t)
   }
 }
