@@ -389,6 +389,7 @@ object TreePrinter {
           else space + `extends` + space + dBlock(t.early)
         }
         val dinits = t.inits match {
+          case Nil if isTermNewAnon => space + `{` + `}`
           case Nil => empty
           case head :: tail =>
             val keyword =

@@ -8,7 +8,6 @@ scala/src/compiler/scala/tools/nsc/transform/SpecializeTypes.scala
 scala/test/files/jvm/javaReflection/Classes_1.scala
 scala/test/files/pos/t9050.scala
 scala/test/files/run/t2378.scala
-scala/test/files/run/t6506.scala
 scala/test/files/specialized/arrays.scala
 scalaz/core/src/main/scala/scalaz/Foldable.scala
 shapeless/core/src/main/scala/shapeless/ops/zipper.scala

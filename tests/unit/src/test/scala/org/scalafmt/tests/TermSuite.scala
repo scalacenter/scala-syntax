@@ -161,4 +161,5 @@ object TermSuite extends BaseScalaPrinterTest {
           |    b
           |}
         """.stripMargin)
+  check("new {}")
 }
