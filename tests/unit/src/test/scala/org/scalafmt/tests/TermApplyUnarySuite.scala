@@ -6,6 +6,7 @@ object TermApplyUnarySuite extends BaseScalaPrinterTest {
   check("!(if (a) b else c)")
   check("!(a op b)")
   check("-(1.s)")
+  checkStructural("-(a.s)")
   check("-(1L.s)")
   check("-(1.0D.s)")
   check("-(1.0F.s)")
