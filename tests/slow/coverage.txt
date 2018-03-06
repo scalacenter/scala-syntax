@@ -1,4 +1,3 @@
-platform/yggdrasil/src/main/scala/com/precog/yggdrasil/table/CPathTraversal.scala
 sbt/main/src/main/scala/sbt/ConsoleProject.scala
 sbt/main/src/main/scala/sbt/Defaults.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/Bits.scala
@@ -9,5 +8,3 @@ scala/test/files/jvm/javaReflection/Classes_1.scala
 scala/test/files/pos/t9050.scala
 scala/test/files/run/t2378.scala
 scala/test/files/specialized/arrays.scala
-scalaz/core/src/main/scala/scalaz/Foldable.scala
-shapeless/core/src/main/scala/shapeless/ops/zipper.scala

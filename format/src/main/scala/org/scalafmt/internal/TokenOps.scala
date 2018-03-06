@@ -14,8 +14,10 @@ object TreeOps {
       innerOperator: String,
       customAssociativity: Boolean,
       customPrecedence: Boolean,
-      side: Side
+      side: Side,
+      forceRight: Boolean = false
   ): Boolean = {
+
     // The associativity of an operator is determined by the operator's last character.
     // Operators ending in a colon ‘:’ are right-associative. All
     // other operators are left-associative.
@@ -37,9 +39,13 @@ object TreeOps {
       val outerOperatorPrecedence = precedence(outerOperator)
       val innerOperatorPrecedence = precedence(innerOperator)
 
-      if (outerOperatorPrecedence < innerOperatorPrecedence) isRight
-      else if (outerOperatorPrecedence > innerOperatorPrecedence) isLeft
-      else isLeft ^ side.isLeft
+      if (outerOperatorPrecedence < innerOperatorPrecedence) {
+        isRight
+      } else if (outerOperatorPrecedence == innerOperatorPrecedence) {
+        isLeft ^ side.isLeft
+      } else {
+        isLeft || forceRight
+      }
     }
   }
 
@@ -64,7 +70,8 @@ object TreeOps {
         innerOperator,
         customAssociativity = true,
         customPrecedence = true,
-        side
+        side,
+        forceRight = true
       )
     case (g.Type.InfixTyp(outerOperator), g.Type.InfixTyp(innerOperator)) =>
       operatorNeedsParenthesis(
@@ -89,6 +96,7 @@ object TreeOps {
     case (g.Term.PrefixExpr("-"), g.Term.PrefixArg(Term.Select(tree, _), _))
         if startsWithNumericLiteral(tree) =>
       true
+
     case _ =>
       outerGroup.precedence > innerGroup.precedence
   }
