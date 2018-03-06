@@ -1,4 +1,1 @@
-scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
-scala/test/files/jvm/javaReflection/Classes_1.scala
-scala/test/files/pos/t9050.scala
-scala/test/files/run/t2378.scala
+
