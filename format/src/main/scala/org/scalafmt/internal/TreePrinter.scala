@@ -158,7 +158,7 @@ object TreePrinter {
             }
             dthisp + dsuperp
           case t: Term.Select =>
-            dPath(t.qual, `.`, print(t.name))
+            SimpleExpr.wrap(t.qual) + `.` + print(t.name)
           case t: Term.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Term.Xml =>
@@ -253,7 +253,7 @@ object TreePrinter {
             val group = TreeSyntacticGroup(t)
             print(t.op) + group.wrap1(PrefixArg(t.arg), print(t.arg))
           case t: Term.Apply =>
-            val dfun = dPath(t.fun, empty, empty)
+            val dfun = SimpleExpr1.wrap(t.fun)
             t.args match {
               case LambdaArg(arg) =>
                 dfun + space + arg.grouped

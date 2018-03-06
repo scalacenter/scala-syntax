@@ -160,11 +160,6 @@ object TreeDocOps {
     dargs.tightBracketBy(fun + `(`, `)`)
   }
 
-  // This is a quick hack to prevent unnecessary parens.
-  def dPath(lhs: Tree, sep: Doc, rhs: Doc): Doc = {
-    SimpleExpr.wrap(lhs) + sep + rhs
-  }
-
   def dAscription(lhs: Tree, rhs: Tree): Doc = {
     dAscription(lhs, print(rhs))
   }
