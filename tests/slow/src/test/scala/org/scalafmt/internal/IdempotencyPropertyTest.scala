@@ -39,7 +39,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
   val previouslyFailed: Set[File] =
     if (Files.exists(coverageFile)) {
       val input = new String(Files.readAllBytes(coverageFile))
-      input.split(nl).map(f => new File(prefix + f)).toSet
+      input.split(nl).filterNot(_ == "").map(f => new File(prefix + f)).toSet
     } else {
       Set()
     }
@@ -139,7 +139,11 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
     progress.stop()
 
     def fileList(in: TrieMap[File, Boolean], sep: String): String =
-      in.keys.map(_.toString.drop(prefix.size)).toList.sorted.mkString(sep)
+      in.keys
+        .map(_.toString.drop(prefix.size))
+        .toList
+        .sorted
+        .mkString("", sep, sep)
 
     if (regressions.isEmpty) {
       Files.write(
