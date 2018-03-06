@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.concurrent.TrieMap
 
 import java.nio.file._
+import java.nio.charset.StandardCharsets
 import java.io.File
 
 // Comment out to run these tests, currently it fails with output
@@ -78,7 +79,7 @@ object IdempotencyPropertyTest extends BaseScalaPrinterTest {
           val in = file.read
           import scala.meta._
           def input(str: String) =
-            Input.VirtualFile(file.jFile.getAbsolutePath, str)
+            Input.File(file.jFile, StandardCharsets.UTF_8)
           val tree = input(in).parse[Source].get
           val formatted =
             TreeDocOps.printTree(tree, options).render(options.maxColumn)
