@@ -267,10 +267,15 @@ object TreeDocOps {
   }
 
   def dStats(stats: List[Tree]): Doc = {
-    intercalate(lineBlank, stats.map {
-      case t: Term.Xml => wrapParens(print(t))
-      case t => print(t)
-    })
+    intercalate(
+      lineBlank,
+      stats.map {
+        // Term.Xml is SimpleExpr1 but binds weaker when with other xml expressions
+        // ex: { val x = <a></a>; (<b></b>) }
+        case t: Term.Xml => wrapParens(print(t))
+        case t => Expr1.wrap(t)
+      }
+    )
   }
 
   def dRaw(str: String, quoteStyle: QuoteStyle): Doc =
