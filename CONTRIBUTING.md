@@ -1,7 +1,30 @@
-The goal is to get the failures of `slow/test` to 0.
+## Trivia Preserving
 
-As of Feburary 21, there is 23 files to fix. There is a corpus of 26 368 scala files.
-Only 24 946 scala files parses.
+```scala
+val ast0 = parse(source0)
+val source = prettyPrint(ast0)
+source0 == source // as much as possible !
+```
+
+Our current focus is on preserving comments. For example:
+
+```scala
+// this is a
+val a = 1
+
+val b = 2 // magic
+```
+
+If we apply a tree tranformation to swap the order of a and b, we should get:
+
+```scala
+val b = 2 // magic
+
+// this is a
+val a = 1
+```
+
+## Correctness
 
 We check for the following correctness property:
 
@@ -53,3 +76,5 @@ Regression: target/repos/intellij-scala/testdata/typeInference/bugs5/SCL2426.sca
 ```
 
 And it will make the test fail.
+
+As of March 6th 2018, scala-syntax correctness property holds for it's current corpus.
