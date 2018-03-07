@@ -16,21 +16,27 @@ import scala.meta.testkit.Corpus
 import scala.collection.concurrent.TrieMap
 import scala.util.control.NonFatal
 
+sealed trait PropertyResult
+case object Success extends PropertyResult
+case class Failure(explanation: String) extends PropertyResult
+
 abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
-  val failed = TrieMap.empty[File, Boolean]
-  val regressions = TrieMap.empty[File, Boolean]
-  val nl = "\n"
-  val prefix = "target/repos/"
+  def check(file: Input.File, relativePath: String): PropertyResult
 
-  val coverageFile = Paths.get(s"coverage-${name}.txt")
-  val todoFile = Paths.get(s"todo-${name}.diff")
+  private val failed = TrieMap.empty[File, Boolean]
+  private val regressions = TrieMap.empty[File, Boolean]
+  private val nl = "\n"
+  private val prefix = "target/repos/"
+
+  private val coverageFile = Paths.get(s"coverage-${name}.txt")
+  private val todoFile = Paths.get(s"todo-${name}.diff")
 
   if (Files.exists(todoFile)) {
     Files.delete(todoFile)
   }
 
-  val previouslyFailed: Set[File] =
+  private val previouslyFailed: Set[File] =
     if (Files.exists(coverageFile)) {
       val input = new String(Files.readAllBytes(coverageFile))
       input.split(nl).filterNot(_ == "").map(f => new File(prefix + f)).toSet
@@ -38,9 +44,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       Set()
     }
 
-  def check(file: Input.File, relativePath: String): Either[String, Unit]
-
-  def fileList(in: TrieMap[File, Boolean], sep: String): String =
+  private def fileList(in: TrieMap[File, Boolean], sep: String): String =
     in.keys
       .map(_.toString.drop(prefix.size))
       .toList
@@ -72,9 +76,9 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
         val relativePath = "tests/slow/" + jFile.toString
 
         check(input, relativePath) match {
-          case Right(_) => successCount.incrementAndGet()
-          case Left(failure) => {
-            logger.elem(failure)
+          case Success => successCount.incrementAndGet()
+          case Failure(explanation) => {
+            logger.elem(explanation)
 
             failureCount.incrementAndGet()
             failed += jFile -> true
@@ -89,7 +93,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
             } else {
               Files.write(
                 todoFile,
-                (failure + nl).toString.getBytes("utf-8"),
+                (explanation + nl).toString.getBytes("utf-8"),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.APPEND
               )

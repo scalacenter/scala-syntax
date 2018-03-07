@@ -9,7 +9,7 @@ object IdempotentAstTest extends PropertyTest("idempotent-ast") {
   private val options = Options.default
 
   // The ast must stay the same after it's pretty printed
-  def check(file: Input.File, relativePath: String): Either[String, Unit] = {
+  def check(file: Input.File, relativePath: String): PropertyResult = {
     val originalTree = file.parse[Source].get
     val formatted =
       TreeDocOps.printTree(originalTree, options).render(options.maxColumn)
@@ -24,12 +24,12 @@ object IdempotentAstTest extends PropertyTest("idempotent-ast") {
         normalizeFormattedTree
       )
       if (diff.nonEmpty) {
-        Left(diff)
+        Failure(diff)
       } else {
-        Right(())
+        Success
       }
     } else {
-      Right(())
+      Success
     }
   }
 }
