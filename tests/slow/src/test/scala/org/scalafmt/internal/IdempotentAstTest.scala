@@ -5,8 +5,10 @@ import org.scalafmt.Options
 
 import scala.meta.testkit.StructurallyEqual
 
-object CorrectnessTest extends PropertyTest("correctness") {
+object IdempotentAstTest extends PropertyTest("idempotent-ast") {
   private val options = Options.default
+
+  // The ast must stay the same after it's pretty printed
   def check(file: Input.File, relativePath: String): Either[String, Unit] = {
     val originalTree = file.parse[Source].get
     val formatted =
