@@ -1,1 +1,2 @@
-
+scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
+scala/test/files/run/t2378.scala

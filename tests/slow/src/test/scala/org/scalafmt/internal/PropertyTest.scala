@@ -9,11 +9,9 @@ import me.tongfei.progressbar.{ProgressBar => PB, ProgressBarStyle}
 
 import org.scalafmt.tests.BaseScalaPrinterTest
 import org.scalameta.logger
-import org.scalatest.Ignore
 
 import scala.meta._
 import scala.meta.testkit.Corpus
-import scala.meta.testkit.CorpusFile
 
 import scala.collection.concurrent.TrieMap
 import scala.util.control.NonFatal
@@ -42,11 +40,6 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
   def check(file: Input.File): Either[String, Unit]
 
-  def isOk(file: CorpusFile): Boolean =
-    !List(
-      "scalaxy/debug/package.scala" // https://github.com/scalameta/scalameta/issues/1136
-    ).exists(file.filename.contains)
-
   def fileList(in: TrieMap[File, Boolean], sep: String): String =
     in.keys
       .map(_.toString.drop(prefix.size))
@@ -60,7 +53,6 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
     val corpus = Corpus
       .files(Corpus.fastparse)
-      .filter(f => isOk(f))
       .toBuffer
       .par
 
@@ -96,7 +88,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
             } else {
               Files.write(
                 todoFile,
-                failure.toString.getBytes("utf-8"),
+                (failure + nl).toString.getBytes("utf-8"),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.APPEND
               )

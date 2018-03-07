@@ -13,11 +13,6 @@ object SyntaxAnalysis {
         try {
           f(file)
         } catch {
-          // TODO(olafur) investigate these scala.meta errors.
-          case _: org.scalameta.UnreachableError => // scala.meta error
-          case _: org.scalameta.invariants.InvariantFailedException => // scala.meta error
-          case _: java.nio.charset.MalformedInputException => // scala.meta error
-          case _: java.util.NoSuchElementException => // scala.meta error
           case NonFatal(e) =>
             // unexpected errors are printed in the console.
             println(s"Unexpected error analysing file: $file")

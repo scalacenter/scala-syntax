@@ -15,7 +15,7 @@ object CorrectnessTest extends PropertyTest("correctness") {
     val normalizedOriginalTree = normalize(originalTree)
     val normalizeFormattedTree = normalize(formattedTree)
 
-    if (StructurallyEqual(normalizedOriginalTree, normalizeFormattedTree).isRight) {
+    if (StructurallyEqual(normalizedOriginalTree, normalizeFormattedTree).isLeft) {
       val diff = getDiff(
         file.path.toString,
         normalizedOriginalTree,
