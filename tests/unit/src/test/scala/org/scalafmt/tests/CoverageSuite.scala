@@ -45,7 +45,14 @@ object CoverageSuite extends BaseScalaPrinterTest {
   check("'a")                      // Lit.Symbol
   check(s"${dq}hello${dq}")        // Lit.String
   check(s"${tq}hello\nworld${tq}") // Lit.String
+
+  // tests/slow/target/repos/scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
   // check(resource("unicode.scala")) // Lit.String (todo)
+  // Lit.String (todo)
+  // check(s"""
+  //   val b = ${tq}
+  //              \\u005Cu0041${tq}
+  // """)
 
   checkStructural(s"${dq}${allEscapeChars}${dq}") // Lit.String scalameta#1384 (\n not preserved)
   
