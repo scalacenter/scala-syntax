@@ -1,5 +1,5 @@
---- /home/gui/scala-syntax/tests/slow/target/repos/scala/test/files/run/t2378.scala
-+++ /home/gui/scala-syntax/tests/slow/target/repos/scala/test/files/run/t2378.scala-formatted
+--- tests/slow/target/repos/scala/test/files/run/t2378.scala
++++ tests/slow/target/repos/scala/test/files/run/t2378.scala-formatted
 @@ -1,6 +1,6 @@
  object Test {
    val f1 = 0.0d
@@ -8,8 +8,8 @@
    def main(args: Array[String]): Unit = {
      assert(f1.toString.startsWith("-"))
      assert(f2.toString.startsWith("-"))
---- /home/gui/scala-syntax/tests/slow/target/repos/scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
-+++ /home/gui/scala-syntax/tests/slow/target/repos/scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala-formatted
+--- tests/slow/target/repos/scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
++++ tests/slow/target/repos/scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala-formatted
 @@ -79,7 +79,7 @@
          |
          |4 , 5        ,          6           ,7        ],"compact":[1,2,3,4,5,6,7],

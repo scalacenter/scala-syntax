@@ -1,13 +1,14 @@
 package org.scalafmt.tests
 
-import scala.meta.Tree
-import scala.meta.dialects
+import scala.meta._
 import scala.meta.internal.ScalametaInternal
 import scala.meta.parsers.Parse
 import scala.meta.testkit.AnyDiff
 import scala.meta.testkit.StructurallyEqual
 import scala.meta.transversers.Transformer
+
 import scalafix.diff.DiffUtils
+
 import org.scalafmt.InternalOptions
 import org.scalafmt.Options
 import org.scalameta.logger
@@ -98,6 +99,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     import scala.meta._
 
     val transform: PartialFunction[Tree, Tree] = {
+      case Source(List(t)) => t
       case Term.Block(a :: Nil) if !a.is[Defn] => a
       case Term.ApplyInfix(lhs, op, targs, args) =>
         if (targs.isEmpty) q"$lhs.$op(..$args)"
@@ -176,9 +178,15 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
           sys.error(
-            s"""|AST changed
-                |  obtained: $obtained
-                |  expected: $expected
+            s"""|## AST changed ##
+                |- diff -
+                |$astDiff
+                |
+                |- obtained -
+                |$obtained
+                |
+                |- expected -
+                |$expected
                 |
                 |---------------------------------""".stripMargin
           )
@@ -193,12 +201,16 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     }
   }
 
+  def check(input: Input): Unit = {
+    checkTreeSource(input.parse[Source].get)
+  }
+
   def checkTreeSource(root: Tree): Unit = {
+    val testName = root.syntax
     val options = defaultOptions.copy(
       parser = Parse.parseSource,
       dialect = dialects.Scala212
     )
-    val testName = root.syntax
 
     test(testName) {
       val obtained = printTree(root, options)
@@ -206,9 +218,19 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
           sys.error(
-            s"""|AST changed
-                |  obtained: ${root2.structure} ${root2.syntax}
-                |  expected: ${root.structure} ${root2.syntax}
+            s"""|## AST changed ##
+                |- diff -
+                |$astDiff
+                |
+                |- obtained -
+                |${root2.syntax}
+                |
+                |${root2.structure} 
+                |
+                |- expected -
+                |${root2.syntax}
+                |
+                |${root.structure}
                 |
                 |---------------------------------""".stripMargin
           )

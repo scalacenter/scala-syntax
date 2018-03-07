@@ -38,7 +38,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       Set()
     }
 
-  def check(file: Input.File): Either[String, Unit]
+  def check(file: Input.File, relativePath: String): Either[String, Unit]
 
   def fileList(in: TrieMap[File, Boolean], sep: String): String =
     in.keys
@@ -69,8 +69,9 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       try {
         val jFile = file.jFile
         val input = Input.File(jFile, StandardCharsets.UTF_8)
+        val relativePath = "tests/slow/" + jFile.toString
 
-        check(input) match {
+        check(input, relativePath) match {
           case Right(_) => successCount.incrementAndGet()
           case Left(failure) => {
             logger.elem(failure)

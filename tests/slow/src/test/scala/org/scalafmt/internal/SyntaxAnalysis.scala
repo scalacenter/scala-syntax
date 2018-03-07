@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import scala.meta._
 import scala.meta.testkit._
 
 import scala.collection.GenIterable

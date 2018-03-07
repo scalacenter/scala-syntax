@@ -7,7 +7,7 @@ import scala.meta.testkit.StructurallyEqual
 
 object CorrectnessTest extends PropertyTest("correctness") {
   private val options = Options.default
-  def check(file: Input.File): Either[String, Unit] = {
+  def check(file: Input.File, relativePath: String): Either[String, Unit] = {
     val originalTree = file.parse[Source].get
     val formatted =
       TreeDocOps.printTree(originalTree, options).render(options.maxColumn)
@@ -17,7 +17,7 @@ object CorrectnessTest extends PropertyTest("correctness") {
 
     if (StructurallyEqual(normalizedOriginalTree, normalizeFormattedTree).isLeft) {
       val diff = getDiff(
-        file.path.toString,
+        relativePath,
         normalizedOriginalTree,
         normalizeFormattedTree
       )

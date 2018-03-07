@@ -2,7 +2,9 @@
 package org.scalafmt.tests
 
 import scala.meta.dialects
-import scala.meta.{Pkg, Term, Lit}
+import scala.meta.{Pkg, Term, Lit, Input}
+
+import java.nio.charset.StandardCharsets
 
 object CoverageSuite extends BaseScalaPrinterTest {
   val dq = '"'
@@ -11,6 +13,13 @@ object CoverageSuite extends BaseScalaPrinterTest {
   val allEscapeChars = escapeChars.mkString(" \\", " \\", "")
   
   val dotty = defaultOptions.copy(dialect = dialects.Dotty)
+
+  def resource(path: String): Input = 
+    Input.Stream(
+      this.getClass.getClassLoader.getResourceAsStream(path),
+      StandardCharsets.UTF_8
+    )
+
 
   // meta.Lit
   check("null")                    // Lit.Null
@@ -36,6 +45,7 @@ object CoverageSuite extends BaseScalaPrinterTest {
   check("'a")                      // Lit.Symbol
   check(s"${dq}hello${dq}")        // Lit.String
   check(s"${tq}hello\nworld${tq}") // Lit.String
+  // check(resource("unicode.scala")) // Lit.String (todo)
 
   checkStructural(s"${dq}${allEscapeChars}${dq}") // Lit.String scalameta#1384 (\n not preserved)
   
