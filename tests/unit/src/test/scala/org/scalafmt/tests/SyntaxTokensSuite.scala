@@ -77,5 +77,7 @@ object SyntaxTokensSuite extends SyntaxTokensSuiteUtils {
   checkOne[Term.While](_.tokensLeftParen)("while →(←p) d")
   checkOne[Term.While](_.tokensRightParen)("while (p→)← d")
   checkOne[Term.Placeholder](_.tokensUnderscore)("→_←")
+
+  checkOneType[Type.ByName](_.tokensRightArrow)("→=>← A")
   // →←
 }

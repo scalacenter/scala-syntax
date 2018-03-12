@@ -261,6 +261,12 @@ object SyntaxTokens {
     def tokensLeftParen: LeftParen = tree.find[LeftParen].get
     def tokensRightParen: RightParen = tree.findAfter[RightParen](_.expr).get
   }
+
+  // == Type ==
+  implicit class XtensionTypeByNameSyntax(val tree: Type.ByName) extends AnyVal {
+    def tokensRightArrow: RightArrow = tree.find[RightArrow].get
+  }
+
   private def blockStartBrace(tree: Tree): LeftBrace = tree.find[LeftBrace].get
   private def blockEndBrace[T <: Tree](
       tree: T
