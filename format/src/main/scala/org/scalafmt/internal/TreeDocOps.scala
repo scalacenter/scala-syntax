@@ -97,10 +97,14 @@ object TreeDocOps {
         case (accum, params) =>
           accum + line + dParams(params, forceParens = false) + space + `=>`
       }
-      val result = `{` +
-        (dparamss.nested(2).grouped + line + dbody).nested(2).grouped +
-        line + `}`
-      result.grouped
+
+      val function =
+        (
+          dparamss.nested(2).grouped + line +
+            dbody
+        ).nested(2).grouped
+
+      (`{` + function + line + `}`).grouped
     }
 
     def unapply(args: List[Tree]): Option[Doc] =
@@ -118,8 +122,9 @@ object TreeDocOps {
 
   def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
     val op = operator.render(100)
-    InfixTyp(op).wrap(left) + space + operator + space + InfixTyp(op)
-      .wrap(right, Side.Right)
+    val leftWraped = InfixTyp(op).wrap(left)
+    val rightWraped = InfixTyp(op).wrap(right, Side.Right)
+    leftWraped + space + operator + space + rightWraped
   }
 
   def dTypeFunction(params: List[Type], res: Type): Doc = {
@@ -149,10 +154,13 @@ object TreeDocOps {
 
   def dTargs(targs: List[Tree]): Doc =
     dApplyBracket(empty, targs)
+
   def dArgs(args: List[Tree]): Doc =
     dApplyParen(empty, args)
+
   def dArgss(argss: List[List[Term]]): Doc =
     joined(argss.map(dArgs))
+
   def dApplyParen(fun: Doc, args: List[Tree]): Doc =
     dApply(fun, args, `(`, `)`)
 
@@ -182,14 +190,18 @@ object TreeDocOps {
   def dBlock(stats: List[Tree]): Doc =
     dBlockI(stats).grouped
 
-  def dBlockI(stats: List[Tree]): Doc = stats match {
-    case Nil => `{` + `}`
-    case head :: Nil =>
-      `{` + ((line + print(head)).nested(2) + line) + `}`
-    case _ =>
-      `{` +
-        (line + dStats(stats)).nested(2) +
-        line + `}`
+  def dBlockI(stats: List[Tree]): Doc = {
+    val body =
+      stats match {
+        case Nil =>
+          empty
+        case head :: Nil =>
+          (line + print(head)).nested(2) + line
+        case _ =>
+          (line + dStats(stats)).nested(2) + line
+      }
+
+    `{` + body + `}`
   }
 
   def isEmpty(self: Self): Boolean = self match {
@@ -215,19 +227,29 @@ object TreeDocOps {
 
   def dParamss(paramss: List[List[Term.Param]]): Doc =
     paramss match {
-      case Nil :: Nil => `(` + `)`
-      case _ =>
-        joined(paramss.map { params =>
-          val dimplicit =
-            if (params.exists(_.mods.exists(_.is[Mod.Implicit])))
-              `implicit` + line
-            else empty
-          val dparams = params.map { param =>
-            print(param.copy(mods = param.mods.filterNot(_.is[Mod.Implicit])))
+      case Nil => empty
+      case List(Nil) => `(` + `)`
+      case _ => {
+        val printedParams =
+          paramss.map { params =>
+            val dimplicit =
+              if (params.exists(_.mods.exists(_.is[Mod.Implicit])))
+                `implicit` + line
+              else empty
+
+            val dparams =
+              params.map { param =>
+                print(
+                  param.copy(mods = param.mods.filterNot(_.is[Mod.Implicit]))
+                )
+              }
+
+            (dimplicit + intercalate(comma + line, dparams))
+              .tightBracketBy(`(`, `)`)
           }
-          (dimplicit + intercalate(comma + line, dparams))
-            .tightBracketBy(`(`, `)`)
-        })
+
+        joined(printedParams)
+      }
     }
 
   def dBody(body: Tree): Doc =
