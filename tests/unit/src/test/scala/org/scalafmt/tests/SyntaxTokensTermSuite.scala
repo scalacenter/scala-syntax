@@ -4,7 +4,7 @@ import scala.meta._
 
 import org.scalafmt.internal.SyntaxTokens._
 
-object SyntaxTokensSuite extends SyntaxTokensSuiteUtils {
+object SyntaxTokensTermSuite extends SyntaxTokensSuiteUtils {
   checkOne[Term.ApplyType](_.tokensLeftBracket)("a→[←B]")
   checkOne[Term.ApplyType](_.tokensRightBracket)("a[B→]←")
   checkOne[Term.Assign](_.tokensEqual)("x →=← 1")

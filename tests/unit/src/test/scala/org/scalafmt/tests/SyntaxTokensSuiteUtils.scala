@@ -1,6 +1,7 @@
 package org.scalafmt.tests
 
 import scala.meta._
+import scala.meta.parsers.Parse
 
 import org.scalafmt.internal.SyntaxTokens._
 
@@ -69,6 +70,9 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
   def checkOne[T <: Tree](f: T => Token)(annotedSource: String): Unit =
     checkAll[T](tree => List(f(tree)))(annotedSource)
 
+  def checkOneType[T <: Tree](f: T => Token)(annotedSource: String): Unit =
+    checkAllType[T](tree => List(f(tree)))(annotedSource)
+
   def checkNil[T <: Tree](f: T => List[Token])(source: String): Unit = {
     val tree = source.parse[Stat].get.asInstanceOf[T]
     test(source) {
@@ -76,7 +80,17 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
     }
   }
 
-  def checkAll[T <: Tree](f: T => List[Token])(annotedSource: String): Unit = {
+  def checkAllType[T <: Tree](
+      f: T => List[Token]
+  )(annotedSource: String): Unit =
+    checkAll0[T, Type](f)(annotedSource)
+
+  def checkAll[T <: Tree](f: T => List[Token])(annotedSource: String): Unit =
+    checkAll0[T, Stat](f)(annotedSource)
+
+  private def checkAll0[T <: Tree, S: Parse](
+      f: T => List[Token]
+  )(annotedSource: String): Unit = {
     val startMarker = '→'
     val stopMarker = '←'
     val nl = "\n"
@@ -124,7 +138,7 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
     }
 
     test(annotedSource) {
-      val tree = source.parse[Stat].get.asInstanceOf[T]
+      val tree = source.parse[S].get.asInstanceOf[T]
       val tokens = f(tree)
       tokens.zip(markers).foreach {
         case (t, (s, e)) => {

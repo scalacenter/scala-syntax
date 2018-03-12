@@ -122,6 +122,16 @@ object TreeDocOps {
       .wrap(right, Side.Right)
   }
 
+  def dTypeFunction(params: List[Type], res: Type): Doc = {
+    val dparams = params match {
+      case Nil => `(` + `)`
+      case param :: Nil if !param.is[Type.Tuple] =>
+        AnyInfixTyp.wrap(param)
+      case params => dApplyParen(empty, params)
+    }
+    dparams + space + `=>` + space + Typ.wrap(res)
+  }
+
   def dName(name: Tree): Doc = name match {
     case _: Name.Anonymous => wildcard
     case _ => print(name)
