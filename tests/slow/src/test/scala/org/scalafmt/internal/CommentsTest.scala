@@ -32,4 +32,4 @@ object CommentsTest extends PropertyTest("comments") {
     else Failure(diff)
   }
 }
-/*
+*/
