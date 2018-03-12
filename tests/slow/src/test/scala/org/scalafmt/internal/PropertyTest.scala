@@ -12,7 +12,6 @@ import org.scalameta.logger
 
 import scala.meta._
 import scala.meta.testkit.Corpus
-import org.scalafmt.Options
 
 import scala.collection.concurrent.TrieMap
 import scala.util.control.NonFatal
@@ -24,11 +23,6 @@ case class Failure(explanation: String) extends PropertyResult
 abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
   def check(file: Input.File, relativePath: String): PropertyResult
-
-  private val options = Options.default
-
-  def prettyPrint(tree: Tree): String =
-    TreeDocOps.printTree(tree, options).render(options.maxColumn)
 
   private val failed = TrieMap.empty[File, Boolean]
   private val regressions = TrieMap.empty[File, Boolean]

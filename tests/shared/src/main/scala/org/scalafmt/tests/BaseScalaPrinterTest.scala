@@ -25,6 +25,11 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     parser = Parse.parseStat
   )
 
+  private val options = Options.default
+
+  def prettyPrint(tree: Tree): String =
+    TreeDocOps.printTree(tree, options).render(options.maxColumn)
+
   def checkType(
       original: String,
       options: InternalOptions = defaultOptions
@@ -137,26 +142,26 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
   }
 
   def checkStructural(
-      original2: String,
-      expected2: String,
+      original: String,
+      expected: String,
       options: Options
   ): Unit = {
     checkFromString(
-      original2,
-      expected2,
+      original,
+      expected,
       options,
       structuralOnly = true
     )
   }
 
   def check(
-      original2: String,
-      expected2: String,
+      original: String,
+      expected: String,
       options: Options
   ): Unit = {
     checkFromString(
-      original2,
-      expected2,
+      original,
+      expected,
       options,
       structuralOnly = false
     )
@@ -172,18 +177,18 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     val expected = expected2.replace("'''", "\"\"\"")
     val testName = logger.revealWhitespace(original)
     test(testName) {
-      val root = TreeDocOps.getRoot(original, options)
-      val obtained = printTree(root, options)
-      val root2 = TreeDocOps.getRoot(obtained, options)
-      isSameTree(testName, root, root2) match {
+      val originalTree = TreeDocOps.getRoot(original, options)
+      val formattedCode = printTree(originalTree, options)
+      val formattedTree = TreeDocOps.getRoot(formattedCode, options)
+      isSameTree(testName, originalTree, formattedTree) match {
         case Left(astDiff) =>
           sys.error(
             s"""|## AST changed ##
                 |- diff -
                 |$astDiff
                 |
-                |- obtained -
-                |$obtained
+                |- formatted -
+                |$formattedCode
                 |
                 |- expected -
                 |$expected
@@ -193,9 +198,13 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
 
         case Right(()) =>
           if (!structuralOnly) {
-            assertNoDiff(obtained, expected)
-            val obtained2 = printTree(root2, options)
-            assertNoDiff(obtained, obtained2, "Idempotency violated!")
+            assertNoDiff(formattedCode, expected)
+            val reformattedCode = printTree(formattedTree, options)
+            assertNoDiff(
+              formattedCode,
+              reformattedCode,
+              "Idempotency violated!"
+            )
           }
       }
     }
@@ -239,19 +248,19 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     }
   }
 
-  def getDiff(filename: String, tree1: Tree, tree2: Tree): String = {
-    def unified(a: String, b: String) = {
-      DiffUtils.unifiedDiff(
-        filename,
-        filename + "-formatted",
-        a.lines.toList,
-        b.lines.toList,
-        3
-      )
-    }
-    val x = ScalametaInternal.resetOrigin(tree1).syntax
-    val y = ScalametaInternal.resetOrigin(tree2).syntax
-    val result = unified(x, y)
+  def unified(filename: String, original: String, modified: String): String = {
+    DiffUtils.unifiedDiff(
+      filename,
+      filename + "-formatted",
+      original.lines.toList,
+      modified.lines.toList,
+      3
+    )
+  }
+  def getDiff(filename: String, original: Tree, modified: Tree): String = {
+    val originalCode = ScalametaInternal.resetOrigin(original).syntax
+    val modifiedCode = ScalametaInternal.resetOrigin(modified).syntax
+    val result = unified(filename, originalCode, modifiedCode)
     result
   }
 

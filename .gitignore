@@ -25,3 +25,4 @@ project/plugins/project/
 tests/slow/repos.tar.gz*
 tests/slow/todo.diff
 PlaygroundSuite.scala
+repos.tar.gz
