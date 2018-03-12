@@ -80,14 +80,17 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
     }
   }
 
-  
-  def checkAllType[T <: Tree](f: T => List[Token])(annotedSource: String): Unit =
+  def checkAllType[T <: Tree](
+      f: T => List[Token]
+  )(annotedSource: String): Unit =
     checkAll0[T, Type](f)(annotedSource)
 
   def checkAll[T <: Tree](f: T => List[Token])(annotedSource: String): Unit =
     checkAll0[T, Stat](f)(annotedSource)
 
-  private def checkAll0[T <: Tree, S : Parse](f: T => List[Token])(annotedSource: String): Unit = {
+  private def checkAll0[T <: Tree, S: Parse](
+      f: T => List[Token]
+  )(annotedSource: String): Unit = {
     val startMarker = '→'
     val stopMarker = '←'
     val nl = "\n"

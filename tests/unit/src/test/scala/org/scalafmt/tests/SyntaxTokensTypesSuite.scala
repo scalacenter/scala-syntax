@@ -12,7 +12,5 @@ object SyntaxTokensTypesSuite extends SyntaxTokensSuiteUtils {
   // checkOneType[Type.And](_.tokensAnd)("A →&← B")
   // checkOneType[Type.Or](_.tokensOr)("A →|← B") dotty
   checkOneType[Type.With](_.tokensWith)("A →with← B")
-
-
   // →←
 }

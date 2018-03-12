@@ -263,21 +263,24 @@ object SyntaxTokens {
   }
 
   // == Type ==
-  implicit class XtensionTypeByNameSyntax(val tree: Type.ByName) extends AnyVal {
+  implicit class XtensionTypeByNameSyntax(val tree: Type.ByName)
+      extends AnyVal {
     def tokensRightArrow: RightArrow = tree.find[RightArrow].get
   }
-  implicit class XtensionTypeSelectSyntax(val tree: Type.Select) extends AnyVal {
+  implicit class XtensionTypeSelectSyntax(val tree: Type.Select)
+      extends AnyVal {
     def tokensDot: Dot = tree.findBetween[Dot](_.qual, _.name).get
   }
-  implicit class XtensionTypeImplicitFunctionSyntax(val tree: Type.ImplicitFunction) extends AnyVal {
+  implicit class XtensionTypeImplicitFunctionSyntax(
+      val tree: Type.ImplicitFunction
+  ) extends AnyVal {
     def tokensImplicit: KwImplicit = tree.find[KwImplicit].get
-    def tokensRightArrow: RightArrow = tree.findBetween[RightArrow](_.params.last, _.res).get
+    def tokensRightArrow: RightArrow =
+      tree.findBetween[RightArrow](_.params.last, _.res).get
   }
   implicit class XtensionTypeWithSyntax(val tree: Type.With) extends AnyVal {
     def tokensWith: KwWith = tree.findBetween[KwWith](_.lhs, _.rhs).get
   }
-  
-  
 
   private def blockStartBrace(tree: Tree): LeftBrace = tree.find[LeftBrace].get
   private def blockEndBrace[T <: Tree](
