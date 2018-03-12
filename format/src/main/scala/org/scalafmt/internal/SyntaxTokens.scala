@@ -17,6 +17,7 @@ import scala.meta.classifiers.Classifier
  * `{` left brace
  * `}` right brace
  * `*` asterisk
+ * `&` and
  * see https://blog.codinghorror.com/ascii-pronunciation-rules-for-programmers/
  */
 object SyntaxTokens {
@@ -280,6 +281,52 @@ object SyntaxTokens {
   }
   implicit class XtensionTypeWithSyntax(val tree: Type.With) extends AnyVal {
     def tokensWith: KwWith = tree.findBetween[KwWith](_.lhs, _.rhs).get
+  }
+
+  // == Defn ==
+  implicit class XtensionDefnClassSyntax(val tree: Defn.Class) extends AnyVal {
+    def tokensClass: KwClass = tree.find[KwClass].get
+
+    // tparams
+    def tokensLeftBracket: Option[LeftBracket] =
+      tree.tparams.headOption
+        .map(tparam => tree.findBetween[LeftBracket](_.name, _ => tparam).get)
+    def tokensRightBracket: Option[RightBracket] =
+      tree.tparams.lastOption.map(
+        tparam =>
+          tree.ctor.paramss match {
+            // class A[T]
+            case Nil => tree.findAfter[RightBracket](_ => tparam).get
+
+            case xs :: _ =>
+              xs match {
+                // class A[T]()
+                case Nil => tree.findAfter[RightBracket](_ => tparam).get
+
+                // class A[T](b: B)
+                case x :: _ =>
+                  tree.findBetween[RightBracket](_ => tparam, _ => x).get
+              }
+        }
+      )
+
+    def tokensCommaTparams: List[Comma] =
+      tree.tparams match {
+        case Nil => Nil
+        case _ :: Nil => Nil
+        case tparams =>
+          tparams
+            .sliding(2, 1)
+            .map {
+              case List(l, r) => tree.findBetween[Comma](_ => l, _ => r).get
+            }
+            .toList
+      }
+
+    // paramss
+    def tokensParenthesis: List[(LeftParen, RightParen)] = ???
+    def tokensCommaParamss: List[List[Comma]] = ???
+    def tokensImplicit: Option[KwImplicit] = ???
   }
 
   private def blockStartBrace(tree: Tree): LeftBrace = tree.find[LeftBrace].get
