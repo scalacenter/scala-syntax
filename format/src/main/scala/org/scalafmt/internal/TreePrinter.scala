@@ -100,7 +100,7 @@ object TreePrinter {
           case t: Type.ApplyInfix =>
             dInfixType(t.lhs, print(t.op), t.rhs)
           case t: Type.ImplicitFunction =>
-            `implicit` + space + print(Type.Function(t.params, t.res))
+            `implicit` + space + dTypeFunction(t.params, t.res)
           case t: Type.And =>
             dInfixType(t.lhs, `&`, t.rhs)
           case t: Type.Or =>
@@ -125,13 +125,7 @@ object TreePrinter {
           case t: Type.Repeated => print(t.tpe) + `*`
           case t: Type.Var => print(t.name)
           case t: Type.Function =>
-            val dparams = t.params match {
-              case Nil => `(` + `)`
-              case param :: Nil if !param.is[Type.Tuple] =>
-                AnyInfixTyp.wrap(param)
-              case params => dApplyParen(empty, params)
-            }
-            dparams + space + `=>` + space + Typ.wrap(t.res)
+            dTypeFunction(t.params, t.res)
           case t: Type.Tuple => dApplyParen(empty, t.args)
           case t: Type.Project => SimpleTyp.wrap(t.qual) + `#` + print(t.name)
           case t: Type.Singleton =>
