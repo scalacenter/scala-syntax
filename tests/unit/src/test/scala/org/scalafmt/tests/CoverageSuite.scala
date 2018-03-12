@@ -147,8 +147,8 @@ object CoverageSuite extends BaseScalaPrinterTest {
   check("try f catch h finally {}")   // Term.TryWithHandler
   check("(a, b) => a + b")            // Term.Function
   check("{ case _ => }")              // Term.PartialFunction
-  check("while (p) { d }")            // Term.While
-  check("do { d } while (p)")         // Term.Do
+  check("while (p) d")                // Term.While
+  check("do d while (p)")             // Term.Do
   check("for { x <- xs } f(x)")       // Term.For
   check("for { x <- xs } yield f(x)") // Term.ForYield
   check("(new A)")                    // Term.New

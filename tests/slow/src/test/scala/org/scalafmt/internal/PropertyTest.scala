@@ -110,6 +110,8 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       }
     }
 
+    progress.stop()
+
     if (regressions.isEmpty) {
       Files.write(
         coverageFile,

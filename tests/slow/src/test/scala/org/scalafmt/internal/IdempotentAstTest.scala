@@ -1,18 +1,14 @@
 package org.scalafmt.internal
 
 import scala.meta._
-import org.scalafmt.Options
 
 import scala.meta.testkit.StructurallyEqual
 
+// The ast must stay the same after it's pretty printed
 object IdempotentAstTest extends PropertyTest("idempotent-ast") {
-  private val options = Options.default
-
-  // The ast must stay the same after it's pretty printed
   def check(file: Input.File, relativePath: String): PropertyResult = {
     val originalTree = file.parse[Source].get
-    val formatted =
-      TreeDocOps.printTree(originalTree, options).render(options.maxColumn)
+    val formatted = prettyPrint(originalTree)
     val formattedTree = formatted.parse[Source].get
     val normalizedOriginalTree = normalize(originalTree)
     val normalizeFormattedTree = normalize(formattedTree)
