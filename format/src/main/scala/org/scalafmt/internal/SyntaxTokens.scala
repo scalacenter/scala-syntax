@@ -266,6 +266,9 @@ object SyntaxTokens {
   implicit class XtensionTypeByNameSyntax(val tree: Type.ByName) extends AnyVal {
     def tokensRightArrow: RightArrow = tree.find[RightArrow].get
   }
+  implicit class XtensionTypeSelectSyntax(val tree: Type.Select) extends AnyVal {
+    def tokensDot: Dot = tree.find[Dot].get
+  }
 
   private def blockStartBrace(tree: Tree): LeftBrace = tree.find[LeftBrace].get
   private def blockEndBrace[T <: Tree](
