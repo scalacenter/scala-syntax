@@ -5,6 +5,9 @@ import scala.meta.Token
 import scala.meta.tokens.Token._
 import scala.meta.classifiers.Classifier
 
+import scala.collection.SeqView
+import scala.collection.immutable.IndexedSeq
+
 /**
  * Glossary:
  * `(` left paren
@@ -23,6 +26,13 @@ import scala.meta.classifiers.Classifier
 object SyntaxTokens {
   import TokensOps._
 
+  private implicit class XtensionUtil0(
+      val tokensView: SeqView[Token, IndexedSeq[Token]]
+  ) extends AnyVal {
+    def find0[T <: Token](implicit ev: Classifier[Token, T]): Option[T] = {
+      tokensView.find(_.is[T]).map(_.asInstanceOf[T])
+    }
+  }
   private implicit class XtensionUtil[A <: Tree](val tree: A) extends AnyVal {
     def find[T <: Token](implicit ev: Classifier[Token, T]): Option[T] = {
       find[T](tree.tokens)(ev)
@@ -269,8 +279,14 @@ object SyntaxTokens {
   }
 
   // == Defn ==
+  implicit class XtensionCtorPrimarySyntax(val tree: Ctor.Primary)
+      extends AnyVal {
+    def tokensComma: List[List[Comma]] =
+      tree.paramss.map(commaSeparated0(tree))
+  }
   implicit class XtensionDefnClassSyntax(val tree: Defn.Class) extends AnyVal {
-    def tokensClass: KwClass = tree.find[KwClass].get
+    def tokensClass: KwClass =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwClass].get
 
     // tparams
     def tokensLeftBracket: Option[LeftBracket] =
@@ -293,28 +309,7 @@ object SyntaxTokens {
     def tokensCommaTparams: List[Comma] =
       commaSeparated(tree)(_.tparams)
 
-    def tokensCommaCtor: List[List[Comma]] =
-      tree.ctor.paramss.map(commaSeparated0(tree))
-
-    def tokensImplicit: Option[KwImplicit] = {
-      val paramss = tree.ctor.paramss
-      if (paramss.isEmpty) None
-      else {
-        paramss.last match {
-          case p :: _ if p.mods.exists(_.is[Mod.Implicit]) => {
-            val kw =
-              tree.tokens
-                .leadings(p.tokens.head)
-                .find(_.is[KwImplicit])
-                .get
-                .asInstanceOf[KwImplicit]
-            Some(kw)
-          }
-          case _ => None
-        }
-      }
-    }
-
+    def tokensCommaCtor: List[List[Comma]] = tree.ctor.tokensComma
     def tokensParenthesis: List[(LeftParen, RightParen)] = {
       val paramss = tree.ctor.paramss
       if (paramss.isEmpty) Nil
@@ -352,7 +347,6 @@ object SyntaxTokens {
         buf.result()
       }
     }
-
   }
 
   private def commaSeparated[T <: Tree](
