@@ -17,13 +17,13 @@ object TokensOps {
           else loop(lo, mid - 1)
         }
       }
-      val res = loop(0, tokens.length - 1)
+      val res = loop(0, tokens.length)
       if (res == -1) None
       else Some(res)
     }
 
     def trailings(token: Token): SeqView[Token, IndexedSeq[Token]] =
-      tokens.view(get(token), tokens.length)
+      tokens.view(get(token) + 1, tokens.length)
 
     def leadings(token: Token): SeqView[Token, IndexedSeq[Token]] =
       tokens.view(0, get(token)).reverse
@@ -33,6 +33,34 @@ object TokensOps {
 
     def slice(from: Token, to: Token): Seq[Token] =
       tokens.view(get(from), get(to))
+
+    /** Returns the next/trailing token or the original token if none exists.
+     *
+     * @note You need to guard against infinite recursion if iterating through
+     *       a list of tokens using this method. This method does not fail
+     *       with an exception.
+     */
+    def next(token: Token): Token = {
+      binarySearch(token) match {
+        case Some(i) if tokens.length > i + 1 =>
+          tokens(i + 1)
+        case _ => token
+      }
+    }
+
+    /** Returns the previous/leading token or the original token if none exists.
+     *
+     * @note You need to guard against infinite recursion if iterating through
+     *       a list of tokens using this method. This method does not fail
+     *       with an exception.
+     */
+    def prev(token: Token): Token = {
+      binarySearch(token) match {
+        case Some(i) if i > 0 =>
+          tokens(i - 1)
+        case _ => token
+      }
+    }
 
     def leadingSpaces(token: Token): SeqView[Token, IndexedSeq[Token]] =
       leadings(token).takeWhile(_.is[Token.Space])
