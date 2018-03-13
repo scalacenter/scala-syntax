@@ -1,44 +1,21 @@
 package org.scalafmt.internal
 
-import scala.meta.Case
-import scala.meta.Ctor
-import scala.meta.Decl
-import scala.meta.Defn
-import scala.meta.Enumerator
-import scala.meta.Import
-import scala.meta.Importee
-import scala.meta.Importer
-import scala.meta.Init
-import scala.meta.Lit
-import scala.meta.Mod
-import scala.meta.Name
-import scala.meta.Pat
-import scala.meta.Pkg
-import scala.meta.Self
-import scala.meta.Source
-import scala.meta.Template
-import scala.meta.Term
-import scala.meta.Tree
-import scala.meta.Type
-import scala.meta.internal.format.CustomTrees.PatName
-import scala.meta.internal.prettyprinters.TripleQuotes
+import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.ScalaToken._
 import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc.comma
-import org.typelevel.paiges.Doc.empty
-import org.typelevel.paiges.Doc.intercalate
-import org.typelevel.paiges.Doc.line
-import org.typelevel.paiges.Doc.space
-import org.typelevel.paiges.Doc.text
-import org.scalafmt.internal.ScalaToken._
+import org.typelevel.paiges.Doc._
+import scala.meta.internal.fmt.SyntacticGroup.Pat._
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
-import scala.meta.internal.fmt.SyntacticGroup.Pat._
 import scala.meta.internal.format.Comments
+import scala.meta.internal.format.CustomTrees.PatName
 import scala.meta.internal.prettyprinters.SingleQuotes
+import scala.meta.internal.prettyprinters.TripleQuotes
+import scala.meta.{`package` => _, _}
 
 object TreePrinter {
   import TreeDocOps._
+  import SyntacticGroupOps._
   def print(tree: Tree): Doc = {
     val result = tree match {
       case t: Name =>
@@ -78,7 +55,7 @@ object TreePrinter {
             `if` + space + PostfixExpr.wrap(t.cond)
         }
       case t: Case =>
-        val dbody =
+        val body =
           if (t.body.tokens.isEmpty) empty
           else {
             t.body match {
@@ -88,15 +65,23 @@ object TreePrinter {
                 line + print(t.body)
             }
           }
-        `case` + space + dPat(t.pat) +
+
+        val pat = dPat(t.pat)
+        val cond =
           t.cond.fold(empty) { c =>
             space + `if` + space + PostfixExpr.wrap(c)
-          } + space + `=>` + dbody.nested(2)
+          }
+
+        `case` + space + pat + cond + space + `=>` + body.nested(2)
+
       case _: Type =>
         tree match {
-          case t: Type.ByName => `=>` + space + print(t.tpe)
-          case t: Type.Select => print(t.qual) + `.` + print(t.name)
-          case t: Type.Apply => dApplyBracket(print(t.tpe), t.args)
+          case t: Type.ByName =>
+            `=>` + space + print(t.tpe)
+          case t: Type.Select =>
+            print(t.qual) + `.` + print(t.name)
+          case t: Type.Apply =>
+            dApplyBracket(print(t.tpe), t.args)
           case t: Type.ApplyInfix =>
             dInfixType(t.lhs, print(t.op), t.rhs)
           case t: Type.ImplicitFunction =>

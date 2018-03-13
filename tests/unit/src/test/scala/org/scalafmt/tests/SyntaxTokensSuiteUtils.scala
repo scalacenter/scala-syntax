@@ -5,13 +5,23 @@ import scala.meta.parsers.Parse
 
 import org.scalafmt.internal.SyntaxTokens._
 
-trait SyntaxTokensSuiteUtils extends FunSuite {
+abstract class SyntaxTokensSuiteUtils extends FunSuite {
   val dq = '"'
   val tq = s"${dq}${dq}${dq}"
 
   def superDot(sel: Term.Select): Option[Token] = {
     val Term.Select(sup: Term.Super, _) = sel
     sup.tokensDot
+  }
+
+  def commasCtor(clazz: Defn.Class): List[Token] = {
+    clazz.tokensCommaCtor.flatten
+  }
+
+  def parensParamss(clazz: Defn.Class): List[Token] = {
+    clazz.tokensParenthesis.flatMap {
+      case (l, r) => List(l, r)
+    }
   }
 
   /* It's not always possible to write the syntax of a tree node directly
@@ -74,10 +84,7 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
     checkAllType[T](tree => List(f(tree)))(annotedSource)
 
   def checkNil[T <: Tree](f: T => List[Token])(source: String): Unit = {
-    val tree = source.parse[Stat].get.asInstanceOf[T]
-    test(source) {
-      assert(f(tree).isEmpty)
-    }
+    checkAll[T](f)(source, isNil = true)
   }
 
   def checkAllType[T <: Tree](
@@ -85,12 +92,14 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
   )(annotedSource: String): Unit =
     checkAll0[T, Type](f)(annotedSource)
 
-  def checkAll[T <: Tree](f: T => List[Token])(annotedSource: String): Unit =
-    checkAll0[T, Stat](f)(annotedSource)
+  def checkAll[T <: Tree](
+      f: T => List[Token]
+  )(annotedSource: String, isNil: Boolean = false): Unit =
+    checkAll0[T, Stat](f)(annotedSource, isNil)
 
   private def checkAll0[T <: Tree, S: Parse](
       f: T => List[Token]
-  )(annotedSource: String): Unit = {
+  )(annotedSource: String, isNil: Boolean = false): Unit = {
     val startMarker = '→'
     val stopMarker = '←'
     val nl = "\n"
@@ -103,11 +112,13 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
     val markersBuilder = List.newBuilder[(Int, Int)]
     var lastStart: Option[Int] = None
     def error(msg: String, pos: Int): Unit = {
-      sys.error(
-        msg + nl +
-          annotedSource + nl +
-          (" " * i) + "^"
-      )
+      test(annotedSource) {
+        sys.error(
+          msg + nl +
+            annotedSource + nl +
+            (" " * pos) + "^"
+        )
+      }
     }
     annotedSource.foreach { c =>
       if (c == startMarker) {
@@ -127,6 +138,13 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
     }
 
     val markers = markersBuilder.result()
+    if (isNil && markers.size != 0) {
+      error("checkNil should not have markers", markers.head._1)
+    }
+
+    val markedSource = markers.foldLeft(fansi.Str(source)) {
+      case (acc, (start, end)) => acc.overlay(fansi.Color.Yellow, start, end)
+    }
 
     def assertPos(obtained: Int, expected: Int): Unit = {
       assert(
@@ -137,7 +155,7 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
       )
     }
 
-    test(annotedSource) {
+    test(markedSource.toString) {
       val tree = source.parse[S].get.asInstanceOf[T]
       val tokens = f(tree)
       tokens.zip(markers).foreach {
@@ -146,6 +164,7 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
           assertPos(t.pos.end, e)
         }
       }
+
       assert(
         tokens.size == markers.size,
         s"incorrect number of tokens, expected: ${markers.size}, obtained: ${tokens.size}"
