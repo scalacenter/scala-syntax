@@ -300,18 +300,18 @@ object SyntaxTokens {
       val paramss = tree.ctor.paramss
       if (paramss.isEmpty) None
       else {
-        val rparamss = paramss.reverse
-        rparamss.head match {
-          case right :: _ if right.mods.exists(_.is[Mod.Implicit]) =>
+        paramss.last match {
+          case p :: _ if p.mods.exists(_.is[Mod.Implicit]) => {
             val list = TokenList(tree.tokens)
             val kw =
               list
-                .leadings(right.tokens.head)
+                .leadings(p.tokens.head)
                 .find(_.is[KwImplicit])
                 .get
                 .asInstanceOf[KwImplicit]
             Some(kw)
-          case Nil => None
+          }
+          case _ => None
         }
       }
     }
