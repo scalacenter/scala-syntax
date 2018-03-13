@@ -295,15 +295,10 @@ object SyntaxTokens {
       tree.tparams.lastOption.map(
         tparam =>
           tree.ctor.paramss match {
-            // class A[T]
             case Nil => tree.findAfter[RightBracket](_ => tparam).get
-
             case xs :: _ =>
               xs match {
-                // class A[T]()
                 case Nil => tree.findAfter[RightBracket](_ => tparam).get
-
-                // class A[T](b: B)
                 case x :: _ =>
                   tree.findBetween[RightBracket](_ => tparam, _ => x).get
               }
@@ -311,22 +306,51 @@ object SyntaxTokens {
       )
 
     def tokensCommaTparams: List[Comma] =
-      tree.tparams match {
-        case Nil => Nil
-        case _ :: Nil => Nil
-        case tparams =>
-          tparams
-            .sliding(2, 1)
-            .map {
-              case List(l, r) => tree.findBetween[Comma](_ => l, _ => r).get
-            }
-            .toList
-      }
+      commaSeparated(tree)(_.tparams)
 
     // paramss
-    def tokensParenthesis: List[(LeftParen, RightParen)] = ???
+    def tokensParenthesis: List[(LeftParen, RightParen)] = {
+      ???
+    }
+
     def tokensCommaParamss: List[List[Comma]] = ???
-    def tokensImplicit: Option[KwImplicit] = ???
+
+    def tokensCommaCtor: List[List[Comma]] =
+      tree.ctor.paramss.map(commaSeparated0(tree))
+
+    def tokensImplicit: Option[KwImplicit] = {
+      val paramss = tree.ctor.paramss
+      if (paramss.isEmpty) None
+      else {
+        val rparamss = paramss.reverse
+        rparamss.head match {
+          case right :: _ if right.mods.exists(_.is[Mod.Implicit]) =>
+            val left =
+              rparamss.tail.find(_.nonEmpty).map(_.last).getOrElse(tree.name)
+            tree.findBetween[KwImplicit](_ => left, _ => right)
+          case Nil => None
+        }
+      }
+    }
+  }
+
+  private def commaSeparated[T <: Tree](
+      tree: T
+  )(f: T => List[Tree]): List[Comma] =
+    commaSeparated0(tree)(f(tree))
+
+  private def commaSeparated0(tree: Tree)(elems: List[Tree]): List[Comma] = {
+    elems match {
+      case Nil => Nil
+      case _ :: Nil => Nil
+      case _ =>
+        elems
+          .sliding(2, 1)
+          .map {
+            case List(l, r) => tree.findBetween[Comma](_ => l, _ => r).get
+          }
+          .toList
+    }
   }
 
   private def blockStartBrace(tree: Tree): LeftBrace = tree.find[LeftBrace].get
