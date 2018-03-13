@@ -21,7 +21,7 @@ import scala.meta.classifiers.Classifier
  * see https://blog.codinghorror.com/ascii-pronunciation-rules-for-programmers/
  */
 object SyntaxTokens {
-  import TokenOps._
+  import TokensOps._
 
   private implicit class XtensionUtil[A <: Tree](val tree: A) extends AnyVal {
     def find[T <: Token](implicit ev: Classifier[Token, T]): Option[T] = {
@@ -302,9 +302,8 @@ object SyntaxTokens {
       else {
         paramss.last match {
           case p :: _ if p.mods.exists(_.is[Mod.Implicit]) => {
-            val list = TokenList(tree.tokens)
             val kw =
-              list
+              tree.tokens
                 .leadings(p.tokens.head)
                 .find(_.is[KwImplicit])
                 .get
@@ -322,7 +321,6 @@ object SyntaxTokens {
       else {
         val buf = List.newBuilder[(Token.LeftParen, Token.RightParen)]
         val tokens = tree.tokens
-        val lst = TokenList(tokens)
         val matching = MatchingParens(tokens)
         val modLast =
           for {
@@ -341,7 +339,7 @@ object SyntaxTokens {
           paramss match {
             case Nil =>
             case _ :: tail =>
-              val open = lst
+              val open = tokens
                 .trailings(start)
                 .find(_.is[Token.LeftParen])
                 .get
