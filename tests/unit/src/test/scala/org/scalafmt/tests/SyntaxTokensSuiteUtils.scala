@@ -13,6 +13,11 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
     val Term.Select(sup: Term.Super, _) = sel
     sup.tokensDot
   }
+  def commaParamss(clazz: Defn.Class): List[Token] = {
+    clazz.tokensParenthesis.flatMap {
+      case (l, r) => List(l, r)
+    }
+  }
 
   /* It's not always possible to write the syntax of a tree node directly
    * for example, Term.Repeated are wraped in Term.Apply: f(x: _*)
@@ -128,6 +133,10 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
 
     val markers = markersBuilder.result()
 
+    val markedSource = markers.foldLeft(fansi.Str(source)) {
+      case (acc, (start, end)) => acc.overlay(fansi.Color.Yellow, start, end)
+    }
+
     def assertPos(obtained: Int, expected: Int): Unit = {
       assert(
         obtained == expected,
@@ -137,7 +146,7 @@ trait SyntaxTokensSuiteUtils extends FunSuite {
       )
     }
 
-    test(annotedSource) {
+    test(markedSource.toString) {
       val tree = source.parse[S].get.asInstanceOf[T]
       val tokens = f(tree)
       tokens.zip(markers).foreach {

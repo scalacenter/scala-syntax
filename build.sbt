@@ -37,8 +37,9 @@ lazy val testsShared = project
     libraryDependencies ++= List(
       "ch.epfl.scala" %% "scalafix-diff" % "0.5.1",
       "org.scalameta" %% "testkit" % metaV,
-      "com.lihaoyi" %% "utest" % "0.5.4",
-      "org.scalatest" %% "scalatest" % "3.0.4"
+      "com.lihaoyi" %% "utest" % "0.6.3",
+      "org.scalatest" %% "scalatest" % "3.0.4",
+      "com.lihaoyi" %% "fansi" % "0.2.5" % Test
     )
   )
   .dependsOn(format)

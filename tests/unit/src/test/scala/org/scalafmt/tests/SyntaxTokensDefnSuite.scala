@@ -25,5 +25,9 @@ object SyntaxTokensDefnSuite extends SyntaxTokensSuiteUtils {
   checkSome[Defn.Class](_.tokensImplicit)(
     "class A(a: A {def f(implicit ev: E)})(→implicit← a: A)"
   )
-  // →←
+
+  // checkNil[Defn.Class](commaParamss)("class A")
+  // checkNil[Defn.Class](commaParamss)("class A(a: A)")
+  checkAll[Defn.Class](commaParamss)("class A→(←a: A→)←→(←→)←→(←b: B→)←")
+
 }
