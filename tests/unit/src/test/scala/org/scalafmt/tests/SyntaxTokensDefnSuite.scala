@@ -14,19 +14,11 @@ object SyntaxTokensDefnSuite extends SyntaxTokensSuiteUtils {
   checkNil[Defn.Class](_.tokensCommaTparams)("class A")
   checkNil[Defn.Class](_.tokensCommaTparams)("class A[T]")
   checkAll[Defn.Class](_.tokensCommaTparams)("class A[T1→,←T2→,←T3]")
-  checkNil[Defn.Class](_.tokensCommaCtor.flatten)("class A")
-  checkNil[Defn.Class](_.tokensCommaCtor.flatten)("class A(a: A)(b: B)")
-  checkAll[Defn.Class](_.tokensCommaCtor.flatten)(
+  checkNil[Defn.Class](commasCtor)("class A")
+  checkNil[Defn.Class](commasCtor)("class A(a: A)(b: B)")
+  checkAll[Defn.Class](commasCtor)(
     "class A(a: A→,← b: B)(c: C→,← d: D→,← e: E)"
   )
   checkNone[Defn.Class](_.tokensImplicit)("class A")
   checkSome[Defn.Class](_.tokensImplicit)("class A(→implicit← a: A)")
-  checkSome[Defn.Class](_.tokensImplicit)("class A()(→implicit← a: A)")
-  checkSome[Defn.Class](_.tokensImplicit)(
-    "class A(a: A {def f(implicit ev: E)})(→implicit← a: A)"
-  )
-
-  // checkNil[Defn.Class](commaParamss)("class A")
-  // checkNil[Defn.Class](commaParamss)("class A(a: A)")
-  // checkAll[Defn.Class](commaParamss)("class A→(←a: A→)←→(←→)←→(←b: B→)←")
 }

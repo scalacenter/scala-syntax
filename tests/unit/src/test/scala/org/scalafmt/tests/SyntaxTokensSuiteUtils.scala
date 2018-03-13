@@ -13,10 +13,9 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
     val Term.Select(sup: Term.Super, _) = sel
     sup.tokensDot
   }
-  def commaParamss(clazz: Defn.Class): List[Token] = {
-    clazz.tokensParenthesis.flatMap {
-      case (l, r) => List(l, r)
-    }
+
+  def commasCtor(clazz: Defn.Class): List[Token] = {
+    clazz.tokensCommaCtor.flatten
   }
 
   /* It's not always possible to write the syntax of a tree node directly
@@ -79,10 +78,7 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
     checkAllType[T](tree => List(f(tree)))(annotedSource)
 
   def checkNil[T <: Tree](f: T => List[Token])(source: String): Unit = {
-    val tree = source.parse[Stat].get.asInstanceOf[T]
-    test(source) {
-      assert(f(tree).isEmpty)
-    }
+    checkAll[T](f)(source, isNil = true)
   }
 
   def checkAllType[T <: Tree](
@@ -90,12 +86,14 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
   )(annotedSource: String): Unit =
     checkAll0[T, Type](f)(annotedSource)
 
-  def checkAll[T <: Tree](f: T => List[Token])(annotedSource: String): Unit =
-    checkAll0[T, Stat](f)(annotedSource)
+  def checkAll[T <: Tree](
+      f: T => List[Token]
+  )(annotedSource: String, isNil: Boolean = false): Unit =
+    checkAll0[T, Stat](f)(annotedSource, isNil)
 
   private def checkAll0[T <: Tree, S: Parse](
       f: T => List[Token]
-  )(annotedSource: String): Unit = {
+  )(annotedSource: String, isNil: Boolean = false): Unit = {
     val startMarker = '→'
     val stopMarker = '←'
     val nl = "\n"
@@ -108,11 +106,13 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
     val markersBuilder = List.newBuilder[(Int, Int)]
     var lastStart: Option[Int] = None
     def error(msg: String, pos: Int): Unit = {
-      sys.error(
-        msg + nl +
-          annotedSource + nl +
-          (" " * i) + "^"
-      )
+      test(annotedSource) {
+        sys.error(
+          msg + nl +
+            annotedSource + nl +
+            (" " * pos) + "^"
+        )
+      }
     }
     annotedSource.foreach { c =>
       if (c == startMarker) {
@@ -132,6 +132,9 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
     }
 
     val markers = markersBuilder.result()
+    if (isNil && markers.size != 0) {
+      error("checkNil should not have markers", markers.head._1)
+    }
 
     val markedSource = markers.foldLeft(fansi.Str(source)) {
       case (acc, (start, end)) => acc.overlay(fansi.Color.Yellow, start, end)
@@ -155,6 +158,7 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
           assertPos(t.pos.end, e)
         }
       }
+
       assert(
         tokens.size == markers.size,
         s"incorrect number of tokens, expected: ${markers.size}, obtained: ${tokens.size}"

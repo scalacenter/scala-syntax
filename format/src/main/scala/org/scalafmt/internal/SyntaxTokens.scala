@@ -21,23 +21,8 @@ import scala.meta.classifiers.Classifier
  * see https://blog.codinghorror.com/ascii-pronunciation-rules-for-programmers/
  */
 object SyntaxTokens {
-  implicit class XtensionTokens(val tokens: Tokens) extends AnyVal {
-    def binarySearch(token: Token): Option[Int] = {
-      def loop(lo: Int, hi: Int): Int = {
-        if (lo > hi) -1
-        else {
-          val mid = lo + ((hi - lo) / 2)
-          val guess = tokens(mid)
-          if (guess == token) mid
-          else if (guess.end < token.end) loop(mid + 1, hi)
-          else loop(lo, mid - 1)
-        }
-      }
-      val res = loop(0, tokens.length - 1)
-      if (res == -1) None
-      else Some(res)
-    }
-  }
+  import TokenOps._
+
   private implicit class XtensionUtil[A <: Tree](val tree: A) extends AnyVal {
     def find[T <: Token](implicit ev: Classifier[Token, T]): Option[T] = {
       find[T](tree.tokens)(ev)
@@ -308,13 +293,6 @@ object SyntaxTokens {
     def tokensCommaTparams: List[Comma] =
       commaSeparated(tree)(_.tparams)
 
-    // paramss
-    def tokensParenthesis: List[(LeftParen, RightParen)] = {
-      ???
-    }
-
-    def tokensCommaParamss: List[List[Comma]] = ???
-
     def tokensCommaCtor: List[List[Comma]] =
       tree.ctor.paramss.map(commaSeparated0(tree))
 
@@ -325,9 +303,14 @@ object SyntaxTokens {
         val rparamss = paramss.reverse
         rparamss.head match {
           case right :: _ if right.mods.exists(_.is[Mod.Implicit]) =>
-            val left =
-              rparamss.tail.find(_.nonEmpty).map(_.last).getOrElse(tree.name)
-            tree.findBetween[KwImplicit](_ => left, _ => right)
+            val list = TokenList(tree.tokens)
+            val kw =
+              list
+                .leadings(right.tokens.head)
+                .find(_.is[KwImplicit])
+                .get
+                .asInstanceOf[KwImplicit]
+            Some(kw)
           case Nil => None
         }
       }
