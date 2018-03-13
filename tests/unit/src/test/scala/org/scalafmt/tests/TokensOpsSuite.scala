@@ -95,15 +95,21 @@ object TokensOpsSuite extends FunSuite {
   }
 
   test("slice returns `from` if there is no more tokens in between") {
-    assert(tokens.slice(tokens.head, tokens(1)) == Seq(tokens.head))
+    val obtained = tokens.slice(tokens.head, tokens(1))
+    assert(obtained.size == 1)
+    assert(obtained(0) == tokens.head)
   }
 
-  test("slice returns empty seq if `from` and `to` tokens are the same object") {
-    assert(tokens.slice(tokens.head, tokens.head) == Seq())
+  test(
+    "slice returns empty tokens if `from` and `to` tokens are the same object"
+  ) {
+    val obtained = tokens.slice(tokens.head, tokens.head)
+    assert(obtained.isEmpty)
   }
 
-  test("slice returns empty seq if `from` comes after `to`") {
-    assert(tokens.slice(tokens.last, tokens.head) == Seq())
+  test("slice returns empty tokens if `from` comes after `to`") {
+    val obtained = tokens.slice(tokens.last, tokens.head)
+    assert(obtained.isEmpty)
   }
 
   test("slice fails if `from` token does not exist") {
