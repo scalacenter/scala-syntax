@@ -18,6 +18,12 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
     clazz.tokensCommaCtor.flatten
   }
 
+  def parensParamss(clazz: Defn.Class): List[Token] = {
+    clazz.tokensParenthesis.flatMap {
+      case (l, r) => List(l, r)
+    }
+  }
+
   /* It's not always possible to write the syntax of a tree node directly
    * for example, Term.Repeated are wraped in Term.Apply: f(x: _*)
    * We can write an arbitary function to extract a child node.

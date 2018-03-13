@@ -315,6 +315,46 @@ object SyntaxTokens {
         }
       }
     }
+
+    def tokensParenthesis: List[(LeftParen, RightParen)] = {
+      val paramss = tree.ctor.paramss
+      if (paramss.isEmpty) Nil
+      else {
+        val buf = List.newBuilder[(Token.LeftParen, Token.RightParen)]
+        val tokens = tree.tokens
+        val lst = TokenList(tokens)
+        val matching = MatchingParens(tokens)
+        val modLast =
+          for {
+            mod <- tree.ctor.mods.lastOption
+            tok <- mod.tokens.lastOption
+          } yield tok
+        val tparamLast =
+          for {
+            tparam <- tree.tparams.lastOption
+            tok <- tparam.tokens.lastOption
+          } yield tok
+        val start =
+          modLast.orElse(tparamLast).orElse(tree.name.tokens.lastOption).get
+
+        def loop(start: Token, paramss: List[List[Term.Param]]): Unit =
+          paramss match {
+            case Nil =>
+            case _ :: tail =>
+              val open = lst
+                .trailings(start)
+                .find(_.is[Token.LeftParen])
+                .get
+                .asInstanceOf[Token.LeftParen]
+              val close = matching.close(open).get
+              buf += (open -> close)
+              loop(close, tail)
+          }
+        loop(start, tree.ctor.paramss)
+        buf.result()
+      }
+    }
+
   }
 
   private def commaSeparated[T <: Tree](

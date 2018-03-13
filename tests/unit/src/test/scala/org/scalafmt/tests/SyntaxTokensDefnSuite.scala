@@ -21,4 +21,12 @@ object SyntaxTokensDefnSuite extends SyntaxTokensSuiteUtils {
   )
   checkNone[Defn.Class](_.tokensImplicit)("class A")
   checkSome[Defn.Class](_.tokensImplicit)("class A(→implicit← a: A)")
+  checkNil[Defn.Class](parensParamss)("class A")
+  checkAll[Defn.Class](parensParamss)("class A→(←a: A→)←")
+  checkAll[Defn.Class](parensParamss)("class A→(←a: A→)←")
+  checkAll[Defn.Class](parensParamss)("class A→(←a: A→)←→(←→)←→(←b: B→)←")
+  checkAll[Defn.Class](parensParamss)(
+    "class A[@unchecked T] @Inject()→(←a: Int→)←→(←→)←→(←→)←→(←implicit c: C→)←"
+  )
+
 }
