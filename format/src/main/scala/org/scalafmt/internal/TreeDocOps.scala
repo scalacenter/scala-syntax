@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import scala.annotation.tailrec
 import org.scalafmt.Options
 import scala.meta.Lit
 import scala.meta.Mod
@@ -11,7 +10,7 @@ import scala.meta.Self
 import scala.meta.Type
 import scala.meta.Term
 import scala.meta.Tree
-import scala.meta.internal.fmt.SyntacticGroup
+
 import scala.meta.internal.prettyprinters.DoubleQuotes
 import scala.meta.internal.prettyprinters.QuoteStyle
 import scala.meta.internal.prettyprinters.TripleQuotes
@@ -29,6 +28,7 @@ import scala.language.implicitConversions
 
 object TreeDocOps {
   import TreePrinter._
+  import SyntacticGroupOps._
 
   implicit def toDoc(quote: QuoteStyle): Doc = text(quote.toString)
 
@@ -46,78 +46,6 @@ object TreeDocOps {
 
   def printTree(root: Tree, options: Options): Doc = {
     print(root)
-  }
-
-  implicit class XtensionSyntacticGroup(val leftGroup: SyntacticGroup)
-      extends AnyVal {
-    def wrap(tree: Tree, side: Side = Side.Left): Doc = {
-      wrap0(tree, print(tree), side)
-    }
-    def wrap0(tree: Tree, doc: Doc, side: Side = Side.Left): Doc = {
-      val rightGroup = TreeSyntacticGroup(tree)
-      wrap1(rightGroup, doc, side)
-    }
-    def wrap1(
-        rightGroup: SyntacticGroup,
-        doc: Doc,
-        side: Side = Side.Left
-    ): Doc = {
-      if (TreeOps.groupNeedsParenthesis(leftGroup, rightGroup, side))
-        wrapParens(doc)
-      else doc
-    }
-  }
-
-  def wrapParens(doc: Doc): Doc = `(` + doc + `)`
-
-  object LambdaArg {
-    type Paramss = Vector[List[Term.Param]]
-
-    @tailrec
-    private final def getParamss(
-        f: Term.Function,
-        accum: Paramss = Vector.empty
-    ): (Paramss, Term) =
-      f.body match {
-        case g: Term.Function =>
-          getParamss(g, accum :+ f.params)
-        case Term.Block((g: Term.Function) :: Nil) =>
-          getParamss(g, accum :+ f.params)
-        case _ =>
-          (accum :+ f.params, f.body)
-      }
-
-    def dFunction(f: Term.Function): Doc = {
-      val (paramss, body) = getParamss(f)
-      val dbody = body match {
-        case Term.Block(stats) => dStats(stats)
-        case _ => print(body)
-      }
-      val dparamss = paramss.foldLeft(empty) {
-        case (accum, params) =>
-          accum + line + dParams(params, forceParens = false) + space + `=>`
-      }
-
-      val function =
-        (
-          dparamss.nested(2).grouped + line +
-            dbody
-        ).nested(2).grouped
-
-      (`{` + function + line + `}`).grouped
-    }
-
-    def unapply(args: List[Tree]): Option[Doc] =
-      args match {
-        case (arg: Term.PartialFunction) :: Nil =>
-          Some(print(arg))
-        case (arg @ Term.Function(_, Term.Block(_ :: _ :: _))) :: Nil =>
-          Some(dFunction(arg))
-        case (Term.Block((f: Term.Function) :: Nil)) :: Nil =>
-          Some(dFunction(f))
-        case _ =>
-          None
-      }
   }
 
   def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {

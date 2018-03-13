@@ -15,6 +15,7 @@ import scala.meta.{`package` => _, _}
 
 object TreePrinter {
   import TreeDocOps._
+  import SyntacticGroupOps._
   def print(tree: Tree): Doc = {
     val result = tree match {
       case t: Name =>

@@ -28,11 +28,6 @@ object TokensOps {
     def leadings(token: Token): SeqView[Token, IndexedSeq[Token]] =
       tokens.view(0, get(token)).reverse
 
-    def get(token: Token): Int =
-      binarySearch(token).getOrElse(
-        throw new NoSuchElementException(s"token not found: $token")
-      )
-
     def find(start: Token)(p: Token => Boolean): Option[Token] =
       tokens.drop(get(start)).find(p)
 
@@ -44,5 +39,10 @@ object TokensOps {
 
     def trailingSpaces(token: Token): SeqView[Token, IndexedSeq[Token]] =
       trailings(token).takeWhile(_.is[Token.Space])
+
+    private def get(token: Token): Int =
+      binarySearch(token).getOrElse(
+        throw new NoSuchElementException(s"token not found: $token")
+      )
   }
 }
