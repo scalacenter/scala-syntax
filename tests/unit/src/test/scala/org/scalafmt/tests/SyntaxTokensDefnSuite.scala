@@ -28,6 +28,5 @@ object SyntaxTokensDefnSuite extends SyntaxTokensSuiteUtils {
 
   // checkNil[Defn.Class](commaParamss)("class A")
   // checkNil[Defn.Class](commaParamss)("class A(a: A)")
-  checkAll[Defn.Class](commaParamss)("class A→(←a: A→)←→(←→)←→(←b: B→)←")
-
+  // checkAll[Defn.Class](commaParamss)("class A→(←a: A→)←→(←→)←→(←b: B→)←")
 }

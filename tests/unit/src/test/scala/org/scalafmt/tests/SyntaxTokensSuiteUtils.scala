@@ -5,7 +5,7 @@ import scala.meta.parsers.Parse
 
 import org.scalafmt.internal.SyntaxTokens._
 
-trait SyntaxTokensSuiteUtils extends FunSuite {
+abstract class SyntaxTokensSuiteUtils extends FunSuite {
   val dq = '"'
   val tq = s"${dq}${dq}${dq}"
 
