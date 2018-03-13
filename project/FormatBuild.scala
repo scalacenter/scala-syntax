@@ -13,7 +13,7 @@ object FormatBuild extends AutoPlugin {
       "-Ywarn-unused-import", "-Ywarn-unused:locals", "-Ywarn-unused:privates"
     ),
     testFrameworks := List(
-      new TestFramework("utest.runner.Framework")
+      new TestFramework("org.scalafmt.tests.CustomFramework")
     )
   )
 
