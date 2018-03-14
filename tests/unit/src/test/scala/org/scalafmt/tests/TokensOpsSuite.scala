@@ -6,9 +6,9 @@ import scala.meta._
 import scala.meta.dialects.Scala211
 
 import org.scalafmt.internal.TokensOps._
+import org.scalafmt.internal.TokenOps._
 
 object TokensOpsSuite extends FunSuite {
-
   val tokens =
     """package foo
       |
@@ -173,5 +173,43 @@ object TokensOpsSuite extends FunSuite {
     val Some(rightBrace) = tokens.find(_.is[Token.RightBrace])
 
     assert(tokens.trailingSpaces(rightBrace) == Seq())
+  }
+
+  findAll("s\"$a\"")
+  findAll("""s"${_1}" """)
+  findAll("""q"b$b$c" """)
+  findAll("""q"b$b_$c" """)
+  findAll("""q"b${b.c}" """)
+  findAll("""s"${`a..n`}" """)
+  findAll("""<a>b {c}</a>""")
+  findAll("""<h1>a{b}c{d}e{f}g</h1>""")
+  findAll("""q"b${1 + q"a"}" """)
+  findAll("""r"example (.+)${foo}"""")
+
+  def findAll(input: String): Unit = {
+    test("binarySearch: " + input) {
+      val tokens = input.tokenize.get
+
+      tokens.zipWithIndex.foreach {
+        case (token, i) =>
+          val expected = token
+          val index = tokens.binarySearch(token)
+          if (index.isEmpty) {
+            assert(false)
+          }
+
+          val obtained = tokens(index.get)
+          assert(i == index.get)
+          assert(obtained == expected)
+      }
+    }
+  }
+
+  def show(token: Token): String = {
+    val name =
+      token.getClass.toString.stripPrefix("class scala.meta.tokens.Token$")
+    val start = token.pos.start
+    val end = token.pos.end
+    s"$name [${start}..${end})"
   }
 }

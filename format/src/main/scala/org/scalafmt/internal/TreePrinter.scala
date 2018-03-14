@@ -1,23 +1,29 @@
 package org.scalafmt.internal
 
 import org.scalafmt.internal.ScalaToken._
-import org.scalafmt.internal.ScalaToken._
+import org.scalafmt.internal.TokenOps._
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
+import scala.annotation.tailrec
+import scala.language.implicitConversions
+import scala.meta.internal.fmt.SyntacticGroup
 import scala.meta.internal.fmt.SyntacticGroup.Pat._
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
 import scala.meta.internal.format.Comments
+import scala.meta.internal.format.CustomTrees._
 import scala.meta.internal.format.CustomTrees.PatName
-import scala.meta.internal.prettyprinters.SingleQuotes
-import scala.meta.internal.prettyprinters.TripleQuotes
+import scala.meta.internal.prettyprinters._
 import scala.meta.{`package` => _, _}
 
 object TreePrinter {
-  import SyntaxTokens._
-  import TreeDocOps._
-  import SyntacticGroupOps._
+  def print(tree: Tree): Doc = {
+    val trivia = AssociatedTrivias(tree)
+    (new TreePrinter(trivia)).print(tree)
+  }
+}
 
+class TreePrinter private (trivia: AssociatedTrivias) {
   def print(tree: Tree): Doc = {
     val result = tree match {
       case t: Name =>
@@ -534,4 +540,387 @@ object TreePrinter {
     Comments.doc(tree, result)
   }
 
+  private implicit def toDoc(quote: QuoteStyle): Doc = text(quote.toString)
+
+  private def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
+    val op = operator.render(100)
+    val leftWraped = InfixTyp(op).wrap(left)
+    val rightWraped = InfixTyp(op).wrap(right, Side.Right)
+    leftWraped + space + operator + space + rightWraped
+  }
+
+  private def dTypeFunction(params: List[Type], res: Type): Doc = {
+    val dparams = params match {
+      case Nil => `(` + `)`
+      case param :: Nil if !param.is[Type.Tuple] =>
+        AnyInfixTyp.wrap(param)
+      case params => dApplyParen(empty, params)
+    }
+    dparams + space + `=>` + space + Typ.wrap(res)
+  }
+
+  private def dName(name: Tree): Doc = name match {
+    case _: Name.Anonymous => wildcard
+    case _ => print(name)
+  }
+
+  private def dWithin(keyword: Doc, within: Ref): Doc =
+    within match {
+      case Name.Anonymous() => keyword
+      case Term.This(Name.Anonymous()) => keyword + `[` + `this` + `]`
+      case _ => dApplyBracket(keyword, within :: Nil)
+    }
+
+  private def dApplyBrace(fun: Doc, args: List[Tree]): Doc =
+    dApply(fun, args, `{`, `}`)
+
+  private def dTargs(targs: List[Tree]): Doc =
+    dApplyBracket(empty, targs)
+
+  private def dArgs(args: List[Tree]): Doc =
+    dApplyParen(empty, args)
+
+  private def dArgss(argss: List[List[Term]]): Doc =
+    joined(argss.map(dArgs))
+
+  private def dApplyParen(fun: Doc, args: List[Tree]): Doc =
+    dApply(fun, args, `(`, `)`)
+
+  private def dApplyBracket(fun: Doc, args: List[Tree]): Doc =
+    if (args.isEmpty) fun
+    else dApply(fun, args, `[`, `]`)
+
+  private def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc): Doc = {
+    val dargs = intercalate(comma + line, args.map(print))
+    dargs.tightBracketBy(fun + left, right)
+  }
+
+  private def dApplyParenPat(fun: Doc, args: List[Pat]): Doc = {
+    val dargs = intercalate(comma + line, args.map(dPat))
+    dargs.tightBracketBy(fun + `(`, `)`)
+  }
+
+  private def dAscription(lhs: Tree, rhs: Tree): Doc = {
+    dAscription(lhs, print(rhs))
+  }
+
+  private def dAscription(lhs: Tree, rhs: Doc): Doc = {
+    val dlhs = dName(lhs)
+    Ascription.wrap0(lhs, dlhs) + typedColon(dlhs) + space + rhs
+  }
+
+  private def dBlock(stats: List[Tree]): Doc =
+    dBlockI(stats).grouped
+
+  private def dBlockI(stats: List[Tree]): Doc = {
+    val body =
+      stats match {
+        case Nil =>
+          empty
+        case head :: Nil =>
+          (line + print(head)).nested(2) + line
+        case _ =>
+          (line + dStats(stats)).nested(2) + line
+      }
+
+    `{` + body + `}`
+  }
+
+  private def isEmpty(self: Self): Boolean = self match {
+    case Self(Name.Anonymous(), None) => true
+    case _ => false
+  }
+
+  private def joined(docs: List[Doc]): Doc =
+    intercalate(empty, docs)
+
+  private def spaceSeparated(docs: List[Doc]): Doc =
+    intercalate(space, docs.filterNot(_.isEmpty))
+
+  private def commaSeparated(docs: List[Doc]): Doc =
+    intercalate(comma + space, docs.filterNot(_.isEmpty))
+
+  private def typedColon(lhs: Doc): Doc =
+    if (needsLeadingSpaceBeforeColon(lhs.render(100))) space + `:`
+    else `:`
+
+  private def dMods(mods: List[Mod]): Doc =
+    intercalate(space, mods.map(print))
+
+  private def dParamss(paramss: List[List[Term.Param]]): Doc =
+    paramss match {
+      case Nil => empty
+      case List(Nil) => `(` + `)`
+      case _ => {
+        val printedParams =
+          paramss.map { params =>
+            val dimplicit =
+              if (params.exists(_.mods.exists(_.is[Mod.Implicit])))
+                `implicit` + line
+              else empty
+
+            val dparams =
+              params.map { param =>
+                print(
+                  param.copy(mods = param.mods.filterNot(_.is[Mod.Implicit]))
+                )
+              }
+
+            (dimplicit + intercalate(comma + line, dparams))
+              .tightBracketBy(`(`, `)`)
+          }
+
+        joined(printedParams)
+      }
+    }
+
+  private def dBody(body: Tree): Doc =
+    dBodyO(Some(body))
+
+  private def dBodyO(body: Option[Tree]): Doc =
+    body.fold(empty) {
+      case t @ (_: Term.Block | _: Term.PartialFunction | _: Term.Match) =>
+        `=` + space + print(t)
+      case t =>
+        `=` + (line + print(t)).nested(2).grouped
+    }
+
+  private def dDefPats(
+      mods: List[Mod],
+      keyword: Doc,
+      pats: List[Pat],
+      tparams: List[Type.Param],
+      paramss: List[List[Term.Param]],
+      decltpe: Option[Type],
+      body: Doc
+  ): Doc = {
+    val dname = commaSeparated(pats.map(print))
+    dDef(mods, keyword, dname, tparams, paramss, decltpe, body)
+  }
+
+  private def dDef(
+      mods: List[Mod],
+      keyword: Doc,
+      name: Doc,
+      tparams: List[Type.Param],
+      paramss: List[List[Term.Param]],
+      decltpe: Option[Type] = None,
+      dbody: Doc = empty
+  ): Doc = {
+    val dname = dApplyBracket(name, tparams)
+    val dparamss = dParamss(paramss)
+    val ddecltpe =
+      decltpe.fold(empty)(tpe => typedColon(name) + space + print(tpe))
+    spaceSeparated(
+      dMods(mods) ::
+        keyword ::
+        dname + dparamss + ddecltpe ::
+        dbody ::
+        Nil
+    )
+  }
+
+  private def dStats(stats: List[Tree]): Doc = {
+    intercalate(
+      lineBlank,
+      stats.map {
+        // Term.Xml is SimpleExpr1 but binds weaker when with other xml expressions
+        // ex: { val x = <a></a>; (<b></b>) }
+        case t: Term.Xml => wrapParens(print(t))
+        case t => Expr1.wrap(t)
+      }
+    )
+  }
+
+  private def dRaw(str: String, quoteStyle: QuoteStyle): Doc =
+    dRawI(str, 0, Some(quoteStyle))
+
+  private def dRawI(
+      str: String,
+      start: Int,
+      quoteStyle: Option[QuoteStyle]
+  ): Doc = {
+    if (start >= str.length) empty
+    else {
+      val idx = str.indexOf('\n', start)
+      if (idx < 0) {
+        val substr = str.substring(start)
+        val escaped =
+          quoteStyle.fold(substr)(style => SyntaxOps.escape(substr, style))
+        text(escaped)
+      } else {
+        text(str.substring(start, idx)) +
+          lineNoFlatNoIndent +
+          dRawI(str, idx + 1, quoteStyle)
+      }
+    }
+  }
+
+  private def isMultiline(part: String): Boolean = {
+    part.contains("\n") &&
+    !part.contains("\"\"\"")
+  }
+
+  private def dQuote(str: String): (QuoteStyle, Doc) =
+    if (isMultiline(str)) TripleQuotes -> `"""`
+    else DoubleQuotes -> `"`
+
+  private def dInterpolate(
+      prefix: Name,
+      parts: List[Tree],
+      args: List[Tree]
+  ): Doc = {
+
+    def isMultilineInterpolated(part: String): Boolean =
+      // NOTE(olafur) interpolated strings are unescaped so single quotes must
+      // be wrapped in triple quote interpolated strings.
+      part.contains("\"") || isMultiline(part)
+
+    val isTripleQuoted = parts.exists {
+      case Lit.String(part) => isMultilineInterpolated(part)
+    }
+
+    def escape(part: String) = {
+      val dollar = "$"
+      dRawI(part.replace(dollar, dollar + dollar), 0, None)
+    }
+
+    val dquote = if (isTripleQuoted) `"""` else `"`
+    val dhead = parts.head match {
+      case Lit.String(value) =>
+        escape(value)
+    }
+    val sparts = parts.tail.zip(args).foldLeft(empty) {
+      case (accum, (Lit.String(part), name: Term.Name))
+          if !isIdentifierStart(part) &&
+            !name.value.startsWith("_") &&
+            !Identifier.needsBacktick(name.value) =>
+        accum + `$` + print(name) + escape(part)
+      case (accum, (Lit.String(part), arg)) =>
+        accum + dApplyBrace(`$`, arg :: Nil) + escape(part)
+    }
+    print(prefix) + dquote + dhead + sparts + dquote
+  }
+
+  private def dParams(params: List[Term.Param], forceParens: Boolean): Doc =
+    params match {
+      case param :: Nil =>
+        val dparam = print(param)
+        param.decltpe match {
+          case Some(tpe) =>
+            if (forceParens) wrapParens(dparam)
+            else SimpleExpr.wrap0(tpe, dparam)
+          case _ => dparam
+        }
+      case _ => dApplyParen(empty, params)
+    }
+
+  private def dPat(pat: Tree): Doc =
+    print(mkPat(pat))
+
+  private def mkPat(pat: Tree): Tree =
+    pat match {
+      case t: Term.Name if t.value.headOption.exists(_.isLower) =>
+        PatName(t.value)
+      case _ => pat
+    }
+
+  private def dPatXml(pat: Pat.Xml): Doc = {
+    val parts = pat.parts.map(Some(_))
+    val args = pat.args.map(Some(_))
+    parts.zipAll(args, None, None).foldLeft(empty) {
+      case (acc, (part, argument)) => {
+        val printedPart =
+          part match {
+            case Some(p: Lit.String) => {
+              val (quoteStyle, _) = dQuote(p.value)
+              dRaw(p.value, quoteStyle)
+            }
+            // $COVERAGE-OFF$
+            case Some(_) =>
+              sys.error("xml part expect Lit.String: " + part.structure)
+            case _ => empty // impossible, parts.size = args.size + 1
+            // $COVERAGE-ON$
+          }
+
+        val printedArgument =
+          argument.map(a => `{` + print(a) + `}`).getOrElse(empty)
+
+        acc + printedPart + printedArgument
+      }
+    }
+  }
+
+  private object LambdaArg {
+    type Paramss = Vector[List[Term.Param]]
+
+    @tailrec
+    private final def getParamss(
+        f: Term.Function,
+        accum: Paramss = Vector.empty
+    ): (Paramss, Term) =
+      f.body match {
+        case g: Term.Function =>
+          getParamss(g, accum :+ f.params)
+        case Term.Block((g: Term.Function) :: Nil) =>
+          getParamss(g, accum :+ f.params)
+        case _ =>
+          (accum :+ f.params, f.body)
+      }
+
+    def dFunction(f: Term.Function): Doc = {
+      val (paramss, body) = getParamss(f)
+      val dbody = body match {
+        case Term.Block(stats) => dStats(stats)
+        case _ => print(body)
+      }
+      val dparamss = paramss.foldLeft(empty) {
+        case (accum, params) =>
+          accum + line + dParams(params, forceParens = false) + space + `=>`
+      }
+
+      val function =
+        (
+          dparamss.nested(2).grouped + line +
+            dbody
+        ).nested(2).grouped
+
+      (`{` + function + line + `}`).grouped
+    }
+
+    def unapply(args: List[Tree]): Option[Doc] =
+      args match {
+        case (arg: Term.PartialFunction) :: Nil =>
+          Some(print(arg))
+        case (arg @ Term.Function(_, Term.Block(_ :: _ :: _))) :: Nil =>
+          Some(dFunction(arg))
+        case (Term.Block((f: Term.Function) :: Nil)) :: Nil =>
+          Some(dFunction(f))
+        case _ =>
+          None
+      }
+  }
+
+  private def wrapParens(doc: Doc): Doc = `(` + doc + `)`
+
+  private implicit class XtensionSyntacticGroup(
+      val outerGroup: SyntacticGroup
+  ) {
+    def wrap(tree: Tree, side: Side = Side.Left): Doc = {
+      wrap0(tree, print(tree), side)
+    }
+    def wrap0(tree: Tree, doc: Doc, side: Side = Side.Left): Doc = {
+      val innerGroup = TreeSyntacticGroup(tree)
+      wrap1(innerGroup, doc, side)
+    }
+    def wrap1(
+        innerGroup: SyntacticGroup,
+        doc: Doc,
+        side: Side = Side.Left
+    ): Doc = {
+      if (TreeOps.groupNeedsParenthesis(outerGroup, innerGroup, side))
+        wrapParens(doc)
+      else doc
+    }
+  }
 }
