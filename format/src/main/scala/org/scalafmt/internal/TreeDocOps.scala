@@ -1,53 +1,20 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Options
-import scala.meta.Lit
-import scala.meta.Mod
-import scala.meta.Name
-import scala.meta.Pat
-import scala.meta.Ref
-import scala.meta.Self
-import scala.meta.Type
-import scala.meta.Term
-import scala.meta.Tree
-
-import scala.meta.internal.prettyprinters.DoubleQuotes
-import scala.meta.internal.prettyprinters.QuoteStyle
-import scala.meta.internal.prettyprinters.TripleQuotes
-import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc._
-import org.langmeta.inputs.Input
-import scala.meta.internal.format.CustomTrees._
 import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.TokenOps._
 
+import org.typelevel.paiges.Doc
+import org.typelevel.paiges.Doc._
+
+import scala.meta._
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
+import scala.meta.internal.format.CustomTrees._
+import scala.meta.internal.prettyprinters._
 
-import scala.language.implicitConversions
+import scala.annotation.tailrec
 
-object TreeDocOps {
-  import TreePrinter._
-  import SyntacticGroupOps._
-
-  implicit def toDoc(quote: QuoteStyle): Doc = text(quote.toString)
-
-  def getRoot(input: String, options: Options): Tree = {
-    getRoot(Input.String(input), options)
-  }
-
-  def getRoot(input: Input, options: Options): Tree = {
-    options.parser.apply(input, options.dialect).get
-  }
-
-  def printInput(input: Input, options: Options): Doc = {
-    printTree(getRoot(input, options), options)
-  }
-
-  def printTree(root: Tree, options: Options): Doc = {
-    print(root)
-  }
-
+trait TreeDocOps extends SyntacticGroupOps {
   def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
     val op = operator.render(100)
     val leftWraped = InfixTyp(op).wrap(left)
@@ -347,5 +314,55 @@ object TreeDocOps {
         acc + printedPart + printedArgument
       }
     }
+  }
+
+  object LambdaArg {
+    type Paramss = Vector[List[Term.Param]]
+
+    @tailrec
+    private final def getParamss(
+        f: Term.Function,
+        accum: Paramss = Vector.empty
+    ): (Paramss, Term) =
+      f.body match {
+        case g: Term.Function =>
+          getParamss(g, accum :+ f.params)
+        case Term.Block((g: Term.Function) :: Nil) =>
+          getParamss(g, accum :+ f.params)
+        case _ =>
+          (accum :+ f.params, f.body)
+      }
+
+    def dFunction(f: Term.Function): Doc = {
+      val (paramss, body) = getParamss(f)
+      val dbody = body match {
+        case Term.Block(stats) => dStats(stats)
+        case _ => print(body)
+      }
+      val dparamss = paramss.foldLeft(empty) {
+        case (accum, params) =>
+          accum + line + dParams(params, forceParens = false) + space + `=>`
+      }
+
+      val function =
+        (
+          dparamss.nested(2).grouped + line +
+            dbody
+        ).nested(2).grouped
+
+      (`{` + function + line + `}`).grouped
+    }
+
+    def unapply(args: List[Tree]): Option[Doc] =
+      args match {
+        case (arg: Term.PartialFunction) :: Nil =>
+          Some(print(arg))
+        case (arg @ Term.Function(_, Term.Block(_ :: _ :: _))) :: Nil =>
+          Some(dFunction(arg))
+        case (Term.Block((f: Term.Function) :: Nil)) :: Nil =>
+          Some(dFunction(f))
+        case _ =>
+          None
+      }
   }
 }

@@ -1,18 +1,21 @@
 package org.scalafmt
 
+import scala.meta.inputs.Input
+import scala.meta.internal.io.FileIO
+import scala.meta.internal.io.PathIO
+import scala.meta.io.AbsolutePath
+import scala.meta.dialects
+import scala.meta.parsers.Parse
+import scala.meta.Dialect
+import scala.meta.Tree
+
+import scala.util.control.NonFatal
+
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicInteger
-import scala.meta.Dialect
-import scala.meta.Tree
-import scala.meta.dialects
-import scala.meta.parsers.Parse
-import scala.util.control.NonFatal
-import org.langmeta.inputs.Input
-import org.langmeta.internal.io.FileIO
-import org.langmeta.internal.io.PathIO
-import org.langmeta.io.AbsolutePath
-import org.scalafmt.internal.TreeDocOps
+
+import org.scalafmt.internal.TreePrinter
 
 trait Options {
   def maxColumn: Int
@@ -63,7 +66,7 @@ object Format {
     format(Input.String(code), options)
   }
   def format(code: Input, options: Options): String = {
-    TreeDocOps
+    TreePrinter
       .printInput(code, options)
       .render(options.maxColumn)
   }

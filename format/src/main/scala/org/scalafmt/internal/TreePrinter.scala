@@ -1,22 +1,54 @@
 package org.scalafmt.internal
 
+import org.scalafmt.Options
 import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.ScalaToken._
+
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
+
+import scala.meta.{`package` => _, _}
 import scala.meta.internal.fmt.SyntacticGroup.Pat._
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
 import scala.meta.internal.format.Comments
 import scala.meta.internal.format.CustomTrees.PatName
-import scala.meta.internal.prettyprinters.SingleQuotes
-import scala.meta.internal.prettyprinters.TripleQuotes
-import scala.meta.{`package` => _, _}
+import scala.meta.internal.prettyprinters._
+
+import scala.language.implicitConversions
 
 object TreePrinter {
-  import SyntaxTokens._
-  import TreeDocOps._
-  import SyntacticGroupOps._
+  def print(tree: Tree): Doc = {
+    val trivia = AssociatedTrivias(tree)
+    (new TreePrinter(trivia)).print(tree)
+  }
+
+  def printInput(input: Input, options: Options): Doc = {
+    printTree(getRoot(input, options), options)
+  }
+
+  def printTree(root: Tree, options: Options): Doc = {
+    print(root)
+  }
+
+  def getRoot(input: String, options: Options): Tree = {
+    getRoot(Input.String(input), options)
+  }
+
+  def getRoot(input: Input, options: Options): Tree = {
+    options.parser.apply(input, options.dialect).get
+  }
+}
+
+trait WithPrinter {
+  val trivia: AssociatedTrivias
+  def print(tree: Tree): Doc
+}
+
+class TreePrinter private (val trivia: AssociatedTrivias)
+    extends WithPrinter
+    with TreeDocOps
+    with SyntacticGroupOps {
 
   def print(tree: Tree): Doc = {
     val result = tree match {
@@ -534,4 +566,5 @@ object TreePrinter {
     Comments.doc(tree, result)
   }
 
+  private implicit def toDoc(quote: QuoteStyle): Doc = text(quote.toString)
 }
