@@ -27,7 +27,7 @@ package a.b
 import b.c
 $Foo
 """
-    val obtained = TreePrinter.print(source).render(100)
+    val obtained = TreePrinter.printTree(source).render(100)
     // Note that indentation is corrected :D
     val expected =
       """

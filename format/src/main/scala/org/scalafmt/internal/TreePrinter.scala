@@ -18,7 +18,11 @@ object TreePrinter {
   import TreeDocOps._
   import SyntacticGroupOps._
 
-  def print(tree: Tree): Doc = {
+  def printTree(tree: Tree): Doc = {
+    print(tree)(AssociatedTrivias(tree))
+  }
+
+  def print(tree: Tree)(implicit trivias: AssociatedTrivias): Doc = {
     val result = tree match {
       case t: Name =>
         t match {

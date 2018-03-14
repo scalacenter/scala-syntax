@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.internal.ScalaToken._
+import org.scalafmt.internal.{AssociatedTrivias => Trivias}
 
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
@@ -28,7 +29,7 @@ object LambdaArg {
         (accum :+ f.params, f.body)
     }
 
-  def dFunction(f: Term.Function): Doc = {
+  def dFunction(f: Term.Function)(implicit trivias: Trivias): Doc = {
     val (paramss, body) = getParamss(f)
     val dbody = body match {
       case Term.Block(stats) => dStats(stats)
@@ -48,7 +49,7 @@ object LambdaArg {
     (`{` + function + line + `}`).grouped
   }
 
-  def unapply(args: List[Tree]): Option[Doc] =
+  def unapply(args: List[Tree])(implicit trivias: Trivias): Option[Doc] =
     args match {
       case (arg: Term.PartialFunction) :: Nil =>
         Some(print(arg))
