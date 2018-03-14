@@ -6,6 +6,7 @@ import scala.meta._
 import scala.meta.dialects.Scala211
 
 import org.scalafmt.internal.TokensOps._
+import org.scalafmt.internal.TokenOps._
 
 object TokensOpsSuite extends FunSuite {
   val tokens =
@@ -174,33 +175,41 @@ object TokensOpsSuite extends FunSuite {
     assert(tokens.trailingSpaces(rightBrace) == Seq())
   }
 
-  test("binarySearch interpolation") {
-    val interpolation = "s\"$a\"".tokenize.get
-    // s"$a"
-    // 012345
+  findAll("s\"$a\"")
+  findAll("""s"${_1}" """)
+  findAll("""q"b$b$c" """)
+  findAll("""q"b$b_$c" """)
+  findAll("""q"b${b.c}" """)
+  findAll("""s"${`a..n`}" """)
+  findAll("""<a>b {c}</a>""")
+  findAll("""<h1>a{b}c{d}e{f}g</h1>""")
+  findAll("""q"b${1 + q"a"}" """)
+  findAll("""r"example (.+)${foo}"""")
 
-    // 0 BOF [0..0)
-    // 1 Interpolation$Id [0..1)
-    // 2 Interpolation$Start [1..2)
-    // 3 Interpolation$Part [2..2)
-    // 4 Interpolation$SpliceStart [2..3)
-    // 5 Ident [3..4)
-    // 6 Interpolation$SpliceEnd [4..4)
-    // 7 Interpolation$Part [4..4)
-    // 8 Interpolation$End [4..5)
-    // 9 EOF [5..5)
+  def findAll(input: String): Unit = {
+    test("binarySearch: " + input) {
+      val tokens = input.tokenize.get
 
-    val i = 7 // Interpolation$Part [4..4)
-    val token = interpolation(i)
-    val index = interpolation.binarySearch(token)
-    assert(index.get == i)
+      tokens.zipWithIndex.foreach {
+        case (token, i) =>
+          val expected = token
+          val index = tokens.binarySearch(token)
+          if (index.isEmpty) {
+            assert(false)
+          }
 
-    interpolation.zipWithIndex.foreach{ case (token, i) =>
-      val expected = token
-      val index = interpolation.binarySearch(token)
-      val obtained = interpolation(index.get)
-      assert(i == index.get)
-      assert(obtained == expected)
+          val obtained = tokens(index.get)
+          assert(i == index.get)
+          assert(obtained == expected)
+      }
     }
+  }
+
+  def show(token: Token): String = {
+    val name =
+      token.getClass.toString.stripPrefix("class scala.meta.tokens.Token$")
+    val start = token.pos.start
+    val end = token.pos.end
+    s"$name [${start}..${end})"
   }
 }

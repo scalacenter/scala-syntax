@@ -1,22 +1,45 @@
 package org.scalafmt.internal
 
 import scala.meta.{Token, Tokens}
+import scala.meta.Token._
 import scala.collection.SeqView
 import scala.collection.immutable.IndexedSeq
 import Order.{LT, GT, EQ}
 
 object TokensOps {
+  import TokenOps._
 
-  private implicit val tokensOrder: Order[Token] = 
+  private def partialOrder(a: Token, b: Token): Int = {
+    (a, b) match {
+      case (_: Interpolation.Part, _: Interpolation.SpliceStart) => LT
+      case (_: Interpolation.SpliceStart, _: Interpolation.Part) => GT
+      case (_: Interpolation.SpliceEnd, _: Interpolation.Part) => LT
+      case (_: Interpolation.Part, _: Interpolation.SpliceEnd) => GT
+      case (_: BOF, _) => LT
+      case (_, _: BOF) => GT
+      case (_: EOF, _) => GT
+      case (_, _: EOF) => LT
+      case _ =>
+        sys.error(s"undefined token partial order: ${a.show} ??? ${b.show}")
+    }
+  }
+
+  private def cmp(x: Int, y: Int): Int =
+    if (x < y) LT
+    else if (x > y) GT
+    else EQ
+
+  private implicit val tokensOrder: Order[Token] =
     new Order[Token] {
-      def compare(x: Token, y: Token): Int = {
-        if(x == y) EQ
+      def compare(a: Token, b: Token): Int = {
+        if (a == b) EQ
         else {
-          if(x.end < y.end) LT
-          else {
-            if (x.start < y.start) LT
-            else GT
-          }
+          val cmpEnd = cmp(a.end, b.end)
+          if (cmpEnd == EQ) {
+            val cmpStart = cmp(a.start, b.start)
+            if (cmpStart != EQ) cmpStart
+            else partialOrder(a, b)
+          } else cmpEnd
         }
       }
     }
@@ -24,7 +47,7 @@ object TokensOps {
   implicit class XtensionTokens(private val tokens: Tokens) extends AnyVal {
     def binarySearch(token: Token): Option[Int] = {
       val res = Searching.search(tokens, token)
-      if(res >= 0) Some(res)
+      if (res >= 0) Some(res)
       else None
     }
 
@@ -76,7 +99,7 @@ object TokensOps {
 
     private def get(token: Token): Int =
       binarySearch(token).getOrElse(
-        throw new NoSuchElementException(s"token not found: ${token.structure}")
+        throw new NoSuchElementException(s"token not found: ${token.show}")
       )
   }
 }

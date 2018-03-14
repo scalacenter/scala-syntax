@@ -33,4 +33,14 @@ object TokenOps {
 
   def isIdentifierStart(value: String): Boolean =
     value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
+
+  implicit class XtensionToken(private val token: Token) extends AnyVal {
+    def show: String = {
+      val name =
+        token.getClass.toString.stripPrefix("class scala.meta.tokens.Token$")
+      val start = token.pos.start
+      val end = token.pos.end
+      s"$name [${start}..${end})"
+    }
+  }
 }

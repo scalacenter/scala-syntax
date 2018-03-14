@@ -14,12 +14,17 @@ trait Order[@sp A] {
 
 // Code taken from: https://github.com/non/spire/blob/master/core/shared/src/main/scala/spire/math/Searching.scala
 object Searching {
+
   /** Performs a binary search, returns an index using the same convention as java.util.Arrays.binarySearch. */
-  final def search[@sp A](as: IndexedSeq[A], item: A)(implicit ev: Order[A]): Int =
+  final def search[@sp A](as: IndexedSeq[A], item: A)(
+      implicit ev: Order[A]
+  ): Int =
     search(as, item, 0, as.length - 1)
 
   /** Performs a binary search, returns an index using the same convention as java.util.Arrays.binarySearch. */
-  final def search[@sp A](as: IndexedSeq[A], item: A, lower: Int, upper: Int)(implicit ev: Order[A]): Int = {
+  final def search[@sp A](as: IndexedSeq[A], item: A, lower: Int, upper: Int)(
+      implicit ev: Order[A]
+  ): Int = {
     var first = lower
     var last = upper
     while (first <= last) {
