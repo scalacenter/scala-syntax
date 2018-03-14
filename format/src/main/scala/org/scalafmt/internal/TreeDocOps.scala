@@ -1,30 +1,23 @@
 package org.scalafmt.internal
 
-import org.scalafmt.Options
-import scala.meta.Lit
-import scala.meta.Mod
-import scala.meta.Name
-import scala.meta.Pat
-import scala.meta.Ref
-import scala.meta.Self
-import scala.meta.Type
-import scala.meta.Term
-import scala.meta.Tree
-
-import scala.meta.internal.prettyprinters.DoubleQuotes
-import scala.meta.internal.prettyprinters.QuoteStyle
-import scala.meta.internal.prettyprinters.TripleQuotes
-import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc._
-import org.langmeta.inputs.Input
-import scala.meta.internal.format.CustomTrees._
+import org.scalafmt.internal.{AssociatedTrivias => Trivias}
 import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.TokenOps._
+import org.scalafmt.Options
+
+import org.typelevel.paiges.Doc
+import org.typelevel.paiges.Doc._
+
+import scala.language.implicitConversions
 
 import scala.meta.internal.fmt.SyntacticGroup.Term._
 import scala.meta.internal.fmt.SyntacticGroup.Type._
-
-import scala.language.implicitConversions
+import scala.meta.internal.format.CustomTrees._
+import scala.meta.internal.prettyprinters.DoubleQuotes
+import scala.meta.internal.prettyprinters.QuoteStyle
+import scala.meta.internal.prettyprinters.TripleQuotes
+import scala.meta.Input
+import scala.meta.{Lit, Mod, Name, Pat, Ref, Self, Term, Tree, Type}
 
 object TreeDocOps {
   import TreePrinter._
@@ -45,17 +38,21 @@ object TreeDocOps {
   }
 
   def printTree(root: Tree, options: Options): Doc = {
-    print(root)
+    TreePrinter.printTree(root)
   }
 
-  def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
+  def dInfixType(left: Tree, operator: Doc, right: Tree)(
+      implicit trivias: Trivias
+  ): Doc = {
     val op = operator.render(100)
     val leftWraped = InfixTyp(op).wrap(left)
     val rightWraped = InfixTyp(op).wrap(right, Side.Right)
     leftWraped + space + operator + space + rightWraped
   }
 
-  def dTypeFunction(params: List[Type], res: Type): Doc = {
+  def dTypeFunction(params: List[Type], res: Type)(
+      implicit trivias: Trivias
+  ): Doc = {
     val dparams = params match {
       case Nil => `(` + `)`
       case param :: Nil if !param.is[Type.Tuple] =>
@@ -65,60 +62,66 @@ object TreeDocOps {
     dparams + space + `=>` + space + Typ.wrap(res)
   }
 
-  def dName(name: Tree): Doc = name match {
+  def dName(name: Tree)(implicit trivias: Trivias): Doc = name match {
     case _: Name.Anonymous => wildcard
     case _ => print(name)
   }
 
-  def dWithin(keyword: Doc, within: Ref): Doc =
+  def dWithin(keyword: Doc, within: Ref)(implicit trivias: Trivias): Doc =
     within match {
       case Name.Anonymous() => keyword
       case Term.This(Name.Anonymous()) => keyword + `[` + `this` + `]`
       case _ => dApplyBracket(keyword, within :: Nil)
     }
 
-  def dApplyBrace(fun: Doc, args: List[Tree]): Doc =
+  def dApplyBrace(fun: Doc, args: List[Tree])(implicit trivias: Trivias): Doc =
     dApply(fun, args, `{`, `}`)
 
-  def dTargs(targs: List[Tree]): Doc =
+  def dTargs(targs: List[Tree])(implicit trivias: Trivias): Doc =
     dApplyBracket(empty, targs)
 
-  def dArgs(args: List[Tree]): Doc =
+  def dArgs(args: List[Tree])(implicit trivias: Trivias): Doc =
     dApplyParen(empty, args)
 
-  def dArgss(argss: List[List[Term]]): Doc =
+  def dArgss(argss: List[List[Term]])(implicit trivias: Trivias): Doc =
     joined(argss.map(dArgs))
 
-  def dApplyParen(fun: Doc, args: List[Tree]): Doc =
+  def dApplyParen(fun: Doc, args: List[Tree])(implicit trivias: Trivias): Doc =
     dApply(fun, args, `(`, `)`)
 
-  def dApplyBracket(fun: Doc, args: List[Tree]): Doc =
+  def dApplyBracket(fun: Doc, args: List[Tree])(
+      implicit trivias: Trivias
+  ): Doc =
     if (args.isEmpty) fun
     else dApply(fun, args, `[`, `]`)
 
-  def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc): Doc = {
+  def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc)(
+      implicit trivias: Trivias
+  ): Doc = {
     val dargs = intercalate(comma + line, args.map(print))
     dargs.tightBracketBy(fun + left, right)
   }
 
-  def dApplyParenPat(fun: Doc, args: List[Pat]): Doc = {
+  def dApplyParenPat(fun: Doc, args: List[Pat])(
+      implicit trivias: Trivias
+  ): Doc = {
     val dargs = intercalate(comma + line, args.map(dPat))
     dargs.tightBracketBy(fun + `(`, `)`)
   }
 
-  def dAscription(lhs: Tree, rhs: Tree): Doc = {
+  def dAscription(lhs: Tree, rhs: Tree)(implicit trivias: Trivias): Doc = {
     dAscription(lhs, print(rhs))
   }
 
-  def dAscription(lhs: Tree, rhs: Doc): Doc = {
+  def dAscription(lhs: Tree, rhs: Doc)(implicit trivias: Trivias): Doc = {
     val dlhs = dName(lhs)
     Ascription.wrap0(lhs, dlhs) + typedColon(dlhs) + space + rhs
   }
 
-  def dBlock(stats: List[Tree]): Doc =
+  def dBlock(stats: List[Tree])(implicit trivias: Trivias): Doc =
     dBlockI(stats).grouped
 
-  def dBlockI(stats: List[Tree]): Doc = {
+  def dBlockI(stats: List[Tree])(implicit trivias: Trivias): Doc = {
     val body =
       stats match {
         case Nil =>
@@ -137,23 +140,25 @@ object TreeDocOps {
     case _ => false
   }
 
-  def joined(docs: List[Doc]): Doc =
+  def joined(docs: List[Doc])(implicit trivias: Trivias): Doc =
     intercalate(empty, docs)
 
-  def spaceSeparated(docs: List[Doc]): Doc =
+  def spaceSeparated(docs: List[Doc])(implicit trivias: Trivias): Doc =
     intercalate(space, docs.filterNot(_.isEmpty))
 
-  def commaSeparated(docs: List[Doc]): Doc =
+  def commaSeparated(docs: List[Doc])(implicit trivias: Trivias): Doc =
     intercalate(comma + space, docs.filterNot(_.isEmpty))
 
-  def typedColon(lhs: Doc): Doc =
+  def typedColon(lhs: Doc)(implicit trivias: Trivias): Doc =
     if (needsLeadingSpaceBeforeColon(lhs.render(100))) space + `:`
     else `:`
 
-  def dMods(mods: List[Mod]): Doc =
+  def dMods(mods: List[Mod])(implicit trivias: Trivias): Doc =
     intercalate(space, mods.map(print))
 
-  def dParamss(paramss: List[List[Term.Param]]): Doc =
+  def dParamss(
+      paramss: List[List[Term.Param]]
+  )(implicit trivias: Trivias): Doc =
     paramss match {
       case Nil => empty
       case List(Nil) => `(` + `)`
@@ -180,10 +185,10 @@ object TreeDocOps {
       }
     }
 
-  def dBody(body: Tree): Doc =
+  def dBody(body: Tree)(implicit trivias: Trivias): Doc =
     dBodyO(Some(body))
 
-  def dBodyO(body: Option[Tree]): Doc =
+  def dBodyO(body: Option[Tree])(implicit trivias: Trivias): Doc =
     body.fold(empty) {
       case t @ (_: Term.Block | _: Term.PartialFunction | _: Term.Match) =>
         `=` + space + print(t)
@@ -199,7 +204,7 @@ object TreeDocOps {
       paramss: List[List[Term.Param]],
       decltpe: Option[Type],
       body: Doc
-  ): Doc = {
+  )(implicit trivias: Trivias): Doc = {
     val dname = commaSeparated(pats.map(print))
     dDef(mods, keyword, dname, tparams, paramss, decltpe, body)
   }
@@ -212,7 +217,7 @@ object TreeDocOps {
       paramss: List[List[Term.Param]],
       decltpe: Option[Type] = None,
       dbody: Doc = empty
-  ): Doc = {
+  )(implicit trivias: Trivias): Doc = {
     val dname = dApplyBracket(name, tparams)
     val dparamss = dParamss(paramss)
     val ddecltpe =
@@ -226,7 +231,7 @@ object TreeDocOps {
     )
   }
 
-  def dStats(stats: List[Tree]): Doc = {
+  def dStats(stats: List[Tree])(implicit trivias: Trivias): Doc = {
     intercalate(
       lineBlank,
       stats.map {
@@ -238,10 +243,14 @@ object TreeDocOps {
     )
   }
 
-  def dRaw(str: String, quoteStyle: QuoteStyle): Doc =
+  def dRaw(str: String, quoteStyle: QuoteStyle)(
+      implicit trivias: Trivias
+  ): Doc =
     dRawI(str, 0, Some(quoteStyle))
 
-  def dRawI(str: String, start: Int, quoteStyle: Option[QuoteStyle]): Doc = {
+  def dRawI(str: String, start: Int, quoteStyle: Option[QuoteStyle])(
+      implicit trivias: Trivias
+  ): Doc = {
     if (start >= str.length) empty
     else {
       val idx = str.indexOf('\n', start)
@@ -263,11 +272,13 @@ object TreeDocOps {
     !part.contains("\"\"\"")
   }
 
-  def dQuote(str: String): (QuoteStyle, Doc) =
+  def dQuote(str: String)(implicit trivias: Trivias): (QuoteStyle, Doc) =
     if (isMultiline(str)) TripleQuotes -> `"""`
     else DoubleQuotes -> `"`
 
-  def dInterpolate(prefix: Name, parts: List[Tree], args: List[Tree]): Doc = {
+  def dInterpolate(prefix: Name, parts: List[Tree], args: List[Tree])(
+      implicit trivias: Trivias
+  ): Doc = {
 
     def isMultilineInterpolated(part: String): Boolean =
       // NOTE(olafur) interpolated strings are unescaped so single quotes must
@@ -300,7 +311,9 @@ object TreeDocOps {
     print(prefix) + dquote + dhead + sparts + dquote
   }
 
-  def dParams(params: List[Term.Param], forceParens: Boolean): Doc =
+  def dParams(params: List[Term.Param], forceParens: Boolean)(
+      implicit trivias: Trivias
+  ): Doc =
     params match {
       case param :: Nil =>
         val dparam = print(param)
@@ -313,17 +326,17 @@ object TreeDocOps {
       case _ => dApplyParen(empty, params)
     }
 
-  def dPat(pat: Tree): Doc =
+  def dPat(pat: Tree)(implicit trivias: Trivias): Doc =
     print(mkPat(pat))
 
-  def mkPat(pat: Tree): Tree =
+  def mkPat(pat: Tree)(implicit trivias: Trivias): Tree =
     pat match {
       case t: Term.Name if t.value.headOption.exists(_.isLower) =>
         PatName(t.value)
       case _ => pat
     }
 
-  def dPatXml(pat: Pat.Xml): Doc = {
+  def dPatXml(pat: Pat.Xml)(implicit trivias: Trivias): Doc = {
     val parts = pat.parts.map(Some(_))
     val args = pat.args.map(Some(_))
     parts.zipAll(args, None, None).foldLeft(empty) {
