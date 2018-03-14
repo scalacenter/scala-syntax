@@ -31,8 +31,8 @@ object TokensOps {
     def find(start: Token)(p: Token => Boolean): Option[Token] =
       tokens.drop(get(start)).find(p)
 
-    def slice(from: Token, to: Token): SeqView[Token, IndexedSeq[Token]] =
-      tokens.view.slice(get(from), get(to))
+    def slice(from: Token, to: Token): Tokens =
+      tokens.slice(get(from), get(to))
 
     /** Returns the next/trailing token or the original token if none exists.
      *
