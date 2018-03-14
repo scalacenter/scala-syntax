@@ -174,4 +174,34 @@ object TokensOpsSuite extends FunSuite {
 
     assert(tokens.trailingSpaces(rightBrace) == Seq())
   }
+
+  findAll("s\"$a\"")
+  findAll("""s"${_1}" """)
+  findAll("""q"b$b$c" """)
+  findAll("""q"b$b_$c" """)
+  findAll("""q"b${b.c}" """)
+  findAll("""s"${`a..n`}" """)
+  findAll("""<a>b {c}</a>""")
+  findAll("""<h1>a{b}c{d}e{f}g</h1>""")
+  findAll("""q"b${1 + q"a"}" """)
+  findAll("""r"example (.+)${foo}"""")
+
+  def findAll(input: String): Unit = {
+    test("binarySearch: " + input) {
+      val tokens = input.tokenize.get
+
+      tokens.zipWithIndex.foreach {
+        case (token, i) =>
+          val expected = token
+          val index = tokens.binarySearch(token)
+          if (index.isEmpty) {
+            assert(false)
+          }
+
+          val obtained = tokens(index.get)
+          assert(i == index.get)
+          assert(obtained == expected)
+      }
+    }
+  }
 }
