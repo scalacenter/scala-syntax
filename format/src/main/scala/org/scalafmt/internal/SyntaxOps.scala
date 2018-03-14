@@ -1,11 +1,6 @@
 package org.scalafmt.internal
 
-import scala.meta.internal.prettyprinters.{
-  DoubleQuotes,
-  QuoteStyle,
-  SingleQuotes,
-  TripleQuotes
-}
+import scala.meta.internal.prettyprinters._
 
 object SyntaxOps {
   def escape(s: String, style: QuoteStyle): String = {

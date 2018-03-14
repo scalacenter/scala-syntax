@@ -3,23 +3,29 @@ package org.scalafmt.internal
 import scala.meta.{Token, Tokens}
 import scala.collection.SeqView
 import scala.collection.immutable.IndexedSeq
+import Order.{LT, GT, EQ}
 
 object TokensOps {
-  implicit class XtensionTokens(private val tokens: Tokens) extends AnyVal {
-    def binarySearch(token: Token): Option[Int] = {
-      def loop(lo: Int, hi: Int): Int = {
-        if (lo > hi) -1
+
+  private implicit val tokensOrder: Order[Token] = 
+    new Order[Token] {
+      def compare(x: Token, y: Token): Int = {
+        if(x == y) EQ
         else {
-          val mid = lo + ((hi - lo) / 2)
-          val guess = tokens(mid)
-          if (guess == token) mid
-          else if (guess.end < token.end) loop(mid + 1, hi)
-          else loop(lo, mid - 1)
+          if(x.end < y.end) LT
+          else {
+            if (x.start < y.start) LT
+            else GT
+          }
         }
       }
-      val res = loop(0, tokens.length)
-      if (res == -1) None
-      else Some(res)
+    }
+
+  implicit class XtensionTokens(private val tokens: Tokens) extends AnyVal {
+    def binarySearch(token: Token): Option[Int] = {
+      val res = Searching.search(tokens, token)
+      if(res >= 0) Some(res)
+      else None
     }
 
     def trailings(token: Token): SeqView[Token, IndexedSeq[Token]] =
@@ -70,7 +76,7 @@ object TokensOps {
 
     private def get(token: Token): Int =
       binarySearch(token).getOrElse(
-        throw new NoSuchElementException(s"token not found: $token")
+        throw new NoSuchElementException(s"token not found: ${token.structure}")
       )
   }
 }
