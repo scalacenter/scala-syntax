@@ -12,7 +12,7 @@ import scalafix.diff.DiffUtils
 import org.scalafmt.InternalOptions
 import org.scalafmt.Options
 import org.scalameta.logger
-import org.scalafmt.internal.TreeDocOps
+import org.scalafmt.internal.TreePrinter
 
 abstract class BaseScalaPrinterTest extends DiffSuite {
 
@@ -28,7 +28,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
   private val options = Options.default
 
   def prettyPrint(tree: Tree): String =
-    TreeDocOps.printTree(tree, options).render(options.maxColumn)
+    TreePrinter.printTree(tree, options).render(options.maxColumn)
 
   def checkType(
       original: String,
@@ -177,9 +177,9 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     val expected = expected2.replace("'''", "\"\"\"")
     val testName = logger.revealWhitespace(original)
     test(testName) {
-      val originalTree = TreeDocOps.getRoot(original, options)
+      val originalTree = TreePrinter.getRoot(original, options)
       val formattedCode = printTree(originalTree, options)
-      val formattedTree = TreeDocOps.getRoot(formattedCode, options)
+      val formattedTree = TreePrinter.getRoot(formattedCode, options)
       isSameTree(testName, originalTree, formattedTree) match {
         case Left(astDiff) =>
           sys.error(
@@ -223,7 +223,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
 
     test(testName) {
       val obtained = printTree(root, options)
-      val root2 = TreeDocOps.getRoot(obtained, options).children.head
+      val root2 = TreePrinter.getRoot(obtained, options).children.head
       isSameTree(testName, root, root2) match {
         case Left(astDiff) =>
           sys.error(
@@ -265,7 +265,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
   }
 
   def printTree(root: Tree, options: Options = defaultOptions): String = {
-    TreeDocOps.printTree(root, options).render(options.maxColumn)
+    TreePrinter.printTree(root, options).render(options.maxColumn)
   }
 
   def check(tree: Tree, expected: String): Unit = {

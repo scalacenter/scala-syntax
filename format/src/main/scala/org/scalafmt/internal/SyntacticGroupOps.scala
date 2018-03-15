@@ -1,6 +1,5 @@
 package org.scalafmt.internal
 
-import org.scalafmt.internal.TreePrinter.print
 import org.scalafmt.internal.ScalaToken._
 
 import scala.meta.Tree
@@ -8,11 +7,10 @@ import scala.meta.internal.fmt.SyntacticGroup
 
 import org.typelevel.paiges.Doc
 
-object SyntacticGroupOps {
+trait SyntacticGroupOps extends WithPrinter {
   def wrapParens(doc: Doc): Doc = `(` + doc + `)`
 
-  implicit class XtensionSyntacticGroup(val leftGroup: SyntacticGroup)
-      extends AnyVal {
+  implicit class XtensionSyntacticGroup(val leftGroup: SyntacticGroup) {
     def wrap(tree: Tree, side: Side = Side.Left): Doc = {
       wrap0(tree, print(tree), side)
     }
