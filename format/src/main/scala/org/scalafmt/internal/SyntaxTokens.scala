@@ -290,7 +290,7 @@ object SyntaxTokens {
   }
   implicit class XtensionDefnClassSyntax(val tree: Defn.Class) extends AnyVal {
     def `class`(implicit trivia: AssociatedTrivias): Doc = {
-      trivia.wrap(tokensClass, S.`class`)
+      trivia.wrap(tree, tokensClass, S.`class`)
     }
 
     def tokensClass: KwClass =

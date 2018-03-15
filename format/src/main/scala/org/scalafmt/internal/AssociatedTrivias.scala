@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import org.scalafmt.internal.TokensOps._
+import scala.meta.internal.format.Comments._
 
 import scala.meta._
 import scala.meta.Token
@@ -22,46 +23,51 @@ final case class AssociatedTrivias(
   def trailings(token: Token): Option[Tokens] =
     allTrailings.get(token)
 
-  private def toDoc(tokens: Option[Seq[Token]], isLeading: Boolean): Doc =
-    tokens
-      .map(_.filter(_.is[Comment]))
-      .filter(_.nonEmpty)
-      .map { ts =>
-        val isTrailing = !isLeading
+  private def toDoc(tokens: Option[Seq[Token]], isLeading: Boolean): Doc = {
+    val sourceTrivias =
+      tokens
+        .map(_.filter(_.is[Comment]))
+        .filter(_.nonEmpty)
+        .map(ts => text(ts.mkString("")))
+        .getOrElse(empty)
 
-        val before =
-          if (isTrailing) space
-          else empty
+    val isTrailing = !isLeading
+    val hasTrivias = sourceTrivias.nonEmpty
 
-        val after =
-          if (isLeading) line
-          else empty
+    val before =
+      if (isTrailing && hasTrivias) space
+      else empty
 
-        val trivias = ts.mkString("")
+    val after =
+      if (isLeading && hasTrivias) line
+      else empty
 
-        before + text(trivias) + after
-
-      }
-      .getOrElse(empty)
+    before + sourceTrivias + after
+  }
 
   private def wrap(
       leadings: Option[Seq[Token]],
       doc: Doc,
       trailings: Option[Seq[Token]]
-  ): Doc =
-    toDoc(leadings, isLeading = true) + doc + toDoc(
-      trailings,
-      isLeading = false
-    )
+  ): Doc = {
+    val leading = toDoc(leadings, isLeading = true)
+    val trailing = toDoc(trailings, isLeading = false)
+    leading + doc + trailing
+  }
 
-  def wrap(token: Token, doc: Doc): Doc =
-    wrap(leadings(token), doc, trailings(token))
+  def wrap(tree: Tree, token: => Token, doc: Doc): Doc = {
+    if (tree.hasTokens) wrap(leadings(token), doc, trailings(token))
+    else doc
+  }
 
   def wrap(tree: Tree, doc: Doc): Doc = {
-    val tokens = tree.tokens.filterNot(t => t.is[Token.BOF] || t.is[Token.EOF])
-    assert(tokens.size == 1)
-    val token = tokens.head
-    wrap(token, doc)
+    if (tree.hasTokens) {
+      val tokens =
+        tree.tokens.filterNot(t => t.is[Token.BOF] || t.is[Token.EOF])
+      assert(tokens.size == 1)
+      val token = tokens.head
+      wrap(tree, token, doc)
+    } else doc
   }
 
   private def pretty(token: Token): String = {
