@@ -26,15 +26,16 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    val [29..32) => [∙,∙,/*∙java¶∙∙∙*∙doc¶∙∙∙*/,¶,∙,∙]
          |    class [41..46) => [∙,∙]
          |  Trailing =
+         |    { [0..1) => [¶]
          |    val [29..32) => [∙]
          |    a [33..34) => [∙]
          |    = [35..36) => [∙]
+         |    1 [37..38) => [¶]
          |    class [41..46) => [∙]
-         |    A [47..48) => [∙,∙,∙,//∙trailing]
+         |    A [47..48) => [∙,∙,∙,//∙trailing,¶]
          |)"""
     )
   }
-
   test("associations 2") {
     check(
       "class A // trailing",
@@ -44,6 +45,19 @@ object AssociatedTriviasSuite extends DiffSuite {
          |  Trailing =
          |    class [0..5) => [∙]
          |    A [6..7) => [∙,//∙trailing]
+         |)"""
+    )
+  }
+  test("associations 3") {
+    check(
+      """|class A // trailing
+         |""".stripMargin,
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    class [0..5) => [∙]
+         |    A [6..7) => [∙,//∙trailing,¶]
          |)"""
     )
   }

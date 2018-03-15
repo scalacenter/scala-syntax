@@ -1,17 +1,25 @@
 package org.scalafmt.tests
 
 object CommentsSuite extends BaseScalaPrinterTest {
+  // check(
+  //   """|/* java
+  //      | * doc
+  //      | */
+  //      |class A // trailing""".stripMargin
+  // )
+  // check("class A // trailing")
+  // check(
+  //   """|{
+  //      |  a & // trailing
+  //      |   b
+  //      |}""".stripMargin
+  // )
+  // check("{ A/*C*/(1) }")
+
   check(
-    """|/* java
-       | * doc
-       | */
-       |class A // trailing""".stripMargin
-  )
-  check("class A // trailing")
-  check(
-    """|{
-       |  a & // trailing
-       |   b
-       |}""".stripMargin
+    """|(
+       |  b // c
+       |  & c
+       |)""".stripMargin
   )
 }

@@ -24,28 +24,29 @@ final case class AssociatedTrivias(
     allTrailings.get(token)
 
   private def toDoc(tokens: Option[Seq[Token]], isLeading: Boolean): Doc = {
-    val comments = 
-      tokens
-        .map(_.filter(_.is[Comment]))
-        .filter(_.nonEmpty)
+    tokens match {
+      case Some(ts) => {
+        val hasComment = ts.exists(_.is[Comment])
+        if (hasComment) {
+          val commentsToken =
+            if (isLeading) ts.dropWhile(!_.is[Comment])
+            else ts
 
-    val commentsDoc =
-      comments
-        .map(ts => text(ts.mkString("")))
-        .getOrElse(empty)
-
-    val isTrailing = !isLeading
-    val hasComments = comments.nonEmpty
-
-    val before =
-      if (isTrailing && hasComments) space
-      else empty
-
-    val after =
-      if (hasComments) lineNoFlat
-      else empty
-
-    before + commentsDoc + after
+          commentsToken.foldLeft(empty) {
+            case (acc, t) => {
+              val doc =
+                t match {
+                  case _: LF => lineNoFlat
+                  case _: Space => space
+                  case e => text(e.text)
+                }
+              acc + doc
+            }
+          }
+        } else empty
+      }
+      case None => empty
+    }
   }
 
   private def wrap(
@@ -121,7 +122,13 @@ object AssociatedTrivias {
 
     def doTrailing(currentToken: Token): Unit = {
       lastToken.foreach { last =>
-        val slice = tokens.slice(last, currentToken).drop(1)
+        val start = tokens.binarySearch(last).get + 1
+        val includingEnd =
+          if (currentToken.is[LF]) 1
+          else 0
+        val end = tokens.binarySearch(currentToken).get + includingEnd
+        val slice = tokens.slice(start, end)
+
         if (slice.nonEmpty) {
           allTrailings += last -> slice
         }
