@@ -8,4 +8,10 @@ object CommentsSuite extends BaseScalaPrinterTest {
        |class A // trailing""".stripMargin
   )
   check("class A // trailing")
+  check(
+    """|{
+       |  a & // trailing
+       |   b
+       |}""".stripMargin
+  )
 }

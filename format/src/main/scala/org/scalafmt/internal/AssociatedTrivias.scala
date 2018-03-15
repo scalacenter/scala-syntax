@@ -9,7 +9,7 @@ import scala.meta.Token._
 import scala.meta.contrib._
 
 import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc.{text, empty, space, line}
+import org.typelevel.paiges.Doc.{text, empty, space, lineNoFlat}
 
 import org.scalameta.logger
 
@@ -24,25 +24,28 @@ final case class AssociatedTrivias(
     allTrailings.get(token)
 
   private def toDoc(tokens: Option[Seq[Token]], isLeading: Boolean): Doc = {
-    val sourceTrivias =
+    val comments = 
       tokens
         .map(_.filter(_.is[Comment]))
         .filter(_.nonEmpty)
+
+    val commentsDoc =
+      comments
         .map(ts => text(ts.mkString("")))
         .getOrElse(empty)
 
     val isTrailing = !isLeading
-    val hasTrivias = sourceTrivias.nonEmpty
+    val hasComments = comments.nonEmpty
 
     val before =
-      if (isTrailing && hasTrivias) space
+      if (isTrailing && hasComments) space
       else empty
 
     val after =
-      if (isLeading && hasTrivias) line
+      if (hasComments) lineNoFlat
       else empty
 
-    before + sourceTrivias + after
+    before + commentsDoc + after
   }
 
   private def wrap(
