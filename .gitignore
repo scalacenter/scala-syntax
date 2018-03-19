@@ -23,6 +23,6 @@ project/plugins/project/
 .ensime
 
 tests/slow/repos.tar.gz*
-tests/slow/todo.diff
+tests/slow/todo*
 PlaygroundSuite.scala
 repos.tar.gz

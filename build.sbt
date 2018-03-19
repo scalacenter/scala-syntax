@@ -53,7 +53,7 @@ lazy val slow = project
   .settings(
     libraryDependencies += "me.tongfei" % "progressbar" % "0.5.5",
     fork in (Test, test) := true,
-    fork in (Test, testOnly) := true,
+    fork in testOnly := true,
     cancelable in Global := true,
     javaOptions in (Test, test) ++= {
       val mem =
@@ -68,6 +68,7 @@ lazy val slow = project
         "-XX:+TieredCompilation",
         "-XX:+CMSClassUnloadingEnabled"
       )
-    }
+    },
+    javaOptions in (Test, testOnly) ++= (javaOptions in (Test, testOnly)).value
   )
   .dependsOn(testsShared)

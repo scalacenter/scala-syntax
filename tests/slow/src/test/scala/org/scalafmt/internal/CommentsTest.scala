@@ -1,4 +1,3 @@
-/*
 package org.scalafmt.internal
 
 import scala.meta._
@@ -32,4 +31,3 @@ object CommentsTest extends PropertyTest("comments") {
     else Failure(diff)
   }
 }
- */
