@@ -56,7 +56,8 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         t match {
           case _: Name.Anonymous => empty
           case _: PatName => backtick + text(t.value) + backtick
-          case _ => trivia.wrapHead(t, text(Identifier.backtickWrap(t.value)))
+          case _ =>
+            trivia.wrapName(t, text(Identifier.backtickWrap(t.value)))
         }
       case _: Lit =>
         tree match {
@@ -267,12 +268,16 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             print(t.op) + group.wrap1(PrefixArg(t.arg), print(t.arg))
           case t: Term.Apply =>
             val dfun = SimpleExpr1.wrap(t.fun)
-            t.args match {
-              case LambdaArg(arg) =>
-                dfun + space + arg.grouped
-              case Term.Block(stats) :: Nil => dfun + space + dBlock(stats)
-              case _ => dApplyParen(dfun, t.args)
-            }
+            val doc =
+              t.args match {
+                case LambdaArg(arg) =>
+                  dfun + space + arg.grouped
+                case Term.Block(stats) :: Nil =>
+                  dfun + space + dBlock(stats)
+                case _ =>
+                  dApplyParen(dfun, t.args)
+              }
+            trivia.wrapTrailing(t, doc)
           case t: Term.ApplyType =>
             dApplyBracket(SimpleExpr1.wrap(t.fun), t.targs)
           case t: Term.ApplyInfix =>
@@ -511,25 +516,29 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           else `=` + space + dBlock(t.init :: t.stats)
         dDef(t.mods, `def`, `this`, Nil, t.paramss, None, dbody)
       case m: Mod =>
-        val doc = m match {
+        m match {
           case t: Mod.Annot =>
-            `@` + SimpleTyp.wrap(t.init.tpe) + dArgss(t.init.argss)
-          case t: Mod.Private => dWithin(`private`, t.within)
-          case t: Mod.Protected => dWithin(`protected`, t.within)
-          case _: Mod.Final => `final`
-          case _: Mod.Case => `case`
-          case _: Mod.Sealed => `sealed`
-          case _: Mod.Abstract => `abstract`
-          case _: Mod.Implicit => `implicit`
-          case _: Mod.Lazy => `lazy`
-          case _: Mod.Override => `override`
-          case _: Mod.Covariant => covariant
-          case _: Mod.Contravariant => contravariant
-          case _: Mod.VarParam => `var`
-          case _: Mod.ValParam => `val`
-          case _: Mod.Inline => `inline`
+            t.`@` + SimpleTyp.wrap(t.init.tpe) + dArgss(t.init.argss)
+          case t: Mod.Private => dWithin(t.`private`, t.within)
+          case t: Mod.Protected => dWithin(t.`protected`, t.within)
+          case _ => {
+            val doc = m match {
+              case _: Mod.Final => `final`
+              case _: Mod.Case => `case`
+              case _: Mod.Sealed => `sealed`
+              case _: Mod.Abstract => `abstract`
+              case _: Mod.Implicit => `implicit`
+              case _: Mod.Lazy => `lazy`
+              case _: Mod.Override => `override`
+              case _: Mod.Covariant => covariant
+              case _: Mod.Contravariant => contravariant
+              case _: Mod.VarParam => `var`
+              case _: Mod.ValParam => `val`
+              case _: Mod.Inline => `inline`
+            }
+            trivia.wrap(m, doc)
+          }
         }
-        trivia.wrapHead(m, doc)
       case p: Pat =>
         p match {
           case t: Pat.Var => print(t.name)

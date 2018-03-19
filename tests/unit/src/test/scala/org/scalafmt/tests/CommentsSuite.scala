@@ -2,33 +2,50 @@ package org.scalafmt.tests
 
 object CommentsSuite extends BaseScalaPrinterTest {
   check(
-    """|/* java
-       | * doc
+    """|/* L1
+       | * L2
        | */
-       |class A // trailing""".stripMargin
+       |class A // T""".stripMargin
   )
-  check("class A // trailing")
+  check("class A // T")
   check(
     """|{
-       |  a & // trailing
+       |  a & // T
        |   b
        |}""".stripMargin
   )
-  check("{ A/*C*/(1) }")
+  check("{ A/* T */(1) }")
   check(
-    """|(b // c
+    """|(b // T
        | & c)""".stripMargin
   )
   checkSource(
-    """|// test
+    """|// L
        |
        |package A""".stripMargin
   )
   checkSource(
-    """|// c1
+    """|// L
        |package A""".stripMargin
   )
   check("/* C */ implicit class A")
-  checkSource("/* C */ import a.b")
-  check("/* C */ trait A")
+
+  checkSource("/* L */ import a.b")
+  checkSource("import a.b // T")
+
+  check("/* L */ trait A")
+
+  check("f() // T")
+  check("/* L */ f()")
+
+  check("a op f // T")
+
+  check("/* L */ @a.b def f: Unit")
+  check("""|@a.b // T
+           | def f: Unit""".stripMargin)
+
+  check("/* L */ private[z] class A")
+  // check("private[z] /* T */ class A")
+  check("/* L */ protected[z] class A")
+  // check("protected[z] /* T */ class A")
 }

@@ -60,18 +60,52 @@ final case class AssociatedTrivias(
   }
 
   def wrap(tree: Tree, token: => Token, doc: Doc): Doc = {
-    if (tree.hasTokens) wrap(leadings(token), doc, trailings(token))
-    else doc
-  }
-
-  def wrapHead(tree: Tree, doc: Doc): Doc = {
     if (tree.hasTokens) {
-      val tokens =
-        tree.tokens.filterNot(t => t.is[Token.BOF] || t.is[Token.EOF])
-      val token = tokens.head
-      wrap(tree, token, doc)
+      wrap(leadings(token), doc, trailings(token))
     } else doc
   }
+
+  def wrap(tree: Tree, doc: Doc): Doc = {
+    if (tree.hasTokens) {
+      val tokens = tree.tokens.filterNot(_.is[Trivia])
+      assert(tokens.nonEmpty, "expected one token, got empty")
+      assert(
+        tokens.size == 1, {
+          val structure = tokens.map(_.structure).mkString("[", ", ", "]")
+          s"""expected one token, got $structure"""
+        }
+      )
+      val token = tokens.head
+      wrap(leadings(token), doc, trailings(token))
+    } else doc
+  }
+
+  /* scala.meta sometimes generate synthetic tree durring parsing. For example,
+   * Decl.Defn can have a declared type Unit, without any tokens:
+   * ```
+   * val tree = "def f".parse[Stat].get.asInstanceOf[Decl.Def]
+   * tree.decltpe        // Type.Name("Unit")
+   * tree.decltpe.tokens // Tokens()
+   * ```
+   * Also, in scalameta#1444 (Inconsistent tokens results for Term.ApplyInfix.args)
+   * we want to wrap parens for single args
+   */
+  def wrapName(tree: Tree, doc: Doc): Doc = {
+    if (tree.hasTokens) {
+      val tokens = tree.tokens.filterNot(_.is[Trivia])
+      if (tokens.nonEmpty) {
+        val firstToken = tokens.head
+        val lastToken = tokens.last
+        wrap(leadings(firstToken), doc, trailings(lastToken))
+      } else doc
+    } else doc
+  }
+
+  def wrapTrailing(tree: Tree, doc: Doc): Doc =
+    if (tree.hasTokens) {
+      val tokens = tree.tokens.filterNot(_.is[Trivia])
+      wrap(None, doc, trailings(tokens.last))
+    } else doc
 
   private def pretty(token: Token): String = {
     if (token.is[Token.BOF]) {

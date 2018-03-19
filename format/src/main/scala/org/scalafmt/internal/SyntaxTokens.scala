@@ -25,6 +25,7 @@ import scala.collection.immutable.IndexedSeq
  * `}` right brace
  * `*` asterisk
  * `&` and
+ * `@` at
  * see https://blog.codinghorror.com/ascii-pronunciation-rules-for-programmers/
  */
 object SyntaxTokens {
@@ -400,6 +401,30 @@ object SyntaxTokens {
     def tokensImport: KwImport =
       tree.find[KwImport].get
   }
+  implicit class XtensionModAnnotSyntax(private val tree: Mod.Annot)
+      extends AnyVal {
+    def `@`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensAt, S.`@`)
+    }
+    def tokensAt: At = tree.find[At].get
+  }
+
+  implicit class XtensionModPrivateSyntax(private val tree: Mod.Private)
+      extends AnyVal {
+    def `private`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensPrivate, S.`private`)
+    }
+    def tokensPrivate: KwPrivate = tree.find[KwPrivate].get
+  }
+
+  implicit class XtensionModProtectedSyntax(private val tree: Mod.Protected)
+      extends AnyVal {
+    def `protected`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensProtected, S.`protected`)
+    }
+    def tokensProtected: KwProtected = tree.find[KwProtected].get
+  }
+
   private def commaSeparated[T <: Tree](
       tree: T
   )(f: T => List[Tree]): List[Comma] =
