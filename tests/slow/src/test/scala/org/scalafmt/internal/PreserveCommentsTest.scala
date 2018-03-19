@@ -3,7 +3,7 @@ package org.scalafmt.internal
 import scala.meta._
 import scala.meta.tokens.Token
 
-object CommentsTest extends PropertyTest("comments") {
+object PreserveCommentsTest extends PropertyTest("comments") {
 
   def extractComments(tree: Tree): String = {
     val nl = "\n"

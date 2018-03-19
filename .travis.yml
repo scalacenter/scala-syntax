@@ -11,7 +11,8 @@ script:
 env:
   matrix:
     - CI_TEST: "unit"
-    - CI_TEST: "slow"
+    - CI_TEST: "slow-idempotent-ast"
+    - CI_TEST: "slow-preserve-comments"
     - CI_TEST: "scalafmt"
 
 cache:
