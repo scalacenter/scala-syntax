@@ -78,7 +78,9 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
         check(input, relativePath) match {
           case Success => successCount.incrementAndGet()
           case Failure(explanation) => {
-            logger.elem(explanation)
+            if (sys.env.get("CI").isDefined) {
+              logger.elem(explanation)
+            }
 
             failureCount.incrementAndGet()
             failed += jFile -> true

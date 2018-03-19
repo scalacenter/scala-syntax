@@ -28,4 +28,5 @@ object CommentsSuite extends BaseScalaPrinterTest {
     """|// c1
        |package A""".stripMargin
   )
+  check("/* C */implicit class A")
 }

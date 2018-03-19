@@ -56,7 +56,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         t match {
           case _: Name.Anonymous => empty
           case _: PatName => backtick + text(t.value) + backtick
-          case _ => trivia.wrap(t, text(Identifier.backtickWrap(t.value)))
+          case _ => trivia.wrapHead(t, text(Identifier.backtickWrap(t.value)))
         }
       case _: Lit =>
         tree match {
@@ -511,9 +511,11 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           else `=` + space + dBlock(t.init :: t.stats)
         dDef(t.mods, `def`, `this`, Nil, t.paramss, None, dbody)
       case m: Mod =>
-        m match {
+        val doc = m match {
           case t: Mod.Annot =>
             `@` + SimpleTyp.wrap(t.init.tpe) + dArgss(t.init.argss)
+          case t: Mod.Private => dWithin(`private`, t.within)
+          case t: Mod.Protected => dWithin(`protected`, t.within)
           case _: Mod.Final => `final`
           case _: Mod.Case => `case`
           case _: Mod.Sealed => `sealed`
@@ -525,10 +527,9 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           case _: Mod.Contravariant => contravariant
           case _: Mod.VarParam => `var`
           case _: Mod.ValParam => `val`
-          case t: Mod.Private => dWithin(`private`, t.within)
-          case t: Mod.Protected => dWithin(`protected`, t.within)
           case _: Mod.Inline => `inline`
         }
+        trivia.wrapHead(m, doc)
       case p: Pat =>
         p match {
           case t: Pat.Var => print(t.name)

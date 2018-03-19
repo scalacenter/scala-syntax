@@ -64,11 +64,10 @@ final case class AssociatedTrivias(
     else doc
   }
 
-  def wrap(tree: Tree, doc: Doc): Doc = {
+  def wrapHead(tree: Tree, doc: Doc): Doc = {
     if (tree.hasTokens) {
       val tokens =
         tree.tokens.filterNot(t => t.is[Token.BOF] || t.is[Token.EOF])
-      assert(tokens.size == 1)
       val token = tokens.head
       wrap(tree, token, doc)
     } else doc
