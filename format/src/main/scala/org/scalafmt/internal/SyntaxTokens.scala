@@ -377,6 +377,15 @@ object SyntaxTokens {
       }
     }
   }
+  implicit class XtensionDefnTraitSyntax(private val tree: Defn.Trait)
+      extends AnyVal {
+    def `trait`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensTrait, S.`trait`)
+    }
+
+    def tokensTrait: KwTrait =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwTrait].get
+  }
   implicit class XtensionPkgSyntax(private val tree: Pkg) extends AnyVal {
     def `package`(implicit trivia: AssociatedTrivias): Doc = {
       trivia.wrap(tree, tokensPackage, S.`package`)

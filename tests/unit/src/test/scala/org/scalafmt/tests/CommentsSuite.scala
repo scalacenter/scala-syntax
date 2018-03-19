@@ -30,4 +30,5 @@ object CommentsSuite extends BaseScalaPrinterTest {
   )
   check("/* C */ implicit class A")
   checkSource("/* C */ import a.b")
+  check("/* C */ trait A")
 }

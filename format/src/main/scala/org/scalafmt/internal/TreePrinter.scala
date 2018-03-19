@@ -501,7 +501,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val ddefn = dDef(t.mods, `object`, print(t.name), Nil, Nil)
         ddefn + print(t.templ)
       case t: Defn.Trait =>
-        val ddefn = dDef(t.mods, `trait`, print(t.name), t.tparams, Nil)
+        val ddefn = dDef(t.mods, t.`trait`, print(t.name), t.tparams, Nil)
         ddefn + print(t.templ)
       case t: Source =>
         dStats(t.stats)
