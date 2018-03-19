@@ -286,7 +286,13 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
               case arg :: Nil => group.wrap(arg, Side.Right)
               case args => dArgs(args)
             }
-            dlhs + space + print(t.op) + dTargs(t.targs) + space + dargs
+            val dlhsHasNewline = dlhs.flatten.isEmpty
+
+            val res =
+              dlhs + space + print(t.op) + dTargs(t.targs) + space + dargs
+
+            if (dlhsHasNewline) wrapParens(res)
+            else res
         }
       case t: Type.Bounds =>
         val dlo = t.lo.fold(empty)(lo => `>:` + space + print(lo))

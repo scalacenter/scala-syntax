@@ -53,6 +53,7 @@ lazy val slow = project
   .settings(
     libraryDependencies += "me.tongfei" % "progressbar" % "0.5.5",
     fork in (Test, test) := true,
+    fork in (Test, testOnly) := true,
     cancelable in Global := true,
     javaOptions in (Test, test) ++= {
       val mem =
