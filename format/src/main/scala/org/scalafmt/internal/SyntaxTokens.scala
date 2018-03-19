@@ -384,6 +384,13 @@ object SyntaxTokens {
     def tokensPackage: KwPackage =
       tree.tokens.leadings(tree.name.tokens.head).find0[KwPackage].get
   }
+  implicit class XtensionImportSyntax(private val tree: Import) extends AnyVal {
+    def `import`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensImport, S.`import`)
+    }
+    def tokensImport: KwImport =
+      tree.find[KwImport].get
+  }
   private def commaSeparated[T <: Tree](
       tree: T
   )(f: T => List[Tree]): List[Comma] =

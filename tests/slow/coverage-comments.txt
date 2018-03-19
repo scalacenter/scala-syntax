@@ -1,4 +1,3 @@
-PredictionIO/common/src/main/scala/io/prediction/authentication/KeyAuthentication.scala
 PredictionIO/common/src/main/scala/io/prediction/configuration/SSLConfiguration.scala
 PredictionIO/core/src/main/scala/io/prediction/controller/CustomQuerySerializer.scala
 PredictionIO/core/src/main/scala/io/prediction/controller/Engine.scala
@@ -67,7 +66,6 @@ PredictionIO/data/src/main/scala/io/prediction/data/storage/elasticsearch/packag
 PredictionIO/data/src/main/scala/io/prediction/data/storage/hbase/HBEventsUtil.scala
 PredictionIO/data/src/main/scala/io/prediction/data/storage/hbase/HBLEvents.scala
 PredictionIO/data/src/main/scala/io/prediction/data/storage/hbase/HBPEvents.scala
-PredictionIO/data/src/main/scala/io/prediction/data/storage/hbase/PIOHBaseUtil.scala
 PredictionIO/data/src/main/scala/io/prediction/data/storage/hbase/package.scala
 PredictionIO/data/src/main/scala/io/prediction/data/storage/hbase/upgrade/HB_0_8_0.scala
 PredictionIO/data/src/main/scala/io/prediction/data/storage/hdfs/package.scala
@@ -122,7 +120,6 @@ PredictionIO/e2/src/test/scala/io/prediction/e2/engine/BinaryVectorizerTest.scal
 PredictionIO/examples/experimental/scala-cleanup-app/src/main/scala/Preparator.scala
 PredictionIO/examples/experimental/scala-local-friend-recommendation/src/main/scala/FriendRecommendationDataSource.scala
 PredictionIO/examples/experimental/scala-local-friend-recommendation/src/main/scala/KeywordSimilarityAlgorithm.scala
-PredictionIO/examples/experimental/scala-local-friend-recommendation/src/main/scala/RandomAlgorithm.scala
 PredictionIO/examples/experimental/scala-local-helloworld/HelloWorld.scala
 PredictionIO/examples/experimental/scala-parallel-friend-recommendation/src/main/scala/DataSource.scala
 PredictionIO/examples/experimental/scala-parallel-friend-recommendation/src/main/scala/DeltaSimRankRDD.scala
@@ -131,13 +128,10 @@ PredictionIO/examples/experimental/scala-parallel-friend-recommendation/src/main
 PredictionIO/examples/experimental/scala-parallel-recommendation-cat/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/experimental/scala-parallel-recommendation-cat/src/main/scala/DataSource.scala
 PredictionIO/examples/experimental/scala-parallel-recommendation-custom-datasource/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/experimental/scala-parallel-recommendation-custom-datasource/src/main/scala/ALSModel.scala
 PredictionIO/examples/experimental/scala-parallel-recommendation-custom-datasource/src/main/scala/DataSource.scala
 PredictionIO/examples/experimental/scala-parallel-recommendation-entitymap/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/experimental/scala-parallel-recommendation-entitymap/src/main/scala/ALSModel.scala
 PredictionIO/examples/experimental/scala-parallel-recommendation-entitymap/src/main/scala/DataSource.scala
 PredictionIO/examples/experimental/scala-parallel-recommendation-mongo-datasource/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/experimental/scala-parallel-recommendation-mongo-datasource/src/main/scala/ALSModel.scala
 PredictionIO/examples/experimental/scala-parallel-recommendation-mongo-datasource/src/main/scala/DataSource.scala
 PredictionIO/examples/experimental/scala-parallel-similarproduct-dimsum/src/main/scala/DIMSUMAlgorithm.scala
 PredictionIO/examples/experimental/scala-parallel-similarproduct-dimsum/src/main/scala/DataSource.scala
@@ -159,17 +153,14 @@ PredictionIO/examples/scala-parallel-ecommercerecommendation/train-with-rate-eve
 PredictionIO/examples/scala-parallel-ecommercerecommendation/weighted-items/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/scala-parallel-ecommercerecommendation/weighted-items/src/main/scala/DataSource.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-prepartor/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/scala-parallel-recommendation/custom-prepartor/src/main/scala/ALSModel.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-prepartor/src/main/scala/DataSource.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-prepartor/src/main/scala/Preparator.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-query/data/src/main/scala/org/template/recommendation/ImportDataScript.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-query/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-query/src/main/scala/DataSource.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-serving/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/scala-parallel-recommendation/custom-serving/src/main/scala/ALSModel.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-serving/src/main/scala/DataSource.scala
 PredictionIO/examples/scala-parallel-recommendation/filter-by-category/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/scala-parallel-recommendation/filter-by-category/src/main/scala/ALSModel.scala
 PredictionIO/examples/scala-parallel-recommendation/filter-by-category/src/main/scala/DataSource.scala
 PredictionIO/examples/scala-parallel-similarproduct/add-and-return-item-properties/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/scala-parallel-similarproduct/add-and-return-item-properties/src/main/scala/DataSource.scala
@@ -187,7 +178,6 @@ PredictionIO/examples/scala-parallel-similarproduct/no-set-user/src/main/scala/A
 PredictionIO/examples/scala-parallel-similarproduct/no-set-user/src/main/scala/DataSource.scala
 PredictionIO/examples/scala-parallel-similarproduct/recommended-user/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/scala-parallel-similarproduct/recommended-user/src/main/scala/DataSource.scala
-PredictionIO/project/Build.scala
 PredictionIO/tools/src/main/scala/io/prediction/tools/RunWorkflow.scala
 PredictionIO/tools/src/main/scala/io/prediction/tools/Runner.scala
 PredictionIO/tools/src/main/scala/io/prediction/tools/console/App.scala
@@ -407,8 +397,6 @@ akka/akka-cluster/src/main/scala/akka/cluster/routing/AdaptiveLoadBalancing.scal
 akka/akka-cluster/src/main/scala/akka/cluster/routing/ClusterRouterConfig.scala
 akka/akka-cluster/src/multi-jvm/scala/akka/cluster/ClusterAccrualFailureDetectorSpec.scala
 akka/akka-cluster/src/multi-jvm/scala/akka/cluster/ClusterDeathWatchSpec.scala
-akka/akka-cluster/src/multi-jvm/scala/akka/cluster/ClusterMetricsDisabledSpec.scala
-akka/akka-cluster/src/multi-jvm/scala/akka/cluster/ClusterMetricsSpec.scala
 akka/akka-cluster/src/multi-jvm/scala/akka/cluster/ConvergenceSpec.scala
 akka/akka-cluster/src/multi-jvm/scala/akka/cluster/DeterministicOldestWhenJoiningSpec.scala
 akka/akka-cluster/src/multi-jvm/scala/akka/cluster/DisallowJoinOfTwoClustersSpec.scala
@@ -440,15 +428,10 @@ akka/akka-cluster/src/test/scala/akka/cluster/ClusterSpec.scala
 akka/akka-cluster/src/test/scala/akka/cluster/EWMASpec.scala
 akka/akka-cluster/src/test/scala/akka/cluster/HeartbeatNodeRingSpec.scala
 akka/akka-cluster/src/test/scala/akka/cluster/MemberOrderingSpec.scala
-akka/akka-cluster/src/test/scala/akka/cluster/MetricNumericConverterSpec.scala
-akka/akka-cluster/src/test/scala/akka/cluster/MetricValuesSpec.scala
 akka/akka-cluster/src/test/scala/akka/cluster/MetricsCollectorSpec.scala
 akka/akka-cluster/src/test/scala/akka/cluster/MetricsGossipSpec.scala
-akka/akka-cluster/src/test/scala/akka/cluster/NodeMetricsSpec.scala
 akka/akka-cluster/src/test/scala/akka/cluster/ReachabilitySpec.scala
 akka/akka-cluster/src/test/scala/akka/cluster/StartupWithOneThreadSpec.scala
-akka/akka-cluster/src/test/scala/akka/cluster/protobuf/ClusterMessageSerializerSpec.scala
-akka/akka-cluster/src/test/scala/akka/cluster/routing/MetricsSelectorSpec.scala
 akka/akka-cluster/src/test/scala/akka/cluster/routing/WeightedRouteesSpec.scala
 akka/akka-contrib/src/main/scala/akka/contrib/circuitbreaker/CircuitBreakerProxy.scala
 akka/akka-contrib/src/main/scala/akka/contrib/circuitbreaker/askExtensions.scala
@@ -458,7 +441,6 @@ akka/akka-contrib/src/main/scala/akka/contrib/pattern/ReceivePipeline.scala
 akka/akka-contrib/src/main/scala/akka/contrib/throttle/TimerBasedThrottler.scala
 akka/akka-contrib/src/test/scala/akka/contrib/circuitbreaker/sample/CircuitBreaker.scala
 akka/akka-contrib/src/test/scala/akka/contrib/pattern/ReceivePipelineSpec.scala
-akka/akka-contrib/src/test/scala/akka/contrib/pattern/ReliableProxyDocSpec.scala
 akka/akka-distributed-data/src/main/scala/akka/cluster/ddata/DistributedData.scala
 akka/akka-distributed-data/src/main/scala/akka/cluster/ddata/FastMerge.scala
 akka/akka-distributed-data/src/main/scala/akka/cluster/ddata/Flag.scala
@@ -582,7 +564,6 @@ akka/akka-docs/rst/scala/code/docs/stream/StreamPartialFlowGraphDocSpec.scala
 akka/akka-docs/rst/scala/code/docs/stream/StreamTestKitDocSpec.scala
 akka/akka-docs/rst/scala/code/docs/stream/TwitterStreamQuickstartDocSpec.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeByteStrings.scala
-akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeDigest.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeDroppyBroadcast.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeFlattenSeq.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeGlobalRateLimit.scala
@@ -592,7 +573,6 @@ akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeLoggingElements.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeManualTrigger.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeMissedTicks.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeMultiGroupBy.scala
-akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeParseLines.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeReduceByKey.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeSeq.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeSimpleDrop.scala
@@ -775,7 +755,6 @@ akka/akka-http-tests/src/test/scala/akka/http/scaladsl/server/directives/Timeout
 akka/akka-http-tests/src/test/scala/akka/http/scaladsl/server/directives/WebSocketDirectivesSpec.scala
 akka/akka-http-tests/src/test/scala/akka/http/scaladsl/unmarshalling/MultipartUnmarshallersSpec.scala
 akka/akka-http/src/main/scala/akka/http/impl/server/HeaderImpl.scala
-akka/akka-http/src/main/scala/akka/http/impl/server/RequestContextImpl.scala
 akka/akka-http/src/main/scala/akka/http/impl/server/RouteImplementation.scala
 akka/akka-http/src/main/scala/akka/http/javadsl/server/Directives.scala
 akka/akka-http/src/main/scala/akka/http/javadsl/server/Handler.scala
@@ -1253,8 +1232,6 @@ breeze/benchmark/src/main/scala/breeze/stats/ProbMonad.scala
 breeze/benchmark/src/main/scala/breeze/stats/mcmc/MetropolisHastings.scala
 breeze/macros/src/main/scala/breeze/macros/arityize.scala
 breeze/macros/src/main/scala/breeze/macros/expand.scala
-breeze/math/src/main/scala/breeze/collection/immutable/Beam.scala
-breeze/math/src/main/scala/breeze/collection/immutable/BinomialHeap.scala
 breeze/math/src/main/scala/breeze/collection/mutable/ArrayLike.scala
 breeze/math/src/main/scala/breeze/integrate/package.scala
 breeze/math/src/main/scala/breeze/integrate/quasimontecarlo/Halton.scala
@@ -1410,22 +1387,17 @@ breeze/math/src/main/scala/breeze/signal/support/JTransformsSupport.scala
 breeze/math/src/main/scala/breeze/signal/support/WindowFunctions.scala
 breeze/math/src/main/scala/breeze/signal/support/package.scala
 breeze/math/src/main/scala/breeze/stats/RandomizationTest.scala
-breeze/math/src/main/scala/breeze/stats/distributions/ApacheDistributionWrapper.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Beta.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Binomial.scala
-breeze/math/src/main/scala/breeze/stats/distributions/CauchyDistribution.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Dirichlet.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Distribution.scala
 breeze/math/src/main/scala/breeze/stats/distributions/ExponentialFamily.scala
-breeze/math/src/main/scala/breeze/stats/distributions/FDistribution.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Gamma.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Gaussian.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Geometric.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Gumbel.scala
 breeze/math/src/main/scala/breeze/stats/distributions/HasConjugatePrior.scala
-breeze/math/src/main/scala/breeze/stats/distributions/HypergeometricDistribution.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Laplace.scala
-breeze/math/src/main/scala/breeze/stats/distributions/LevyDistribution.scala
 breeze/math/src/main/scala/breeze/stats/distributions/LogNormal.scala
 breeze/math/src/main/scala/breeze/stats/distributions/MarkovChain.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Moments.scala
@@ -1439,17 +1411,11 @@ breeze/math/src/main/scala/breeze/stats/distributions/Rand.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Rayleigh.scala
 breeze/math/src/main/scala/breeze/stats/distributions/StudentsT.scala
 breeze/math/src/main/scala/breeze/stats/distributions/SufficientStatistic.scala
-breeze/math/src/main/scala/breeze/stats/distributions/TriangularDistribution.scala
-breeze/math/src/main/scala/breeze/stats/distributions/VariableKernelEmpiricalDistribution.scala
 breeze/math/src/main/scala/breeze/stats/distributions/VonMises.scala
 breeze/math/src/main/scala/breeze/stats/distributions/Wald.scala
-breeze/math/src/main/scala/breeze/stats/distributions/WeibullDistribution.scala
-breeze/math/src/main/scala/breeze/stats/distributions/ZipfDistribution.scala
-breeze/math/src/main/scala/breeze/stats/distributions/package.scala
 breeze/math/src/main/scala/breeze/stats/hist.scala
 breeze/math/src/main/scala/breeze/stats/hypothesis/package.scala
 breeze/math/src/main/scala/breeze/stats/regression/Lasso.scala
-breeze/math/src/main/scala/breeze/storage/ConfigurableDefault.scala
 breeze/math/src/main/scala/breeze/storage/Storage.scala
 breeze/math/src/main/scala/breeze/util/CachedHashCode.scala
 breeze/math/src/main/scala/breeze/util/Encoder.scala
@@ -1465,19 +1431,12 @@ breeze/math/src/main/scala/breeze/util/SerializableLogging.scala
 breeze/math/src/main/scala/breeze/util/Terminal.scala
 breeze/math/src/main/scala/breeze/util/UpdateSerializedObjects.scala
 breeze/math/src/main/scala/breeze/util/partition.scala
-breeze/math/src/test/scala/breeze/collection/immutable/BeamTest.scala
-breeze/math/src/test/scala/breeze/collection/mutable/BeamTest.scala
-breeze/math/src/test/scala/breeze/collection/mutable/OpenAddressHashArrayTest.scala
-breeze/math/src/test/scala/breeze/collection/mutable/SparseArrayTest.scala
-breeze/math/src/test/scala/breeze/generic/MultimethodTest.scala
 breeze/math/src/test/scala/breeze/integrate/NonstiffOdeTest.scala
-breeze/math/src/test/scala/breeze/integrate/quasimontecarlo/QuasiMonteCarloTests.scala
 breeze/math/src/test/scala/breeze/io/ByteConverterBigEndian$Test.scala
 breeze/math/src/test/scala/breeze/io/ByteConverterLittleEndian$Test.scala
 breeze/math/src/test/scala/breeze/io/RandomAccessFileTest.scala
 breeze/math/src/test/scala/breeze/linalg/CSCMatrixTest.scala
 breeze/math/src/test/scala/breeze/linalg/Counter2Test.scala
-breeze/math/src/test/scala/breeze/linalg/CounterTest.scala
 breeze/math/src/test/scala/breeze/linalg/DenseVectorTest.scala
 breeze/math/src/test/scala/breeze/linalg/HashVectorTest.scala
 breeze/math/src/test/scala/breeze/linalg/LSMRTest.scala
@@ -1489,22 +1448,10 @@ breeze/math/src/test/scala/breeze/linalg/functions/minkowskiDistanceTest.scala
 breeze/math/src/test/scala/breeze/math/MutableModuleTestBase.scala
 breeze/math/src/test/scala/breeze/math/OptimizationSpaceTest.scala
 breeze/math/src/test/scala/breeze/math/TensorSpaceTestBase.scala
-breeze/math/src/test/scala/breeze/numerics/BesselTest.scala
-breeze/math/src/test/scala/breeze/numerics/IntMathTest.scala
 breeze/math/src/test/scala/breeze/numerics/financial/FinancialTest.scala
-breeze/math/src/test/scala/breeze/optimize/AdaptiveGradientTest.scala
 breeze/math/src/test/scala/breeze/optimize/LBFGSBTest.scala
-breeze/math/src/test/scala/breeze/optimize/LBFGSTest.scala
-breeze/math/src/test/scala/breeze/optimize/OWLQNTest.scala
-breeze/math/src/test/scala/breeze/optimize/OptimizeTestBase.scala
-breeze/math/src/test/scala/breeze/optimize/ProjectedQuasiNewtonTest.scala
-breeze/math/src/test/scala/breeze/optimize/SpectralProjectedGradientTest.scala
 breeze/math/src/test/scala/breeze/optimize/StochasticAveragedGradientTest.scala
-breeze/math/src/test/scala/breeze/optimize/StochasticGradientDescentTest.scala
-breeze/math/src/test/scala/breeze/optimize/TruncatedNewtonMinimizerTest.scala
-breeze/math/src/test/scala/breeze/optimize/linear/AffineScalingTest.scala
 breeze/math/src/test/scala/breeze/optimize/linear/ConjugateGradientTest.scala
-breeze/math/src/test/scala/breeze/optimize/linear/InteriorPointTest.scala
 breeze/math/src/test/scala/breeze/optimize/linear/LinearProgramTest.scala
 breeze/math/src/test/scala/breeze/optimize/linear/NNLSTest.scala
 breeze/math/src/test/scala/breeze/polynomial/DensePolynomialTest.scala
@@ -1512,28 +1459,15 @@ breeze/math/src/test/scala/breeze/signal/ConvolveTest.scala
 breeze/math/src/test/scala/breeze/signal/FourierTrTest.scala
 breeze/math/src/test/scala/breeze/signal/HaarTrTest.scala
 breeze/math/src/test/scala/breeze/signal/WindowFunctionsTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/Bernoulli.scala
-breeze/math/src/test/scala/breeze/stats/distributions/BetaTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/Binomial.scala
-breeze/math/src/test/scala/breeze/stats/distributions/ChiSquaredTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/DirichletTest.scala
 breeze/math/src/test/scala/breeze/stats/distributions/ExpFamTest.scala
 breeze/math/src/test/scala/breeze/stats/distributions/GammaTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/GaussianTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/GeometricTest.scala
 breeze/math/src/test/scala/breeze/stats/distributions/GumbelTest.scala
 breeze/math/src/test/scala/breeze/stats/distributions/HasCdfTestBase.scala
 breeze/math/src/test/scala/breeze/stats/distributions/LaplaceTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/LogNormalTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/LogarthmicTest.scala
 breeze/math/src/test/scala/breeze/stats/distributions/MomentsTestBase.scala
 breeze/math/src/test/scala/breeze/stats/distributions/MultinomialTest.scala
 breeze/math/src/test/scala/breeze/stats/distributions/MultivariateGaussianTest.scala
 breeze/math/src/test/scala/breeze/stats/distributions/ParetoTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/Poisson.scala
-breeze/math/src/test/scala/breeze/stats/distributions/RayleighTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/StudentsTTest.scala
-breeze/math/src/test/scala/breeze/stats/distributions/UniformTest.scala
 breeze/math/src/test/scala/breeze/stats/distributions/UnivariateContinuousDistrTestBase.scala
 breeze/math/src/test/scala/breeze/stats/distributions/VonMises.scala
 breeze/math/src/test/scala/breeze/stats/distributions/WaldTest.scala
@@ -1644,7 +1578,6 @@ cats/tests/src/test/scala/cats/tests/SyntaxTests.scala
 cats/tests/src/test/scala/cats/tests/ValidatedTests.scala
 cats/tests/src/test/scala/cats/tests/WordCountTest.scala
 cats/tests/src/test/scala/cats/tests/WriterTTests.scala
-ensime-server/api/src/main/scala/org/ensime/api/common.scala
 ensime-server/api/src/main/scala/org/ensime/api/config.scala
 ensime-server/api/src/main/scala/org/ensime/api/incoming.scala
 ensime-server/api/src/main/scala/org/ensime/api/outgoing.scala
@@ -1698,7 +1631,6 @@ ensime-server/core/src/test/scala/org/ensime/indexer/FileWatcherSpec.scala
 ensime-server/monkeys/src/main/scala-2.11/scala/reflect/io/ZipArchive.scala
 ensime-server/project/EnsimeBuild.scala
 ensime-server/project/SensibleSettings.scala
-ensime-server/project/SonatypeSupport.scala
 ensime-server/protocol-swanky/src/main/scala/org/ensime/server/protocol/swank/SwankFormats.scala
 ensime-server/protocol-swanky/src/test/scala/org/ensime/server/protocol/swank/FormatSpec.scala
 ensime-server/protocol-swanky/src/test/scala/org/ensime/server/protocol/swank/SwankFormatsSpec.scala
@@ -2188,7 +2120,6 @@ finagle/finagle-thrift/src/main/scala/com/twitter/finagle/rich.scala
 finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/DeserializeCtx.scala
 finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/TTwitterClientFilter.scala
 finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/TTwitterServerFilter.scala
-finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/ThriftBufferDecoder.scala
 finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/ThriftClientBufferedCodec.scala
 finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/ThriftClientFramedCodec.scala
 finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/ThriftServerBufferedCodec.scala
@@ -2234,10 +2165,8 @@ framework/core/common/src/test/scala/net/liftweb/common/LoggingSpec.scala
 framework/core/common/src/test/scala/net/liftweb/common/LruMapSpec.scala
 framework/core/json-ext/src/test/scala/net/liftweb/json/ext/JodaTimeSerializerSpec.scala
 framework/core/json-ext/src/test/scala/net/liftweb/json/ext/JsonBoxSerializerSpec.scala
-framework/core/json-scalaz/src/main/scala/net/liftweb/json/scalaz/JsonScalaz.scala
 framework/core/json-scalaz/src/test/scala/net/lifweb/json/scalaz/LottoExample.scala
 framework/core/json-scalaz/src/test/scala/net/lifweb/json/scalaz/ValidationExample.scala
-framework/core/json-scalaz7/src/main/scala/net/liftweb/json/scalaz/JsonScalaz.scala
 framework/core/json-scalaz7/src/test/scala/net/liftweb/json/scalaz/LottoExample.scala
 framework/core/json-scalaz7/src/test/scala/net/liftweb/json/scalaz/ValidationExample.scala
 framework/core/json/benchmark/Jsonbench.scala
@@ -2264,11 +2193,6 @@ framework/core/markdown/src/main/scala/net/liftweb/markdown/InlineParsers.scala
 framework/core/markdown/src/main/scala/net/liftweb/markdown/LineParsers.scala
 framework/core/markdown/src/main/scala/net/liftweb/markdown/LineTokenizer.scala
 framework/core/markdown/src/main/scala/net/liftweb/markdown/Transformer.scala
-framework/core/markdown/src/test/scala/net/liftweb/markdown/BaseParsersTest.scala
-framework/core/markdown/src/test/scala/net/liftweb/markdown/BlockParsersTest.scala
-framework/core/markdown/src/test/scala/net/liftweb/markdown/LineParsersTest.scala
-framework/core/markdown/src/test/scala/net/liftweb/markdown/LineTokenizerTest.scala
-framework/core/markdown/src/test/scala/net/liftweb/markdown/TransformerTest.scala
 framework/core/util/src/main/scala/net/liftweb/util/BaseField.scala
 framework/core/util/src/main/scala/net/liftweb/util/BasicTypesHelpers.scala
 framework/core/util/src/main/scala/net/liftweb/util/BundleBuilder.scala
@@ -2470,7 +2394,6 @@ framework/web/webkit/src/test/scala/net/liftweb/http/js/LiftJavaScriptSpec.scala
 framework/web/webkit/src/test/scala/net/liftweb/http/js/extcore/ExtCoreArtifactsSpec.scala
 framework/web/webkit/src/test/scala/net/liftweb/http/rest/XMLApiSpec.scala
 framework/web/webkit/src/test/scala/net/liftweb/mockweb/MockWebSpec.scala
-framework/web/webkit/src/test/scala/net/liftweb/mockweb/snippet/WebSpecSpecSnippet.scala
 framework/web/webkit/src/test/scala/net/liftweb/sitemap/LocSpec.scala
 framework/web/webkit/src/test/scala/net/liftweb/sitemap/MenuDSLSpec.scala
 framework/web/webkit/src/test/scala/net/liftweb/webapptest/MemoizeSpec.scala
@@ -2504,7 +2427,6 @@ gitbucket/src/main/scala/gitbucket/core/service/AccountService.scala
 gitbucket/src/main/scala/gitbucket/core/service/CommitStatusService.scala
 gitbucket/src/main/scala/gitbucket/core/service/HandleCommentService.scala
 gitbucket/src/main/scala/gitbucket/core/service/IssuesService.scala
-gitbucket/src/main/scala/gitbucket/core/service/MilestonesService.scala
 gitbucket/src/main/scala/gitbucket/core/service/ProtectedBranchService.scala
 gitbucket/src/main/scala/gitbucket/core/service/PullRequestService.scala
 gitbucket/src/main/scala/gitbucket/core/service/RepositoryService.scala
@@ -2553,9 +2475,6 @@ goose/src/main/scala/com/gravity/goose/network/AbstractHtmlFetcher.scala
 goose/src/main/scala/com/gravity/goose/outputformatters/StandardOutputFormatter.scala
 goose/src/main/scala/com/gravity/goose/text/HashUtils.scala
 goose/src/main/scala/com/gravity/goose/text/ReplaceSequence.scala
-goose/src/main/scala/com/gravity/goose/text/StopWords.scala
-goose/src/main/scala/com/gravity/goose/text/StringReplacement.scala
-goose/src/main/scala/com/gravity/goose/text/StringSplitter.scala
 goose/src/main/scala/com/gravity/goose/text/string.scala
 goose/src/main/scala/com/gravity/goose/utils/FileHelper.scala
 goose/src/main/scala/com/gravity/goose/utils/URLHelper.scala
@@ -2643,7 +2562,6 @@ intellij-scala/src/org/jetbrains/plugins/scala/codeInspection/varCouldBeValInspe
 intellij-scala/src/org/jetbrains/plugins/scala/compiler/RemoteServerConnectorBase.scala
 intellij-scala/src/org/jetbrains/plugins/scala/compiler/package.scala
 intellij-scala/src/org/jetbrains/plugins/scala/components/AdjustSettingsApplicationComponent.scala
-intellij-scala/src/org/jetbrains/plugins/scala/components/libinjection/JarManifest.scala
 intellij-scala/src/org/jetbrains/plugins/scala/components/libinjection/LibraryInjectorException.scala
 intellij-scala/src/org/jetbrains/plugins/scala/components/libinjection/LibraryInjectorLoader.scala
 intellij-scala/src/org/jetbrains/plugins/scala/console/ScalaLanguageConsoleView.scala
@@ -2708,7 +2626,6 @@ intellij-scala/src/org/jetbrains/plugins/scala/format/StripMarginParser.scala
 intellij-scala/src/org/jetbrains/plugins/scala/format/Types.scala
 intellij-scala/src/org/jetbrains/plugins/scala/highlighter/ScalaTestHighlighterUtil.scala
 intellij-scala/src/org/jetbrains/plugins/scala/highlighter/readWriteAccess/ScalaReadWriteAccessDetector.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/TokenSets.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/completion/ScalaCharFilter.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/completion/ScalaCompletionUtil.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/completion/ScalaKeyword.scala
@@ -2729,7 +2646,6 @@ intellij-scala/src/org/jetbrains/plugins/scala/lang/lexer/ScalaXmlTokenTypes.sca
 intellij-scala/src/org/jetbrains/plugins/scala/lang/macros/expansion/MacroExpandAction.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/parameterInfo/ScalaPatternParameterInfoHandler.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/parser/ErrMsg.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/parser/ParserNode.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/parser/ScalaElementTypes.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/parser/ScalaPsiCreator.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/parser/parsing/CommonUtils.scala
@@ -2996,7 +2912,6 @@ intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/templates/S
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/templates/ScTemplateBody.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/templates/ScTemplateParents.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/templates/ScTraitParents.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/typedef/ScDocCommentOwner.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/typedef/ScMember.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/typedef/ScTrait.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/controlFlow/ControlFlowUtil.scala
@@ -3129,18 +3044,6 @@ intellij-scala/src/org/jetbrains/plugins/scala/lang/scaladoc/psi/api/ScDocTagVal
 intellij-scala/src/org/jetbrains/plugins/scala/lang/structureView/ScalaElementPresentation.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/structureView/StructureViewUtil.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/descriptors/ScalaDocCommentDataSurroundDescriptor.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/descriptors/ScalaExpressionSurroundDescriptor.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/descriptors/ScalaSurroundDescriptors.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaExpressionSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithBracesSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithDoWhileSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithForSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithForYieldSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithIfElseSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithIfSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithMatchSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithTryCatchSurrounder.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/expression/ScalaWithWhileSurrounder.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/surroundWith/surrounders/scaladoc/ScalaDocWithSyntaxSurrounder.scala
 intellij-scala/src/org/jetbrains/plugins/scala/overrideImplement/ScalaMemberChooser.scala
 intellij-scala/src/org/jetbrains/plugins/scala/overrideImplement/ScalaNamedMember.scala
@@ -3179,7 +3082,6 @@ intellij-scala/src/org/jetbrains/sbt/Sbt.scala
 intellij-scala/src/org/jetbrains/sbt/SbtBundle.scala
 intellij-scala/src/org/jetbrains/sbt/annotator/SbtDependencyAnnotator.scala
 intellij-scala/src/org/jetbrains/sbt/codeInspection/SbtReplaceProjectWithProjectInInspection.scala
-intellij-scala/src/org/jetbrains/sbt/execution/SbtOrderEnumeratorHandler.scala
 intellij-scala/src/org/jetbrains/sbt/language/SbtFileImpl.scala
 intellij-scala/src/org/jetbrains/sbt/language/SbtFileType.scala
 intellij-scala/src/org/jetbrains/sbt/project/ExternalSourceRootResolution.scala
@@ -3478,7 +3380,6 @@ intellij-scala/testdata/rename3/varAndSetters/before/tests/Baz.scala
 intellij-scala/testdata/resolve/aux1/idea/LocalImport.scala
 intellij-scala/testdata/resolve/aux1/idea/LocalImport1.scala
 intellij-scala/testdata/resolve/scaladoc/CodeLinkMultiResolve.scala
-intellij-scala/testdata/resolve/scaladoc/CodeLinkUnqualifiedResolve.scala
 intellij-scala/testdata/resolve/scaladoc/MethodTypeParamNoResolve.scala
 intellij-scala/testdata/resolve/scaladoc/TypeAliasParamNoResolve.scala
 intellij-scala/testdata/resolve/scaladoc/TypeAliasParamResolve.scala
@@ -3527,7 +3428,6 @@ intellij-scala/testdata/resolve2/bug3/SCL5987.scala
 intellij-scala/testdata/resolve2/bug3/SCL6478.scala
 intellij-scala/testdata/resolve2/bug3/SCL6628.scala
 intellij-scala/testdata/resolve2/bug3/SCL6825B.scala
-intellij-scala/testdata/resolve2/bug3/ShadowedImport.scala
 intellij-scala/testdata/resolve2/bug3/ValueFunction11.scala
 intellij-scala/testdata/resolve2/element/ClassParameter.scala
 intellij-scala/testdata/resolve2/element/ClassParameterValue.scala
@@ -4331,7 +4231,6 @@ marathon/src/test/scala/mesosphere/marathon/api/v2/json/AppDefinitionFormatsTest
 marathon/src/test/scala/mesosphere/marathon/api/v2/json/AppDefinitionTest.scala
 marathon/src/test/scala/mesosphere/marathon/api/v2/json/TaskStatsByVersionFormatTest.scala
 marathon/src/test/scala/mesosphere/marathon/api/validation/AppDefinitionValidatorTest.scala
-marathon/src/test/scala/mesosphere/marathon/core/appinfo/impl/AppInfoBaseDataTest.scala
 marathon/src/test/scala/mesosphere/marathon/core/base/TestShutdownHooks.scala
 marathon/src/test/scala/mesosphere/marathon/core/flow/impl/ReviveOffersActorTest.scala
 marathon/src/test/scala/mesosphere/marathon/core/launchqueue/impl/AppTaskLauncherActorTest.scala
@@ -4443,7 +4342,6 @@ pickling/core/src/test/scala/pickling/run/binary-inputstream.scala
 pickling/core/src/test/scala/pickling/run/custom-generic-pickler.scala
 pickling/core/src/test/scala/pickling/run/fast-byte-array.scala
 pickling/core/src/test/scala/pickling/run/file-io.scala
-pickling/core/src/test/scala/pickling/run/forwarded-pickler.scala
 pickling/core/src/test/scala/pickling/run/issue57.scala
 pickling/core/src/test/scala/pickling/run/non-public-weird.scala
 pickling/core/src/test/scala/pickling/run/pickling-spec.scala
@@ -4498,7 +4396,6 @@ platform/bytecode/src/test/scala/com/precog/bytecode/StaticLibrary.scala
 platform/common/src/main/scala/com/precog/common.scala
 platform/common/src/main/scala/com/precog/common/CValue.scala
 platform/common/src/main/scala/com/precog/common/accounts/Account.scala
-platform/common/src/main/scala/com/precog/common/accounts/AccountDetails.scala
 platform/common/src/main/scala/com/precog/common/accounts/AccountFinder.scala
 platform/common/src/main/scala/com/precog/common/client.scala
 platform/common/src/main/scala/com/precog/common/client/BaseClient.scala
@@ -4706,7 +4603,6 @@ platform/yggdrasil/src/main/scala/com/precog/yggdrasil/table/cf/Util.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/util/CPathUtils.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/util/HetOrder.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/vfs/ActorVFS.scala
-platform/yggdrasil/src/main/scala/com/precog/yggdrasil/vfs/BlobMetadata.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/vfs/FileSystem.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/vfs/InMemoryVFS.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/vfs/SecureVFS.scala
@@ -4738,7 +4634,6 @@ platform/yggdrasil/src/test/scala/com/precog/yggdrasil/test/YId.scala
 platform/yggdrasilProf/src/main/scala/com/precog/yggdrasil/test/Run.scala
 playframework/documentation/manual/releases/release24/migration24/code24/MyComponent.scala
 playframework/documentation/manual/releases/release24/migration24/code24/MyModule.scala
-playframework/documentation/manual/working/commonGuide/build/code/SubProjectsAssetsBuilder.scala
 playframework/documentation/manual/working/commonGuide/configuration/code/ThreadPools.scala
 playframework/documentation/manual/working/commonGuide/filters/code/AllowedHostsFilter.scala
 playframework/documentation/manual/working/commonGuide/filters/code/CorsFilter.scala
@@ -4839,10 +4734,8 @@ playframework/framework/src/play-akka-http-server/src/main/scala/akka/http/play/
 playframework/framework/src/play-akka-http-server/src/main/scala/play/core/server/akkahttp/ModelConversion.scala
 playframework/framework/src/play-akka-http-server/src/sbt-test/akka-http/play-akka-http-plugin/app/controllers/Application.scala
 playframework/framework/src/play-akka-http-server/src/sbt-test/akka-http/play-akka-http-plugin/project/Build.scala
-playframework/framework/src/play-akka-http-server/src/sbt-test/akka-http/play-akka-http-plugin/tests/ServerSpec.scala
 playframework/framework/src/play-akka-http-server/src/sbt-test/akka-http/system-property/app/controllers/Application.scala
 playframework/framework/src/play-akka-http-server/src/sbt-test/akka-http/system-property/project/Build.scala
-playframework/framework/src/play-akka-http-server/src/sbt-test/akka-http/system-property/tests/ServerSpec.scala
 playframework/framework/src/play-akka-http-server/src/test/scala/play/core/server/akkahttp/AkkaHttpServerSpec.scala
 playframework/framework/src/play-cache/src/main/scala/play/api/cache/Cached.scala
 playframework/framework/src/play-cache/src/main/scala/play/api/cache/SerializableResult.scala
@@ -5146,9 +5039,6 @@ playframework/framework/src/sbt-plugin/src/sbt-test/play-sbt-plugin/multiproject
 playframework/framework/src/sbt-plugin/src/sbt-test/play-sbt-plugin/multiproject/nonplaymodule/src/main/scala/NonPlayModule.scala
 playframework/framework/src/sbt-plugin/src/sbt-test/play-sbt-plugin/multiproject/playmodule/app/PlayModule.scala
 playframework/framework/src/sbt-plugin/src/sbt-test/play-sbt-plugin/multiproject/transitive/app/Transitive.scala
-playframework/framework/src/sbt-plugin/src/sbt-test/play-sbt-plugin/nested-secret/project/Build.scala
-playframework/framework/src/sbt-plugin/src/sbt-test/play-sbt-plugin/play-position-mapper/project/Build.scala
-playframework/framework/src/sbt-plugin/src/sbt-test/play-sbt-plugin/secret/project/Build.scala
 playframework/framework/src/sbt-plugin/src/sbt-test/routes-compiler-plugin/aggregate-reverse-routes/nonplay/src/main/scala/nonplay.NonPlay.scala
 playframework/framework/src/sbt-plugin/src/sbt-test/routes-compiler-plugin/injected-routes-compilation/app/utils/JavaScriptRouterGenerator.scala
 playframework/framework/src/sbt-plugin/src/sbt-test/routes-compiler-plugin/injected-routes-compilation/tests/RouterSpec.scala
@@ -5337,9 +5227,7 @@ sbt/sbt/src/sbt-test/dependency-management/ext-pom-classifier/src/test/scala/A.s
 sbt/sbt/src/sbt-test/dependency-management/force/project/TestProject.scala
 sbt/sbt/src/sbt-test/dependency-management/make-pom/project/MakePomTest.scala
 sbt/sbt/src/sbt-test/dependency-management/parent-publish/project/Parent.scala
-sbt/sbt/src/sbt-test/project/auto-plugins/project/A.scala
 sbt/sbt/src/sbt-test/project/auto-plugins/project/Q.scala
-sbt/sbt/src/sbt-test/project/binary-plugin/changes/define/D.scala
 sbt/sbt/src/sbt-test/project/delegate_config/project/Build.scala
 sbt/sbt/src/sbt-test/project/sbt-file-projects/changes/Restricted.scala
 sbt/sbt/src/sbt-test/project/scala-loader/project/Build.scala
@@ -5360,7 +5248,6 @@ sbt/sbt/src/sbt-test/source-dependencies/remove-test-b/changes/B5.scala
 sbt/sbt/src/sbt-test/source-dependencies/same-file-used-names/B.scala
 sbt/sbt/src/sbt-test/source-dependencies/trait-private-var/changes/A.scala
 sbt/sbt/src/sbt-test/tests/fork-parallel/project/ForkParallelTest.scala
-sbt/sbt/src/sbt-test/tests/it/changes/AlwaysFail.scala
 sbt/sbt/src/sbt-test/tests/junit-xml-report/project/JUnitXmlReportTest.scala
 sbt/sbt/src/sbt-test/tests/one-class-multi-framework/src/test/scala/Test.scala
 sbt/sbt/src/sbt-test/tests/scala-instance-classloader/src/test/scala/Test.scala
@@ -5692,7 +5579,6 @@ scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/jsinterop/ScalaJSDef
 scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/jsinterop/StrangeNamedTests.scala
 scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/jsinterop/ThisFunctionTest.scala
 scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/jsinterop/TupleTest.scala
-scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/jsinterop/UndefOrTest.scala
 scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/junit/MultiCompilationSecondUnitTest.scala
 scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/library/StackTraceTest.scala
 scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/library/UnionTypeTest.scala
@@ -5961,7 +5847,6 @@ scala/src/compiler/scala/tools/nsc/util/ClassFileLookup.scala
 scala/src/compiler/scala/tools/nsc/util/DocStrings.scala
 scala/src/compiler/scala/tools/nsc/util/InterruptReq.scala
 scala/src/compiler/scala/tools/nsc/util/JavaCharArrayReader.scala
-scala/src/compiler/scala/tools/nsc/util/SimpleTracer.scala
 scala/src/compiler/scala/tools/nsc/util/StackTracing.scala
 scala/src/compiler/scala/tools/nsc/util/package.scala
 scala/src/compiler/scala/tools/reflect/FormatInterpolator.scala
@@ -6476,13 +6361,11 @@ scala/test/files/instrumented/indy-symbol-literal.scala
 scala/test/files/jvm/bytecode-test-example/Test.scala
 scala/test/files/jvm/console.scala
 scala/test/files/jvm/duration-tck.scala
-scala/test/files/jvm/future-spec/TryTests.scala
 scala/test/files/jvm/genericNest.scala
 scala/test/files/jvm/innerClassAttribute/Classes_1.scala
 scala/test/files/jvm/javaReflection/Classes_1.scala
 scala/test/files/jvm/javaReflection/Test.scala
 scala/test/files/jvm/methvsfield.scala
-scala/test/files/jvm/nest.scala
 scala/test/files/jvm/non-fatal-tests.scala
 scala/test/files/jvm/opt_value_class/test.scala
 scala/test/files/jvm/protectedacc.scala
@@ -6490,7 +6373,6 @@ scala/test/files/jvm/t7181/Test.scala
 scala/test/files/jvm/try-type-tests.scala
 scala/test/files/jvm/typerep.scala
 scala/test/files/jvm/unreachable/Test.scala
-scala/test/files/pos/FPTest.scala
 scala/test/files/pos/S5.scala
 scala/test/files/pos/S8.scala
 scala/test/files/pos/SI-4012-b.scala
@@ -6621,7 +6503,6 @@ scala/test/files/pos/t2421b_pos.scala
 scala/test/files/pos/t2435.scala
 scala/test/files/pos/t2441pos.scala
 scala/test/files/pos/t2454.scala
-scala/test/files/pos/t2591.scala
 scala/test/files/pos/t2610.scala
 scala/test/files/pos/t2624.scala
 scala/test/files/pos/t2669.scala
@@ -6695,7 +6576,6 @@ scala/test/files/pos/t5508-min-okay.scala
 scala/test/files/pos/t5508-min-okay2.scala
 scala/test/files/pos/t5508-min.scala
 scala/test/files/pos/t5639/A_1.scala
-scala/test/files/pos/t5769.scala
 scala/test/files/pos/t577.scala
 scala/test/files/pos/t5777.scala
 scala/test/files/pos/t5846.scala
@@ -6729,7 +6609,6 @@ scala/test/files/pos/t6648.scala
 scala/test/files/pos/t6651.scala
 scala/test/files/pos/t6780.scala
 scala/test/files/pos/t6815.scala
-scala/test/files/pos/t6815_import.scala
 scala/test/files/pos/t6891.scala
 scala/test/files/pos/t6925.scala
 scala/test/files/pos/t6925b.scala
@@ -6808,11 +6687,9 @@ scala/test/files/pos/t8403.scala
 scala/test/files/pos/t8410.scala
 scala/test/files/pos/t8460.scala
 scala/test/files/pos/t8462.scala
-scala/test/files/pos/t8531/Test.scala
 scala/test/files/pos/t8578.scala
 scala/test/files/pos/t8596.scala
 scala/test/files/pos/t8617.scala
-scala/test/files/pos/t8862a.scala
 scala/test/files/pos/t8894.scala
 scala/test/files/pos/t8934a/Test_2.scala
 scala/test/files/pos/t8965.scala
@@ -6898,7 +6775,6 @@ scala/test/files/run/checked.scala
 scala/test/files/run/compiler-asSeenFrom.scala
 scala/test/files/run/concat-two-strings.scala
 scala/test/files/run/constant-type.scala
-scala/test/files/run/constrained-types.scala
 scala/test/files/run/ctor-order.scala
 scala/test/files/run/dead-code-elimination.scala
 scala/test/files/run/delambdafy-two-lambdas.scala
@@ -6929,7 +6805,6 @@ scala/test/files/run/inliner-infer.scala
 scala/test/files/run/large_class.scala
 scala/test/files/run/large_code.scala
 scala/test/files/run/lazy-leaks.scala
-scala/test/files/run/macro-blackbox-materialization/Macros_1.scala
 scala/test/files/run/macro-bundle-whitebox-use-raw/Macros_1.scala
 scala/test/files/run/macro-bundle-whitebox-use-refined/Macros_1.scala
 scala/test/files/run/macro-def-path-dependent/Test_1.scala
@@ -6938,7 +6813,6 @@ scala/test/files/run/macro-expand-tparams-prefix/Macros_Test_2.scala
 scala/test/files/run/macro-openmacros/Impls_Macros_1.scala
 scala/test/files/run/macro-range/Expansion_Impossible_2.scala
 scala/test/files/run/macro-reflective-mamd-normal-mi/Macros_Test_2.scala
-scala/test/files/run/macro-reify-tagless-a/Test_2.scala
 scala/test/files/run/macro-reify-type/Test_2.scala
 scala/test/files/run/macro-sip19-revised/Impls_Macros_1.scala
 scala/test/files/run/macro-sip19/Test_2.scala
@@ -7008,9 +6882,7 @@ scala/test/files/run/t1503_future.scala
 scala/test/files/run/t1939.scala
 scala/test/files/run/t1987b/PullIteratees.scala
 scala/test/files/run/t1987b/cce_test.scala
-scala/test/files/run/t2074_2.scala
 scala/test/files/run/t2087-and-2400.scala
-scala/test/files/run/t2250.scala
 scala/test/files/run/t2251b.scala
 scala/test/files/run/t2337.scala
 scala/test/files/run/t266.scala
@@ -7046,7 +6918,6 @@ scala/test/files/run/t498.scala
 scala/test/files/run/t5201.scala
 scala/test/files/run/t5293-map.scala
 scala/test/files/run/t5293.scala
-scala/test/files/run/t5387.scala
 scala/test/files/run/t5545.scala
 scala/test/files/run/t5603.scala
 scala/test/files/run/t5629b.scala
@@ -7121,7 +6992,6 @@ scala/test/files/run/t7805-repl-i.scala
 scala/test/files/run/t7825.scala
 scala/test/files/run/t7880.scala
 scala/test/files/run/t7899.scala
-scala/test/files/run/t8048b/Macros_1.scala
 scala/test/files/run/t8133/A_1.scala
 scala/test/files/run/t8190.scala
 scala/test/files/run/t8196.scala
@@ -7253,9 +7123,7 @@ scala/test/junit/scala/tools/nsc/util/ClassPathImplComparator.scala
 scala/test/junit/scala/tools/testing/AssertUtil.scala
 scala/test/junit/scala/util/matching/CharRegexTest.scala
 scala/test/junit/scala/util/matching/RegexTest.scala
-scala/test/osgi/src/BasicLibrary.scala
 scala/test/osgi/src/BasicReflection.scala
-scala/test/osgi/src/ReflectionToolboxTest.scala
 scala/test/osgi/src/ScalaOsgiHelper.scala
 scala/test/pending/buildmanager/t2443/BitSet.scala
 scala/test/pending/jvm/constant-optimization/Test.scala
@@ -7266,7 +7134,6 @@ scala/test/pending/neg/tcpoly_typealias_eta.scala
 scala/test/pending/neg/tcpoly_variance_enforce_getter_setter.scala
 scala/test/pending/neg/type-diagnostics.scala
 scala/test/pending/pos/inference.scala
-scala/test/pending/pos/no-widen-locals.scala
 scala/test/pending/pos/nothing.scala
 scala/test/pending/pos/overloading-boundaries.scala
 scala/test/pending/pos/t1786.scala
@@ -7287,7 +7154,6 @@ scala/test/pending/run/hk-lub-fail.scala
 scala/test/pending/run/implicit-classes.scala
 scala/test/pending/run/inline-ex-handlers.scala
 scala/test/pending/run/instanceOfAndTypeMatching.scala
-scala/test/pending/run/macro-reify-tagless-b/Test_2.scala
 scala/test/pending/run/reify_addressbook.scala
 scala/test/pending/run/reify_callccinterpreter.scala
 scala/test/pending/run/reify_gadts.scala
@@ -7302,7 +7168,6 @@ scala/test/pending/shootout/fasta.scala
 scala/test/pending/shootout/harmonic.scala-2.scala
 scala/test/pending/shootout/harmonic.scala-3.scala
 scala/test/pending/shootout/heapsort.scala
-scala/test/pending/shootout/mandelbrot.scala-2.scala
 scala/test/pending/shootout/message.scala
 scala/test/pending/shootout/meteor.scala
 scala/test/pending/shootout/meteor.scala-2.scala
@@ -7311,9 +7176,7 @@ scala/test/pending/shootout/meteor.scala-4.scala
 scala/test/pending/shootout/methcall.scala
 scala/test/pending/shootout/nsieve.scala-4.scala
 scala/test/pending/shootout/pidigits.scala
-scala/test/pending/shootout/prodcons.scala
 scala/test/pending/shootout/random.scala
-scala/test/pending/shootout/revcomp.scala-2.scala
 scala/test/pending/shootout/revcomp.scala-3.scala
 scala/test/pending/shootout/sieve.scala
 scala/test/pending/specialized/SI-5005.scala
@@ -7387,8 +7250,6 @@ scala/test/scaladoc/run/links.scala
 scala/test/scaladoc/run/shortDescription-annotation.scala
 scala/test/scaladoc/run/t4922.scala
 scala/test/scaladoc/run/t5527.scala
-scala/test/scaladoc/run/t5730.scala
-scala/test/scaladoc/run/t6626.scala
 scala/test/scaladoc/run/t7124.scala
 scala/test/scaladoc/run/t7767.scala
 scala/test/scaladoc/run/t7876.scala
@@ -7470,7 +7331,6 @@ scalafx/scalafx-demos/src/main/scala/scalafx/controls/tableview/TableWithCustomC
 scalafx/scalafx-demos/src/main/scala/scalafx/controls/treetableview/TreeTableViewWithOneColumn.scala
 scalafx/scalafx-demos/src/main/scala/scalafx/controls/treetableview/TreeTableViewWithTwoColumns.scala
 scalafx/scalafx-demos/src/main/scala/scalafx/graphics3d/Simple3DBoxApp.scala
-scalafx/scalafx-demos/src/main/scala/scalafx/imaginej/Bill.scala
 scalafx/scalafx-demos/src/main/scala/scalafx/imaginej/ScalaFX_Controls_01.scala
 scalafx/scalafx-demos/src/main/scala/scalafx/imaginej/ScalaFX_Controls_02.scala
 scalafx/scalafx-demos/src/main/scala/scalafx/imaginej/ScalaFX_Controls_03.scala
@@ -7769,7 +7629,6 @@ scalafx/scalafx/src/test/scala/issues/issue217/SnapshotNPETester.scala
 scalafx/scalafx/src/test/scala/issues/issue23/SceneRootAssignmentDemo.scala
 scalafx/scalafx/src/test/scala/issues/issue3/SecondStageExceptionDemo.scala
 scalafx/scalafx/src/test/scala/scalafx/application/PlatformSpec.scala
-scalafx/scalafx/src/test/scala/scalafx/event/EventHandlerSpec.scala
 scalafx/scalafx/src/test/scala/scalafx/scene/SceneAntialiasingSpec.scala
 scalafx/scalafx/src/test/scala/scalafx/scene/control/ListViewEditEventSpec.scala
 scalafx/scalafx/src/test/scala/scalafx/scene/control/TableColumnSpec.scala
@@ -7791,7 +7650,6 @@ scalatra/commands/src/main/scala/org/scalatra/validation/ValidationError.scala
 scalatra/commands/src/main/scala/org/scalatra/validation/Validators.scala
 scalatra/commands/src/test/scala/org/scalatra/commands/BindingSpec.scala
 scalatra/commands/src/test/scala/org/scalatra/commands/CommandSpec.scala
-scalatra/commands/src/test/scala/org/scalatra/commands/JacksonCommandSpec.scala
 scalatra/common/src/main/scala/org/scalatra/Handler.scala
 scalatra/common/src/main/scala/org/scalatra/servlet/ScalatraAsyncSupport.scala
 scalatra/core/src/main/scala/org/scalatra/CORSSupport.scala
@@ -7853,7 +7711,6 @@ scalatra/core/src/test/scala/org/scalatra/util/conversion/ConversionsSpecs.scala
 scalatra/example/src/main/scala/org/scalatra/AtmosphereChat.scala
 scalatra/json/src/main/scala/org/scalatra/json/JValueResult.scala
 scalatra/json/src/test/scala/org/scalatra/json/JsonRequestBodySpec.scala
-scalatra/project/Unidoc.scala
 scalatra/project/build.scala
 scalatra/scalate/src/main/scala/org/scalatra/scalate/ScalateI18nSupport.scala
 scalatra/scalate/src/main/scala/org/scalatra/scalate/ScalateUrlGeneratorSupport.scala
@@ -7867,7 +7724,6 @@ scalatra/specs2/src/main/scala/org/scalatra/test/specs2/ScalatraSpec.scala
 scalatra/swagger-ext/src/main/scala/org/scalatra/swagger/SwaggerCommand.scala
 scalatra/swagger-ext/src/test/scala/org/scalatra/swagger/SwaggerAuthSpec.scala
 scalatra/swagger-ext/src/test/scala/org/scalatra/swagger/SwaggerCommandSupportSpec.scala
-scalatra/swagger/src/main/scala/org/scalatra/swagger/NativeSwaggerBase.scala
 scalatra/swagger/src/main/scala/org/scalatra/swagger/SwaggerSerializers.scala
 scalatra/swagger/src/main/scala/org/scalatra/swagger/reflect/Reflector.scala
 scalatra/swagger/src/main/scala/org/scalatra/swagger/reflect/ScalaSigReader.scala
@@ -8128,7 +7984,6 @@ scalaz/scalacheck-binding/src/main/scala/scalaz/scalacheck/ScalaCheckBinding.sca
 scalaz/scalacheck-binding/src/main/scala/scalaz/scalacheck/ScalazArbitrary.scala
 scalaz/scalacheck-binding/src/main/scala/scalaz/scalacheck/ScalazProperties.scala
 scalaz/tests/jvm/src/test/scala/scalaz/SI7932Test.scala
-scalaz/tests/jvm/src/test/scala/scalaz/TraverseTestJVM.scala
 scalaz/tests/jvm/src/test/scala/scalaz/concurrent/ConcurrentTaskTest.scala
 scalaz/tests/jvm/src/test/scala/scalaz/concurrent/FutureTest.scala
 scalaz/tests/jvm/src/test/scala/scalaz/concurrent/MVarTest.scala
@@ -8190,7 +8045,6 @@ scalding/project/Unidoc.scala
 scalding/scalding-args/src/main/scala/com/twitter/scalding/Args.scala
 scalding/scalding-benchmarks/src/test/scala/com/twitter/scalding/Serialization.scala
 scalding/scalding-commons/src/main/scala/com/twitter/scalding/commons/extensions/Checkpoint.scala
-scalding/scalding-commons/src/main/scala/com/twitter/scalding/commons/source/DailySources.scala
 scalding/scalding-commons/src/main/scala/com/twitter/scalding/commons/source/GeneratedLzoTypedTsv.scala
 scalding/scalding-commons/src/main/scala/com/twitter/scalding/commons/source/LongThriftTransformer.scala
 scalding/scalding-commons/src/main/scala/com/twitter/scalding/commons/source/LzoCodecSource.scala
@@ -8395,8 +8249,6 @@ scalding/scalding-serialization/src/test/scala/com/twitter/scalding/serializatio
 scalding/scalding-thrift-macros/src/main/scala/com/twitter/scalding/thrift/macros/RequiredBinaryComparators.scala
 scalding/scalding-thrift-macros/src/main/scala/com/twitter/scalding/thrift/macros/impl/ordered_serialization/ScroogeOrderedBuf.scala
 scalding/scalding-thrift-macros/src/main/scala/com/twitter/scalding/thrift/macros/impl/ordered_serialization/ScroogeOuterOrderedBuf.scala
-scalding/tutorial/AvroTutorial0.scala
-scalding/tutorial/JsonTutorial0.scala
 scalding/tutorial/MatrixTutorial1.scala
 scalding/tutorial/MatrixTutorial2.scala
 scalding/tutorial/MatrixTutorial3.scala
@@ -9426,7 +9278,6 @@ spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/package.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/ASTNode.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/AbstractSparkSQLParser.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/CatalystQl.scala
-spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/DataTypeParser.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/LegacyTypeStringParser.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/ParseDriver.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/parser/ParserInterface.scala
@@ -9509,7 +9360,6 @@ spark/sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/expressions/code
 spark/sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/expressions/codegen/GeneratedProjectionSuite.scala
 spark/sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/ColumnPruningSuite.scala
 spark/sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/ConstantFoldingSuite.scala
-spark/sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/LikeSimplificationSuite.scala
 spark/sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/OptimizerExtendableSuite.scala
 spark/sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/optimizer/PruneFiltersSuite.scala
 spark/sql/catalyst/src/test/scala/org/apache/spark/sql/catalyst/parser/CatalystQlSuite.scala

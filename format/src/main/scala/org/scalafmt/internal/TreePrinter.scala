@@ -361,7 +361,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           else line + dStats(t.stats)
         t.`package` + space + print(t.ref) + dstats
       case t: Import =>
-        `import` + space + intercalate(comma + space, t.importers.map(print))
+        t.`import` + space + intercalate(comma + space, t.importers.map(print))
       case t: Importee =>
         t match {
           case i: Importee.Name => print(i.name)
