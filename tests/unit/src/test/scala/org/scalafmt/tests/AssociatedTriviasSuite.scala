@@ -12,7 +12,7 @@ object AssociatedTriviasSuite extends DiffSuite {
     assertNoDiff(obtained, expected.stripMargin)
   }
 
-  test("associations") {
+  test("basic") {
     check(
       """|{
          |  /* java
@@ -36,7 +36,36 @@ object AssociatedTriviasSuite extends DiffSuite {
          |)"""
     )
   }
-  test("associations 2") {
+
+  test("separated leading") {
+    check(
+      """|// test
+         |
+         |class A""",
+      """|AssociatedTrivias(
+         |  Leading =
+         |    class [9..14) => [//∙test,¶,¶]
+         |  Trailing =
+         |    class [9..14) => [∙]
+         |)""",
+    )
+  }
+
+  test("single line javadocs") {
+    check(
+      """|// c1
+         |// c2
+         |class A""",
+      """|AssociatedTrivias(
+         |  Leading =
+         |    class [12..17) => [//∙c1,¶,//∙c2,¶]
+         |  Trailing =
+         |    class [12..17) => [∙]
+         |)""",
+    )
+  }
+
+  test("trailing EOF") {
     check(
       "class A // trailing",
       """|AssociatedTrivias(
@@ -48,7 +77,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |)"""
     )
   }
-  test("associations 3") {
+  test("trailing NL EOF") {
     check(
       """|class A // trailing
          |""".stripMargin,

@@ -37,7 +37,7 @@ object SyntaxTokens {
       tokensView.find(_.is[T]).map(_.asInstanceOf[T])
     }
   }
-  private implicit class XtensionUtil[A <: Tree](val tree: A) extends AnyVal {
+  private implicit class XtensionUtil[A <: Tree](private val tree: A) extends AnyVal {
     def find[T <: Token](implicit ev: Classifier[Token, T]): Option[T] = {
       find[T](tree.tokens)(ev)
     }
@@ -80,21 +80,21 @@ object SyntaxTokens {
       tokens.find(_.is[T]).map(_.asInstanceOf[T])
     }
   }
-  implicit class XtensionTermApplyTypeSyntax(val tree: Term.ApplyType)
+  implicit class XtensionTermApplyTypeSyntax(private val tree: Term.ApplyType)
       extends AnyVal {
     def tokensLeftBracket: LeftBracket =
       tree.findBetween[LeftBracket](_.fun, _.targs.head).get
     def tokensRightBracket: RightBracket =
       tree.findAfter[RightBracket](_.targs.last).get
   }
-  implicit class XtensionTermAssignSyntax(val tree: Term.Assign)
+  implicit class XtensionTermAssignSyntax(private val tree: Term.Assign)
       extends AnyVal {
     def tokensEqual: Equals = tree.findAfter[Equals](_.lhs).get
   }
-  implicit class XtensionTermEtaSyntax(val tree: Term.Eta) extends AnyVal {
+  implicit class XtensionTermEtaSyntax(private val tree: Term.Eta) extends AnyVal {
     def tokensUnderscore: Underscore = tree.find[Underscore].get
   }
-  implicit class XtensionTermThisSyntax(val tree: Term.This) extends AnyVal {
+  implicit class XtensionTermThisSyntax(private val tree: Term.This) extends AnyVal {
     def tokensDot: Option[Dot] = {
       tree.qual match {
         case _: Name.Anonymous => None
@@ -102,7 +102,7 @@ object SyntaxTokens {
       }
     }
   }
-  implicit class XtensionTermSuperSyntax(val tree: Term.Super) extends AnyVal {
+  implicit class XtensionTermSuperSyntax(private val tree: Term.Super) extends AnyVal {
     def tokensDot: Option[Dot] = {
       tree.thisp match {
         case _: Name.Anonymous => None
@@ -110,45 +110,45 @@ object SyntaxTokens {
       }
     }
   }
-  implicit class XtensionTermSelectSyntax(val tree: Term.Select)
+  implicit class XtensionTermSelectSyntax(private val tree: Term.Select)
       extends AnyVal {
     def tokensDot: Dot = tree.findAfter[Dot](_.qual).get
   }
-  implicit class XtensionTermInterpolateSyntax(val tree: Term.Interpolate)
+  implicit class XtensionTermInterpolateSyntax(private val tree: Term.Interpolate)
       extends AnyVal {
     def tokensStartQuote: Interpolation.Start =
       tree.find[Interpolation.Start].get
     def tokensEndQuote: Interpolation.End = tree.find[Interpolation.End].get
   }
-  implicit class XtensionTermReturnSyntax(val tree: Term.Return)
+  implicit class XtensionTermReturnSyntax(private val tree: Term.Return)
       extends AnyVal {
     def tokensReturn: KwReturn = tree.find[KwReturn].get
   }
-  implicit class XtensionTermRepeatedSyntax(val tree: Term.Repeated)
+  implicit class XtensionTermRepeatedSyntax(private val tree: Term.Repeated)
       extends AnyVal {
     def tokensColon: Colon = tree.findAfter[Colon](_.expr).get
     def tokensUnderscore: Underscore = tree.findAfter[Underscore](_.expr).get
     def tokensAsterix: Token = tree.findAfter(isAsterisk, _.expr).get
   }
-  implicit class XtensionTermIfSyntax(val tree: Term.If) extends AnyVal {
+  implicit class XtensionTermIfSyntax(private val tree: Term.If) extends AnyVal {
     def tokensIf: KwIf = tree.find[KwIf].get
     def tokensLeftParen: LeftParen = tree.find[LeftParen].get
     def tokensRightParen: RightParen = tree.findAfter[RightParen](_.cond).get
     def tokensElse: Option[KwElse] = tree.findAfter[KwElse](_.thenp)
   }
-  implicit class XtensionTermForSyntax(val tree: Term.For) extends AnyVal {
+  implicit class XtensionTermForSyntax(private val tree: Term.For) extends AnyVal {
     def tokensFor: KwFor = tree.find[KwFor].get
   }
-  implicit class XtensionTermForYieldSyntax(val tree: Term.ForYield)
+  implicit class XtensionTermForYieldSyntax(private val tree: Term.ForYield)
       extends AnyVal {
     def tokensFor: KwFor = tree.find[KwFor].get
     def tokensYield: KwYield = tree.findAfter[KwYield](_.enums.last).get
   }
-  implicit class XtensionTermBlockSyntax(val tree: Term.Block) extends AnyVal {
+  implicit class XtensionTermBlockSyntax(private val tree: Term.Block) extends AnyVal {
     def tokensLeftBrace: LeftBrace = blockStartBrace(tree)
     def tokensRightBrace: RightBrace = blockEndBrace(tree)(_.stats)
   }
-  implicit class XtensionTermDoSyntax(val tree: Term.Do) extends AnyVal {
+  implicit class XtensionTermDoSyntax(private val tree: Term.Do) extends AnyVal {
     def tokensDo: KwDo = tree.find[KwDo].get
     def tokensWhile: KwWhile = tree.findBetween[KwWhile](_.body, _.expr).get
     def tokensLeftParen: LeftParen =
@@ -161,7 +161,7 @@ object SyntaxTokens {
     def tokensLeftBrace: LeftBrace = blockStartBrace(tree)
     def tokensRightBrace: RightBrace = blockEndBrace(tree)(_.cases)
   }
-  implicit class XtensionTermParamSyntax(val tree: Term.Param) extends AnyVal {
+  implicit class XtensionTermParamSyntax(private val tree: Term.Param) extends AnyVal {
     def tokenColon: Option[Colon] =
       tree.decltpe.map(
         decltpe => tree.findBetween[Colon](_.name, _ => decltpe).get
@@ -176,42 +176,42 @@ object SyntaxTokens {
         }
       )
   }
-  implicit class XtensionTermFunctionSyntax(val tree: Term.Function)
+  implicit class XtensionTermFunctionSyntax(private val tree: Term.Function)
       extends AnyVal {
     def tokensRightArrow: RightArrow =
       tree.findAfter[RightArrow](_.params.last).get
   }
-  implicit class XtensionTermThrowSyntax(val tree: Term.Throw) extends AnyVal {
+  implicit class XtensionTermThrowSyntax(private val tree: Term.Throw) extends AnyVal {
     def tokensThrow: KwThrow = tree.find[KwThrow].get
   }
-  implicit class XtensionTermAscribeSyntax(val tree: Term.Ascribe)
+  implicit class XtensionTermAscribeSyntax(private val tree: Term.Ascribe)
       extends AnyVal {
     def tokensColon: Colon = tree.findAfter[Colon](_.expr).get
   }
-  implicit class XtensionTermAnnotateSyntax(val tree: Term.Annotate)
+  implicit class XtensionTermAnnotateSyntax(private val tree: Term.Annotate)
       extends AnyVal {
     def tokensAt: At = tree.findAfter[At](_.expr).get
   }
-  implicit class XtensionTermTupleSyntax(val tree: Term.Tuple) extends AnyVal {
+  implicit class XtensionTermTupleSyntax(private val tree: Term.Tuple) extends AnyVal {
     def tokensLeftParen: LeftParen = tree.find[LeftParen].get
     def tokensRightParen: RightParen =
       tree.findAfter[RightParen](_.args.last).get
   }
-  implicit class XtensionTermMatchSyntax(val tree: Term.Match) extends AnyVal {
+  implicit class XtensionTermMatchSyntax(private val tree: Term.Match) extends AnyVal {
     def tokensMatch: KwMatch = tree.findAfter[KwMatch](_.expr).get
   }
-  implicit class XtensionTermNewSyntax(val tree: Term.New) extends AnyVal {
+  implicit class XtensionTermNewSyntax(private val tree: Term.New) extends AnyVal {
     def tokensNew: KwNew = tree.find[KwNew].get
   }
-  implicit class XtensionTermNewAnonymousSyntax(val tree: Term.NewAnonymous)
+  implicit class XtensionTermNewAnonymousSyntax(private val tree: Term.NewAnonymous)
       extends AnyVal {
     def tokensNew: KwNew = tree.find[KwNew].get
   }
-  implicit class XtensionTermPlaceholderSyntax(val tree: Term.Placeholder)
+  implicit class XtensionTermPlaceholderSyntax(private val tree: Term.Placeholder)
       extends AnyVal {
     def tokensUnderscore: Underscore = tree.find[Underscore].get
   }
-  implicit class XtensionTermTrySyntax(val tree: Term.Try) extends AnyVal {
+  implicit class XtensionTermTrySyntax(private val tree: Term.Try) extends AnyVal {
     def tokensCatch: Option[KwCatch] =
       tree.catchp.headOption
         .map(catchp => tree.findBetween[KwCatch](_.expr, _ => catchp).get)
@@ -235,7 +235,7 @@ object SyntaxTokens {
     )
     def tokensTry: KwTry = tree.find[KwTry].get
   }
-  implicit class XtensionTermTryWithHandlerSyntax(val tree: Term.TryWithHandler)
+  implicit class XtensionTermTryWithHandlerSyntax(private val tree: Term.TryWithHandler)
       extends AnyVal {
     def tokensCatch: KwCatch = tree.findBetween[KwCatch](_.expr, _.catchp).get
     def tokensFinally: Option[KwFinally] =
@@ -256,18 +256,18 @@ object SyntaxTokens {
       )
     def tokensTry: KwTry = tree.find[KwTry].get
   }
-  implicit class XtensionTermWhileSyntax(val tree: Term.While) extends AnyVal {
+  implicit class XtensionTermWhileSyntax(private val tree: Term.While) extends AnyVal {
     def tokensWhile: KwWhile = tree.find[KwWhile].get
     def tokensLeftParen: LeftParen = tree.find[LeftParen].get
     def tokensRightParen: RightParen = tree.findAfter[RightParen](_.expr).get
   }
 
   // == Type ==
-  implicit class XtensionTypeByNameSyntax(val tree: Type.ByName)
+  implicit class XtensionTypeByNameSyntax(private val tree: Type.ByName)
       extends AnyVal {
     def tokensRightArrow: RightArrow = tree.find[RightArrow].get
   }
-  implicit class XtensionTypeSelectSyntax(val tree: Type.Select)
+  implicit class XtensionTypeSelectSyntax(private val tree: Type.Select)
       extends AnyVal {
     def tokensDot: Dot = tree.findBetween[Dot](_.qual, _.name).get
   }
@@ -278,17 +278,17 @@ object SyntaxTokens {
     def tokensRightArrow: RightArrow =
       tree.findBetween[RightArrow](_.params.last, _.res).get
   }
-  implicit class XtensionTypeWithSyntax(val tree: Type.With) extends AnyVal {
+  implicit class XtensionTypeWithSyntax(private val tree: Type.With) extends AnyVal {
     def tokensWith: KwWith = tree.findBetween[KwWith](_.lhs, _.rhs).get
   }
 
   // == Defn ==
-  implicit class XtensionCtorPrimarySyntax(val tree: Ctor.Primary)
+  implicit class XtensionCtorPrimarySyntax(private val tree: Ctor.Primary)
       extends AnyVal {
     def tokensComma: List[List[Comma]] =
       tree.paramss.map(commaSeparated0(tree))
   }
-  implicit class XtensionDefnClassSyntax(val tree: Defn.Class) extends AnyVal {
+  implicit class XtensionDefnClassSyntax(private val tree: Defn.Class) extends AnyVal {
     def `class`(implicit trivia: AssociatedTrivias): Doc = {
       trivia.wrap(tree, tokensClass, S.`class`)
     }
@@ -356,7 +356,13 @@ object SyntaxTokens {
       }
     }
   }
-
+  implicit class XtensionPkgSyntax(private val tree: Pkg) extends AnyVal {
+    def `package`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensPackage, S.`package`)
+    }
+    def tokensPackage: KwPackage =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwPackage].get
+  }
   private def commaSeparated[T <: Tree](
       tree: T
   )(f: T => List[Tree]): List[Comma] =

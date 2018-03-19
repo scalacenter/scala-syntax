@@ -359,7 +359,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val dstats =
           if (guessHasBraces(t)) space + dBlockI(t.stats)
           else line + dStats(t.stats)
-        `package` + space + print(t.ref) + dstats
+        t.`package` + space + print(t.ref) + dstats
       case t: Import =>
         `import` + space + intercalate(comma + space, t.importers.map(print))
       case t: Importee =>

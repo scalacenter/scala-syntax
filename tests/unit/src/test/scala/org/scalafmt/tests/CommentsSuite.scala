@@ -19,4 +19,13 @@ object CommentsSuite extends BaseScalaPrinterTest {
     """|(b // c
        | & c)""".stripMargin
   )
+  checkSource(
+    """|// test
+       |
+       |package A""".stripMargin
+  )
+  checkSource(
+    """|// c1
+       |package A""".stripMargin
+  )
 }
