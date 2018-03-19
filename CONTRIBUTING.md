@@ -78,3 +78,13 @@ Regression: target/repos/intellij-scala/testdata/typeInference/bugs5/SCL2426.sca
 And it will make the test fail.
 
 As of March 6th 2018, scala-syntax correctness property holds for it's current corpus.
+
+## Paiges Fork / Subtree
+
+We use a fork of paiges with custom line combinators (`lineNoFlat`, `lineNoFlatNoIndent`). If these custom line combinators turn out to be useful, then we can try to merge them upstream.
+
+Our fork of typelevel/paiges was subtree-merged based on the following instructions: http://nuclearsquid.com/writings/subtree-merging-and-you/
+
+To pull from upstream:
+`git pull -s subtree paiges_remote master`
+
