@@ -1,14 +1,17 @@
-// use fork of paiges with custom line combinators.
-// If these custom line combinators turn out to be useful, then we can try
-// to merge them upstream.
-lazy val Paiges = RootProject(
-  uri(
-    "git://github.com/olafurpg/paiges.git#114ec05b4a3099906c9159ccd1357f3b772b4f1d"
-  )
-)
-lazy val paiges = ProjectRef(Paiges.build, "coreJVM")
-
 lazy val metaV = "3.2.0"
+
+lazy val paiges = project
+  .in(file("paiges/core"))
+  .settings(
+    moduleName := "paiges-core",
+    organization := "org.typelevel",
+    scalaVersion := "2.12.4",
+    libraryDependencies ++= Seq(
+      "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+      "org.scalacheck" %% "scalacheck" % "1.13.5" % Test
+    ),
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF")
+  )
 
 lazy val format = project
   .settings(
@@ -29,10 +32,17 @@ lazy val format = project
   )
   .dependsOn(paiges)
 
+val utestSettings = Seq(
+  testFrameworks := List(
+    new TestFramework("org.scalafmt.tests.CustomFramework")
+  )
+)
+
 // IntegrationTest configuration is not worth the complexity, reusing code across
 // configuration is annoying. Easier to create more projects.
 lazy val testsShared = project
   .in(file("tests/shared"))
+  .settings(utestSettings)
   .settings(
     libraryDependencies ++= List(
       "ch.epfl.scala" %% "scalafix-diff" % "0.5.1",
@@ -46,10 +56,12 @@ lazy val testsShared = project
 
 lazy val unit = project
   .in(file("tests/unit"))
+  .settings(utestSettings)
   .dependsOn(testsShared)
 
 lazy val slow = project
   .in(file("tests/slow"))
+  .settings(utestSettings)
   .settings(
     libraryDependencies += "me.tongfei" % "progressbar" % "0.5.5",
     fork in (Test, test) := true,

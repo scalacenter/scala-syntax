@@ -13,7 +13,7 @@ case "$TEST" in
     ;;
 
   "unit" )
-    sbt ";clean;coverage;unit/test;coverageReport"
+    sbt ";clean;coverage;unit/test;paiges/test;coverageReport"
     bash <(curl -s https://codecov.io/bash)
     ;;
 esac
