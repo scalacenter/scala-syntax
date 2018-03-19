@@ -70,7 +70,7 @@ lazy val slow = project
         "-XX:+CMSClassUnloadingEnabled"
       )
     },
-    javaOptions in (Test, testOnly) ++= (javaOptions in (Test, testOnly)).value,
-    javaOptions in (Test, testQuick) ++= (javaOptions in (Test, testOnly)).value
+    javaOptions in (Test, testOnly) ++= (javaOptions in (Test, test)).value,
+    javaOptions in (Test, testQuick) ++= (javaOptions in (Test, test)).value
   )
   .dependsOn(testsShared)
