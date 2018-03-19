@@ -4,15 +4,66 @@ import org.scalafmt.internal.TokensOps._
 
 import scala.meta._
 import scala.meta.Token
-import scala.meta.Token.Comment
+import scala.meta.Token._
 import scala.meta.contrib._
+
+import org.typelevel.paiges.Doc
+import org.typelevel.paiges.Doc.{text, empty, space, line}
 
 import org.scalameta.logger
 
 final case class AssociatedTrivias(
-    leadings: Map[Token, Tokens],
-    trailings: Map[Token, Tokens]
+    allLeadings: Map[Token, Tokens],
+    allTrailings: Map[Token, Tokens]
 ) {
+  def leadings(token: Token): Option[Tokens] =
+    allLeadings.get(token)
+
+  def trailings(token: Token): Option[Tokens] =
+    allTrailings.get(token)
+
+  private def toDoc(tokens: Option[Seq[Token]], isLeading: Boolean): Doc =
+    tokens
+      .map(_.filter(_.is[Comment]))
+      .filter(_.nonEmpty)
+      .map { ts =>
+        val isTrailing = !isLeading
+
+        val before =
+          if (isTrailing) space
+          else empty
+
+        val after =
+          if (isLeading) line
+          else empty
+
+        val trivias = ts.mkString("")
+
+        before + text(trivias) + after
+
+      }
+      .getOrElse(empty)
+
+  private def wrap(
+      leadings: Option[Seq[Token]],
+      doc: Doc,
+      trailings: Option[Seq[Token]]
+  ): Doc =
+    toDoc(leadings, isLeading = true) + doc + toDoc(
+      trailings,
+      isLeading = false
+    )
+
+  def wrap(token: Token, doc: Doc): Doc =
+    wrap(leadings(token), doc, trailings(token))
+
+  def wrap(tree: Tree, doc: Doc): Doc = {
+    val tokens = tree.tokens.filterNot(t => t.is[Token.BOF] || t.is[Token.EOF])
+    assert(tokens.size == 1)
+    val token = tokens.head
+    wrap(token, doc)
+  }
+
   private def pretty(token: Token): String = {
     if (token.is[Token.BOF]) {
       "BOF"
@@ -37,9 +88,9 @@ final case class AssociatedTrivias(
   def syntax: String =
     s"""|AssociatedTrivias(
         |  Leading =
-        |${pretty(leadings)}
+        |${pretty(allLeadings)}
         |  Trailing =
-        |${pretty(trailings)}
+        |${pretty(allTrailings)}
         |)""".stripMargin
   override def toString: String = syntax
 }
@@ -76,6 +127,9 @@ object AssociatedTrivias {
       case t: Token.BOF =>
         ()
 
+      case t: Token.EOF =>
+        doTrailing(t)
+
       case t @ Token.LF() =>
         setTrivia(t)
         doTrailing(t)
@@ -96,6 +150,7 @@ object AssociatedTrivias {
         lastToken = Some(currentToken)
         isLeading = false
     }
+
     AssociatedTrivias(allLeadings.result(), allTrailings.result())
   }
 }

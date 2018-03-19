@@ -1,9 +1,13 @@
 package org.scalafmt.internal
 
+import org.scalafmt.internal.{ScalaToken => S}
+
 import scala.meta._
 import scala.meta.Token
 import scala.meta.tokens.Token._
 import scala.meta.classifiers.Classifier
+
+import org.typelevel.paiges.Doc
 
 import scala.collection.SeqView
 import scala.collection.immutable.IndexedSeq
@@ -285,6 +289,10 @@ object SyntaxTokens {
       tree.paramss.map(commaSeparated0(tree))
   }
   implicit class XtensionDefnClassSyntax(val tree: Defn.Class) extends AnyVal {
+    def `class`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tokensClass, S.`class`)
+    }
+
     def tokensClass: KwClass =
       tree.tokens.leadings(tree.name.tokens.head).find0[KwClass].get
 

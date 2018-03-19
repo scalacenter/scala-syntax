@@ -5,20 +5,22 @@ import org.scalafmt.internal.AssociatedTrivias
 import scala.meta._
 
 object AssociatedTriviasSuite extends DiffSuite {
+
+  def check(source: String, expected: String): Unit = {
+    val trivias = AssociatedTrivias(source.stripMargin.parse[Stat].get)
+    val obtained = trivias.toString
+    assertNoDiff(obtained, expected.stripMargin)
+  }
+
   test("associations") {
-    val source =
+    check(
       """|{
          |  /* java
          |   * doc
          |   */
          |  val a = 1
          |  class A   // trailing
-         |}""".stripMargin.parse[Stat].get
-
-    val trivias = AssociatedTrivias(source)
-    val obtained = trivias.toString
-
-    val expected =
+         |}""",
       """|AssociatedTrivias(
          |  Leading =
          |    val [29..32) => [∙,∙,/*∙java¶∙∙∙*∙doc¶∙∙∙*/,¶,∙,∙]
@@ -29,8 +31,20 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    = [35..36) => [∙]
          |    class [41..46) => [∙]
          |    A [47..48) => [∙,∙,∙,//∙trailing]
-         |)""".stripMargin
+         |)"""
+    )
+  }
 
-    assertNoDiff(obtained, expected)
+  test("associations 2") {
+    check(
+      "class A // trailing",
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    class [0..5) => [∙]
+         |    A [6..7) => [∙,//∙trailing]
+         |)"""
+    )
   }
 }

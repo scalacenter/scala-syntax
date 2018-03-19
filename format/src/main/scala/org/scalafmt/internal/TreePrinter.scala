@@ -2,7 +2,7 @@ package org.scalafmt.internal
 
 import org.scalafmt.Options
 import org.scalafmt.internal.ScalaToken._
-import org.scalafmt.internal.ScalaToken._
+import org.scalafmt.internal.SyntaxTokens._
 
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
@@ -20,7 +20,7 @@ import scala.language.implicitConversions
 object TreePrinter {
   def print(tree: Tree): Doc = {
     val trivia = AssociatedTrivias(tree)
-    (new TreePrinter(trivia)).print(tree)
+    (new TreePrinter()(trivia)).print(tree)
   }
 
   def printInput(input: Input, options: Options): Doc = {
@@ -41,11 +41,11 @@ object TreePrinter {
 }
 
 trait WithPrinter {
-  val trivia: AssociatedTrivias
+  implicit val trivia: AssociatedTrivias
   def print(tree: Tree): Doc
 }
 
-class TreePrinter private (val trivia: AssociatedTrivias)
+class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
     extends WithPrinter
     with TreeDocOps
     with SyntacticGroupOps {
@@ -56,7 +56,7 @@ class TreePrinter private (val trivia: AssociatedTrivias)
         t match {
           case _: Name.Anonymous => empty
           case _: PatName => backtick + text(t.value) + backtick
-          case _ => text(Identifier.backtickWrap(t.value))
+          case _ => trivia.wrap(t, text(Identifier.backtickWrap(t.value)))
         }
       case _: Lit =>
         tree match {
@@ -483,7 +483,7 @@ class TreePrinter private (val trivia: AssociatedTrivias)
             dParamss(t.ctor.paramss)
         spaceSeparated(
           dMods(t.mods) ::
-            `class` ::
+            t.`class` ::
             dsignature ::
             Nil
         ) + print(t.templ)
