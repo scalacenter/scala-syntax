@@ -58,8 +58,8 @@ lazy val slow = project
     cancelable in Global := true,
     javaOptions in (Test, test) ++= {
       val mem =
-        if (sys.env.get("CI").isDefined) 4
-        else 20
+        if (sys.env.get("CI").isDefined) "4"
+        else sys.env.get("SLOWMEM").getOrElse("20")
 
       Seq(
         "-Xss20m",
