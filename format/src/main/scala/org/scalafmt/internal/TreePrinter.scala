@@ -445,7 +445,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case t: Decl.Def =>
         dDef(
           t.mods,
-          `def`,
+          t.`def`,
           print(t.name),
           t.tparams,
           t.paramss,
@@ -454,7 +454,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case t: Defn.Macro =>
         dDef(
           t.mods,
-          `def`,
+          t.`def`,
           print(t.name),
           t.tparams,
           t.paramss,
@@ -464,7 +464,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case t: Defn.Def =>
         dDef(
           t.mods,
-          `def`,
+          t.`def`,
           print(t.name),
           t.tparams,
           t.paramss,
@@ -472,18 +472,26 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           dBody(t.body)
         )
       case t: Defn.Type =>
-        dDef(t.mods, `type`, print(t.name), t.tparams, Nil, None, dBody(t.body))
+        dDef(
+          t.mods,
+          t.`type`,
+          print(t.name),
+          t.tparams,
+          Nil,
+          None,
+          dBody(t.body)
+        )
       case t: Defn.Val =>
-        dDefPats(t.mods, `val`, t.pats, Nil, Nil, t.decltpe, dBody(t.rhs))
+        dDefPats(t.mods, t.`val`, t.pats, Nil, Nil, t.decltpe, dBody(t.rhs))
       case t: Defn.Var =>
         val drhs = Some(t.rhs.fold(Term.Placeholder(): Term)(identity))
-        dDefPats(t.mods, `var`, t.pats, Nil, Nil, t.decltpe, dBodyO(drhs))
+        dDefPats(t.mods, t.`var`, t.pats, Nil, Nil, t.decltpe, dBodyO(drhs))
       case t: Decl.Val =>
-        dDefPats(t.mods, `val`, t.pats, Nil, Nil, Some(t.decltpe), empty)
+        dDefPats(t.mods, t.`val`, t.pats, Nil, Nil, Some(t.decltpe), empty)
       case t: Decl.Var =>
-        dDefPats(t.mods, `var`, t.pats, Nil, Nil, Some(t.decltpe), empty)
+        dDefPats(t.mods, t.`var`, t.pats, Nil, Nil, Some(t.decltpe), empty)
       case t: Decl.Type =>
-        dDef(t.mods, `type`, print(t.name), t.tparams, Nil, None) +
+        dDef(t.mods, t.`type`, print(t.name), t.tparams, Nil, None) +
           print(t.bounds)
       case t: Defn.Class =>
         val dctormods =
@@ -500,10 +508,10 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         ) + print(t.templ)
       case t: Pkg.Object =>
         val ddefn =
-          dDef(t.mods, `package` + space + `object`, print(t.name), Nil, Nil)
+          dDef(t.mods, t.`package` + space + `object`, print(t.name), Nil, Nil)
         ddefn + print(t.templ)
       case t: Defn.Object =>
-        val ddefn = dDef(t.mods, `object`, print(t.name), Nil, Nil)
+        val ddefn = dDef(t.mods, t.`object`, print(t.name), Nil, Nil)
         ddefn + print(t.templ)
       case t: Defn.Trait =>
         val ddefn = dDef(t.mods, t.`trait`, print(t.name), t.tparams, Nil)

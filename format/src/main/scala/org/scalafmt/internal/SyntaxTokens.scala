@@ -304,10 +304,41 @@ object SyntaxTokens {
   }
 
   // == Defn ==
-  implicit class XtensionCtorPrimarySyntax(private val tree: Ctor.Primary)
+  implicit class XtensionDefnVal(private val tree: Defn.Val) extends AnyVal {
+    def `val`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensVal, S.`val`)
+    }
+    def tokensVal: KwVal =
+      tree.tokens.leadings(tree.pats.head.tokens.head).find0[KwVal].get
+  }
+  implicit class XtensionDefnVar(private val tree: Defn.Var) extends AnyVal {
+    def `var`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensVar, S.`var`)
+    }
+    def tokensVar: KwVar =
+      tree.tokens.leadings(tree.pats.head.tokens.head).find0[KwVar].get
+  }
+  implicit class XtensionDefnDef(private val tree: Defn.Def) extends AnyVal {
+    def `def`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensDef, S.`def`)
+    }
+    def tokensDef: KwDef =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwDef].get
+  }
+  implicit class XtensionDefnMacro(private val tree: Defn.Macro)
       extends AnyVal {
-    def tokensComma: List[List[Comma]] =
-      tree.paramss.map(commaSeparated0(tree))
+    def `def`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensDef, S.`def`)
+    }
+    def tokensDef: KwDef =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwDef].get
+  }
+  implicit class XtensionDefnType(private val tree: Defn.Type) extends AnyVal {
+    def `type`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensType, S.`type`)
+    }
+    def tokensType: KwType =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwType].get
   }
   implicit class XtensionDefnClassSyntax(private val tree: Defn.Class)
       extends AnyVal {
@@ -387,6 +418,63 @@ object SyntaxTokens {
     def tokensTrait: KwTrait =
       tree.tokens.leadings(tree.name.tokens.head).find0[KwTrait].get
   }
+  implicit class XtensionPkgObjectSyntax(private val tree: Pkg.Object)
+      extends AnyVal {
+    def `package`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensPackage, S.`package`)
+    }
+
+    def tokensPackage: KwPackage =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwPackage].get
+  }
+  implicit class XtensionDefnObjectSyntax(private val tree: Defn.Object)
+      extends AnyVal {
+    def `object`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensObject, S.`object`)
+    }
+
+    def tokensObject: KwObject =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwObject].get
+  }
+
+  implicit class XtensionCtorPrimarySyntax(private val tree: Ctor.Primary)
+      extends AnyVal {
+    def tokensComma: List[List[Comma]] =
+      tree.paramss.map(commaSeparated0(tree))
+  }
+
+  // == meta.Decl ==
+  implicit class XtensionDeclVal(private val tree: Decl.Val) extends AnyVal {
+    def `val`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensVal, S.`val`)
+    }
+    def tokensVal: KwVal =
+      tree.tokens.leadings(tree.pats.head.tokens.head).find0[KwVal].get
+  }
+
+  implicit class XtensionDeclVar(private val tree: Decl.Var) extends AnyVal {
+    def `var`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensVar, S.`var`)
+    }
+    def tokensVar: KwVar =
+      tree.tokens.leadings(tree.pats.head.tokens.head).find0[KwVar].get
+  }
+  implicit class XtensionDeclDef(private val tree: Decl.Def) extends AnyVal {
+    def `def`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensDef, S.`def`)
+    }
+    def tokensDef: KwDef =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwDef].get
+  }
+  implicit class XtensionDeclType(private val tree: Decl.Type) extends AnyVal {
+    def `type`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensType, S.`type`)
+    }
+    def tokensType: KwType =
+      tree.tokens.leadings(tree.name.tokens.head).find0[KwType].get
+  }
+
+  // == meta.Pkg, meta.Import ==
   implicit class XtensionPkgSyntax(private val tree: Pkg) extends AnyVal {
     def `package`(implicit trivia: AssociatedTrivias): Doc = {
       trivia.wrap(tree, tokensPackage, S.`package`)
@@ -401,6 +489,8 @@ object SyntaxTokens {
     def tokensImport: KwImport =
       tree.find[KwImport].get
   }
+
+  // == meta.Mod ==
   implicit class XtensionModAnnotSyntax(private val tree: Mod.Annot)
       extends AnyVal {
     def `@`(implicit trivia: AssociatedTrivias): Doc = {

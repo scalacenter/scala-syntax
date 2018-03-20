@@ -36,11 +36,15 @@ object TokenOps {
 
   implicit class XtensionToken(private val token: Token) extends AnyVal {
     def show: String = {
-      val name =
+      val className =
         token.getClass.toString.stripPrefix("class scala.meta.tokens.Token$")
+      val value =
+        if (token.is[Token.LF]) className
+        else token.text
+
       val start = token.pos.start
       val end = token.pos.end
-      s"$name [${start}..${end})"
+      s"$value [${start}..${end})"
     }
   }
 }
