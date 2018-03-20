@@ -27,6 +27,8 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     parser = Parse.parseStat
   )
 
+  val dotty = defaultOptions.copy(dialect = dialects.Dotty)
+
   private val options = Options.default
 
   def prettyPrint(tree: Tree): String =
@@ -175,8 +177,8 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       options: Options,
       structuralOnly: Boolean
   ): Unit = {
-    val original = original2.replace("'''", "\"\"\"")
-    val expected = expected2.replace("'''", "\"\"\"")
+    val original = original2.stripMargin.replace("'''", "\"\"\"")
+    val expected = expected2.stripMargin.replace("'''", "\"\"\"")
     val testName = logger.revealWhitespace(original)
     test(testName) {
       val originalTree = TreePrinter.getRoot(original, options)

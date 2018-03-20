@@ -1,8 +1,9 @@
 package org.scalafmt.tests
+package tokens
 
 import scala.meta._
 
-import org.scalafmt.internal.SyntaxTokens._
+import org.scalafmt.internal.tokens.SyntaxTokensType._
 
 object SyntaxTokensTypesSuite extends SyntaxTokensSuiteUtils {
   checkOneType[Type.ByName](_.tokensRightArrow)("→=>← A")

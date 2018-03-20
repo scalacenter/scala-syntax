@@ -1,7 +1,6 @@
 // format: off
 package org.scalafmt.tests
 
-import scala.meta.dialects
 import scala.meta.{Pkg, Term, Lit, Input}
 
 import java.nio.charset.StandardCharsets
@@ -12,8 +11,6 @@ object CoverageSuite extends BaseScalaPrinterTest {
   val escapeChars = List('b', 't', 'n', 'f', 'r', '"', '\'', '\\')
   val allEscapeChars = escapeChars.mkString(" \\", " \\", "")
   
-  val dotty = defaultOptions.copy(dialect = dialects.Dotty)
-
   def resource(path: String): Input = 
     Input.Stream(
       this.getClass.getClassLoader.getResourceAsStream(path),
