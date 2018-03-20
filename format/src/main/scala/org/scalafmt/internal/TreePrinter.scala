@@ -2,7 +2,13 @@ package org.scalafmt.internal
 
 import org.scalafmt.Options
 import org.scalafmt.internal.ScalaToken._
-import org.scalafmt.internal.SyntaxTokens._
+import org.scalafmt.internal.tokens.SyntaxTokensDecl._
+import org.scalafmt.internal.tokens.SyntaxTokensDefn._
+import org.scalafmt.internal.tokens.SyntaxTokensMisc._
+import org.scalafmt.internal.tokens.SyntaxTokensMod._
+import org.scalafmt.internal.tokens.SyntaxTokensTerm._
+import org.scalafmt.internal.tokens.SyntaxTokensType._
+import org.scalafmt.internal.tokens.SyntaxTokensUtils._
 
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._

@@ -6,7 +6,7 @@ object CommentsSuite extends BaseScalaPrinterTest {
   // meta.Term
   check("/* L */ f /* I */() // T") // Term.Apply
   check("/* L */ a op f // T")      // Term.ApplyInfix
-  check("(1, 1)")                   // Term.Tuple
+  // check("/* L */ (1, 1) // T")      // Term.Tuple
 
   // meta.Decl
   check("/* L */ val a: Int // T")    // Decl.Val
