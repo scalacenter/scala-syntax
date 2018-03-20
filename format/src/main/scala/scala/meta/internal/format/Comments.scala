@@ -73,6 +73,13 @@ object Comments {
           )
       }
     )
+    def hasTokens: Boolean =
+      tree.origin match {
+        case o @ Origin.Parsed(Input.Stream(_: Comments, _), _, _) => false
+        case _: Origin.Parsed => true
+        case Origin.None => false
+        case e => sys.error("unsupported origin: " + e)
+      }
   }
   val input = Input.VirtualFile("SyntheticComments", "")
 }

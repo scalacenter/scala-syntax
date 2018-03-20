@@ -8,14 +8,3 @@
    def main(args: Array[String]): Unit = {
      assert(f1.toString.startsWith("-"))
      assert(f2.toString.startsWith("-"))
---- tests/slow/target/repos/scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
-+++ tests/slow/target/repos/scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala-formatted
-@@ -79,7 +79,7 @@
-         |
-         |4 , 5        ,          6           ,7        ],"compact":[1,2,3,4,5,6,7],
-         |        "jsontext": "{\"object with 1 member\":[\"array with 1 element\"]}",
--        |        "quotes": "&#34; \u0022 %22 0x22 034 &#x22;",
-+        |        "quotes": "&#34; " %22 0x22 034 &#x22;",
-         |        "\/\\\"쫾몾ꮘﳞ볚\b\f\n\r\t`1~!@#$%^&*()_+-=[]{}|;:',./<>?"
-         |: "A key can be any string"
-         |    },

@@ -1,18 +1,112 @@
 package org.scalafmt.internal
 
 import org.scalafmt.internal.TokensOps._
+import scala.meta.internal.format.Comments._
 
 import scala.meta._
 import scala.meta.Token
-import scala.meta.Token.Comment
+import scala.meta.Token._
 import scala.meta.contrib._
+
+import org.typelevel.paiges.Doc
+import org.typelevel.paiges.Doc.{text, empty, space, lineNoFlat}
 
 import org.scalameta.logger
 
 final case class AssociatedTrivias(
-    leadings: Map[Token, Tokens],
-    trailings: Map[Token, Tokens]
+    allLeadings: Map[Token, Tokens],
+    allTrailings: Map[Token, Tokens]
 ) {
+  def leadings(token: Token): Option[Tokens] =
+    allLeadings.get(token)
+
+  def trailings(token: Token): Option[Tokens] =
+    allTrailings.get(token)
+
+  private def toDoc(tokens: Option[Seq[Token]], isLeading: Boolean): Doc = {
+    tokens match {
+      case Some(ts) => {
+        val hasComment = ts.exists(_.is[Comment])
+        if (hasComment) {
+          val commentsToken =
+            if (isLeading) ts.dropWhile(!_.is[Comment])
+            else ts
+
+          commentsToken.foldLeft(empty) {
+            case (acc, t) => {
+              val doc =
+                t match {
+                  case _: LF => lineNoFlat
+                  case _: Space => space
+                  case e => text(e.text)
+                }
+              acc + doc
+            }
+          }
+        } else empty
+      }
+      case None => empty
+    }
+  }
+
+  private def wrap(
+      leadings: Option[Seq[Token]],
+      doc: Doc,
+      trailings: Option[Seq[Token]]
+  ): Doc = {
+    val leading = toDoc(leadings, isLeading = true)
+    val trailing = toDoc(trailings, isLeading = false)
+    leading + doc + trailing
+  }
+
+  def wrap(tree: Tree, token: => Token, doc: Doc): Doc = {
+    if (tree.hasTokens) {
+      wrap(leadings(token), doc, trailings(token))
+    } else doc
+  }
+
+  def wrap(tree: Tree, doc: Doc): Doc = {
+    if (tree.hasTokens) {
+      val tokens = tree.tokens.filterNot(_.is[Trivia])
+      assert(tokens.nonEmpty, "expected one token, got empty")
+      assert(
+        tokens.size == 1, {
+          val structure = tokens.map(_.structure).mkString("[", ", ", "]")
+          s"""expected one token, got $structure"""
+        }
+      )
+      val token = tokens.head
+      wrap(leadings(token), doc, trailings(token))
+    } else doc
+  }
+
+  /* scala.meta sometimes generate synthetic tree durring parsing. For example,
+   * Decl.Defn can have a declared type Unit, without any tokens:
+   * ```
+   * val tree = "def f".parse[Stat].get.asInstanceOf[Decl.Def]
+   * tree.decltpe        // Type.Name("Unit")
+   * tree.decltpe.tokens // Tokens()
+   * ```
+   * Also, in scalameta#1444 (Inconsistent tokens results for Term.ApplyInfix.args)
+   * we want to wrap parens for single args
+   */
+  def wrapName(tree: Tree, doc: Doc): Doc = {
+    if (tree.hasTokens) {
+      val tokens = tree.tokens.filterNot(_.is[Trivia])
+      if (tokens.nonEmpty) {
+        val firstToken = tokens.head
+        val lastToken = tokens.last
+        wrap(leadings(firstToken), doc, trailings(lastToken))
+      } else doc
+    } else doc
+  }
+
+  def wrapTrailing(tree: Tree, doc: Doc): Doc =
+    if (tree.hasTokens) {
+      val tokens = tree.tokens.filterNot(_.is[Trivia])
+      wrap(None, doc, trailings(tokens.last))
+    } else doc
+
   private def pretty(token: Token): String = {
     if (token.is[Token.BOF]) {
       "BOF"
@@ -37,9 +131,9 @@ final case class AssociatedTrivias(
   def syntax: String =
     s"""|AssociatedTrivias(
         |  Leading =
-        |${pretty(leadings)}
+        |${pretty(allLeadings)}
         |  Trailing =
-        |${pretty(trailings)}
+        |${pretty(allTrailings)}
         |)""".stripMargin
   override def toString: String = syntax
 }
@@ -61,7 +155,13 @@ object AssociatedTrivias {
 
     def doTrailing(currentToken: Token): Unit = {
       lastToken.foreach { last =>
-        val slice = tokens.slice(last, currentToken).drop(1)
+        val start = tokens.binarySearch(last).get + 1
+        val includingEnd =
+          if (currentToken.is[LF]) 1
+          else 0
+        val end = tokens.binarySearch(currentToken).get + includingEnd
+        val slice = tokens.slice(start, end)
+
         if (slice.nonEmpty) {
           allTrailings += last -> slice
         }
@@ -75,6 +175,9 @@ object AssociatedTrivias {
 
       case t: Token.BOF =>
         ()
+
+      case t: Token.EOF =>
+        doTrailing(t)
 
       case t @ Token.LF() =>
         setTrivia(t)
@@ -96,6 +199,7 @@ object AssociatedTrivias {
         lastToken = Some(currentToken)
         isLeading = false
     }
+
     AssociatedTrivias(allLeadings.result(), allTrailings.result())
   }
 }

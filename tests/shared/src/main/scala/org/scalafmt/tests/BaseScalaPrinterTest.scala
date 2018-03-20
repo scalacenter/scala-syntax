@@ -14,6 +14,8 @@ import org.scalafmt.Options
 import org.scalameta.logger
 import org.scalafmt.internal.TreePrinter
 
+import scala.util.control.NonFatal
+
 abstract class BaseScalaPrinterTest extends DiffSuite {
 
   val defaultOptions: InternalOptions = InternalOptions(100).copy(
@@ -179,7 +181,15 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     test(testName) {
       val originalTree = TreePrinter.getRoot(original, options)
       val formattedCode = printTree(originalTree, options)
-      val formattedTree = TreePrinter.getRoot(formattedCode, options)
+      val formattedTree =
+        try {
+          TreePrinter.getRoot(formattedCode, options)
+        } catch {
+          case NonFatal(e) => {
+            throw new Exception("formattedCode: \n" + formattedCode, e)
+          }
+        }
+
       isSameTree(testName, originalTree, formattedTree) match {
         case Left(astDiff) =>
           sys.error(

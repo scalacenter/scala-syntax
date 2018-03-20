@@ -78,10 +78,12 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
         check(input, relativePath) match {
           case Success => successCount.incrementAndGet()
           case Failure(explanation) => {
-            logger.elem(explanation)
-
-            failureCount.incrementAndGet()
+            val failures = failureCount.incrementAndGet()
             failed += jFile -> true
+
+            if (failures < 100) {
+              logger.elem(explanation)
+            }
 
             if (!previouslyFailed.contains(file.jFile)) {
               regressions += file.jFile -> true
@@ -106,7 +108,19 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
       progress.synchronized {
         progress.step()
-        progress.setExtraMessage(s"Failures: ${failureCount.get}")
+
+        val currentFailures = failureCount.get
+        val currentSuccess = successCount.get
+
+        val progressMessage =
+          if (currentFailures > 100) {
+            val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
+            f"Success: ${rate}%.2f%%"
+          } else {
+            s"Failures: $currentFailures"
+          }
+
+        progress.setExtraMessage(progressMessage)
       }
     }
 

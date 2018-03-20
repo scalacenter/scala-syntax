@@ -5,32 +5,89 @@ import org.scalafmt.internal.AssociatedTrivias
 import scala.meta._
 
 object AssociatedTriviasSuite extends DiffSuite {
-  test("associations") {
-    val source =
+
+  def check(source: String, expected: String): Unit = {
+    val trivias = AssociatedTrivias(source.stripMargin.parse[Stat].get)
+    val obtained = trivias.toString
+    assertNoDiff(obtained, expected.stripMargin)
+  }
+
+  test("basic") {
+    check(
       """|{
          |  /* java
          |   * doc
          |   */
          |  val a = 1
          |  class A   // trailing
-         |}""".stripMargin.parse[Stat].get
-
-    val trivias = AssociatedTrivias(source)
-    val obtained = trivias.toString
-
-    val expected =
+         |}""",
       """|AssociatedTrivias(
          |  Leading =
          |    val [29..32) => [∙,∙,/*∙java¶∙∙∙*∙doc¶∙∙∙*/,¶,∙,∙]
          |    class [41..46) => [∙,∙]
          |  Trailing =
+         |    { [0..1) => [¶]
          |    val [29..32) => [∙]
          |    a [33..34) => [∙]
          |    = [35..36) => [∙]
+         |    1 [37..38) => [¶]
          |    class [41..46) => [∙]
-         |    A [47..48) => [∙,∙,∙,//∙trailing]
-         |)""".stripMargin
+         |    A [47..48) => [∙,∙,∙,//∙trailing,¶]
+         |)"""
+    )
+  }
 
-    assertNoDiff(obtained, expected)
+  test("separated leading") {
+    check(
+      """|// test
+         |
+         |class A""",
+      """|AssociatedTrivias(
+         |  Leading =
+         |    class [9..14) => [//∙test,¶,¶]
+         |  Trailing =
+         |    class [9..14) => [∙]
+         |)""",
+    )
+  }
+
+  test("single line javadocs") {
+    check(
+      """|// c1
+         |// c2
+         |class A""",
+      """|AssociatedTrivias(
+         |  Leading =
+         |    class [12..17) => [//∙c1,¶,//∙c2,¶]
+         |  Trailing =
+         |    class [12..17) => [∙]
+         |)""",
+    )
+  }
+
+  test("trailing EOF") {
+    check(
+      "class A // trailing",
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    class [0..5) => [∙]
+         |    A [6..7) => [∙,//∙trailing]
+         |)"""
+    )
+  }
+  test("trailing NL EOF") {
+    check(
+      """|class A // trailing
+         |""".stripMargin,
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    class [0..5) => [∙]
+         |    A [6..7) => [∙,//∙trailing,¶]
+         |)"""
+    )
   }
 }

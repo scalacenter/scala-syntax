@@ -1,10 +1,9 @@
-/*
 package org.scalafmt.internal
 
 import scala.meta._
 import scala.meta.tokens.Token
 
-object CommentsTest extends PropertyTest("comments") {
+object PreserveCommentsTest extends PropertyTest("comments") {
 
   def extractComments(tree: Tree): String = {
     val nl = "\n"
@@ -14,6 +13,21 @@ object CommentsTest extends PropertyTest("comments") {
         case Token.Comment(content) => content
       }
     comments.mkString("", nl + sep + nl, nl)
+  }
+
+  def noDiff(
+      relativePath: String,
+      originalComments: String,
+      formattedComments: String
+  ): PropertyResult = {
+    if (originalComments != formattedComments) {
+      val maxSizeForDiff = 1000
+      if (originalComments.size < maxSizeForDiff && formattedComments.size < maxSizeForDiff) {
+        val diff = unified(relativePath, originalComments, formattedComments)
+        if (diff.isEmpty) Success
+        else Failure(diff)
+      } else Failure("-- no diff --")
+    } else Success
   }
 
   def check(file: Input.File, relativePath: String): PropertyResult = {
@@ -26,10 +40,6 @@ object CommentsTest extends PropertyTest("comments") {
       extractComments(formattedTree)
     }
 
-    val diff = unified(relativePath, originalComments, formattedComments)
-
-    if (diff.isEmpty) Success
-    else Failure(diff)
+    noDiff(relativePath, originalComments, formattedComments)
   }
 }
- */
