@@ -7,8 +7,8 @@ import org.scalafmt.internal.tokens.SyntaxTokensDefn._
 import org.scalafmt.internal.tokens.SyntaxTokensMisc._
 import org.scalafmt.internal.tokens.SyntaxTokensMod._
 import org.scalafmt.internal.tokens.SyntaxTokensTerm._
-import org.scalafmt.internal.tokens.SyntaxTokensType._
-import org.scalafmt.internal.tokens.SyntaxTokensUtils._
+// import org.scalafmt.internal.tokens.SyntaxTokensType._
+// import org.scalafmt.internal.tokens.SyntaxTokensUtils._
 
 import org.typelevel.paiges.Doc
 import org.typelevel.paiges.Doc._
@@ -54,7 +54,8 @@ trait WithPrinter {
 class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
     extends WithPrinter
     with TreeDocOps
-    with SyntacticGroupOps {
+    with SyntacticGroupOps
+    with TreePrinterUtils {
 
   def print(tree: Tree): Doc = {
     val result = tree match {
@@ -225,7 +226,8 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             val dbody = (line + print(t.body)).nested(2).grouped
             dParams(t.params, forceParens = true) + space + `=>` + dbody
           case t: Term.Tuple =>
-            dApplyParen(empty, t.args)
+            t.args.mkDoc(t.`(`, t.`,`, t.`)`)
+
           case t: Term.Match =>
             PostfixExpr.wrap(t.expr) + space + `match` + space + dBlock(t.cases)
           case t: Term.Try =>

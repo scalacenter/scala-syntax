@@ -22,6 +22,7 @@ object ScalaToken {
   val `&` : Doc = char('&')
   val `=` : Doc = char('=')
   val `'` : Doc = char('\'')
+  val `,` : Doc = char(',')
   val wildcard: Doc = char('_')
   val covariant: Doc = char('+')
   val contravariant: Doc = char('-')

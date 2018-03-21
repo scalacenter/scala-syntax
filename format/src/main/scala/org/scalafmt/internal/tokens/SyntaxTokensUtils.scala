@@ -28,7 +28,7 @@ object SyntaxTokensUtils {
   import TokensOps._
 
   private[tokens] implicit class XtensionUtil0(
-      val tokensView: SeqView[Token, IndexedSeq[Token]]
+      private val tokensView: SeqView[Token, IndexedSeq[Token]]
   ) extends AnyVal {
     def find0[T <: Token](implicit ev: Classifier[Token, T]): Option[T] = {
       tokensView.find(_.is[T]).map(_.asInstanceOf[T])
