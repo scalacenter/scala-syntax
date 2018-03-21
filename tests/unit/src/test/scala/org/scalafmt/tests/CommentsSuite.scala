@@ -4,9 +4,9 @@ package org.scalafmt.tests
 object CommentsSuite extends BaseScalaPrinterTest {
 
   // meta.Term
-  check("/* L */ f /* I */() // T") // Term.Apply
-  check("/* L */ a op f // T")      // Term.ApplyInfix
-  // check("/* L */ (1, 1) // T")      // Term.Tuple
+  check("/* L */ f /* I */() // T")    // Term.Apply
+  check("/* L */ a op f // T")         // Term.ApplyInfix
+  check("/* L */ (1, /* I */ 1) // T") // Term.Tuple
 
   // meta.Decl
   check("/* L */ val a: Int // T")    // Decl.Val

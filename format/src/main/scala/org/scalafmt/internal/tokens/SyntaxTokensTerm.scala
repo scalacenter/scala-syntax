@@ -217,9 +217,25 @@ object SyntaxTokensTerm {
 
   implicit class XtensionTermTupleSyntax(private val tree: Tuple)
       extends AnyVal {
-    def tokensLeftParen: LeftParen = tree.find[LeftParen].get
+    def tokensLeftParen: LeftParen =
+      tree.find[LeftParen].get
     def tokensRightParen: RightParen =
       tree.findAfter[RightParen](_.args.last).get
+    def tokensComma: List[Comma] = commaSeparated(tree)(_.args)
+
+    def `(`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensLeftParen, S.`(`)
+    }
+
+    def `)`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrap(tree, tokensRightParen, S.`)`)
+    }
+
+    def `,`(implicit trivia: AssociatedTrivias): List[Doc] = {
+      tokensComma.map(
+        token => trivia.wrap(tree, token, S.`,`, isSeparator = true)
+      )
+    }
   }
 
   implicit class XtensionTermWhileSyntax(private val tree: While)

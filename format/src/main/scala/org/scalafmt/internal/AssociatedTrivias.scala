@@ -23,7 +23,11 @@ final case class AssociatedTrivias(
   def trailings(token: Token): Option[Tokens] =
     allTrailings.get(token)
 
-  private def toDoc(tokens: Option[Seq[Token]], isLeading: Boolean): Doc = {
+  private def toDoc(
+      tokens: Option[Seq[Token]],
+      isLeading: Boolean,
+      isSeparator: Boolean = false
+  ): Doc = {
     tokens match {
       case Some(ts) => {
         val hasComment = ts.exists(_.is[Comment])
@@ -32,7 +36,7 @@ final case class AssociatedTrivias(
             if (isLeading) ts.dropWhile(!_.is[Comment])
             else ts
 
-          commentsToken.foldLeft(empty) {
+          val result = commentsToken.foldLeft(empty) {
             case (acc, t) => {
               val doc =
                 t match {
@@ -43,25 +47,48 @@ final case class AssociatedTrivias(
               acc + doc
             }
           }
-        } else empty
+
+          if (!isSeparator) result
+          else {
+            val endsWithSpace =
+              commentsToken.lastOption.map(_.is[Space]).getOrElse(false)
+
+            if (endsWithSpace) result
+            else result + space
+          }
+
+        } else {
+          if (isSeparator) space
+          else empty
+        }
       }
-      case None => empty
+      case None => {
+        if (isSeparator) space
+        else empty
+      }
     }
   }
 
   private def wrap(
       leadings: Option[Seq[Token]],
       doc: Doc,
-      trailings: Option[Seq[Token]]
+      trailings: Option[Seq[Token]],
+      isSeparator: Boolean
   ): Doc = {
     val leading = toDoc(leadings, isLeading = true)
-    val trailing = toDoc(trailings, isLeading = false)
+    val trailing =
+      toDoc(trailings, isLeading = false, isSeparator = isSeparator)
     leading + doc + trailing
   }
 
-  def wrap(tree: Tree, token: => Token, doc: Doc): Doc = {
+  def wrap(
+      tree: Tree,
+      token: => Token,
+      doc: Doc,
+      isSeparator: Boolean = false
+  ): Doc = {
     if (tree.hasTokens) {
-      wrap(leadings(token), doc, trailings(token))
+      wrap(leadings(token), doc, trailings(token), isSeparator)
     } else doc
   }
 
@@ -76,7 +103,7 @@ final case class AssociatedTrivias(
         }
       )
       val token = tokens.head
-      wrap(leadings(token), doc, trailings(token))
+      wrap(leadings(token), doc, trailings(token), isSeparator = false)
     } else doc
   }
 
@@ -96,7 +123,12 @@ final case class AssociatedTrivias(
       if (tokens.nonEmpty) {
         val firstToken = tokens.head
         val lastToken = tokens.last
-        wrap(leadings(firstToken), doc, trailings(lastToken))
+        wrap(
+          leadings(firstToken),
+          doc,
+          trailings(lastToken),
+          isSeparator = false
+        )
       } else doc
     } else doc
   }
@@ -104,7 +136,7 @@ final case class AssociatedTrivias(
   def wrapTrailing(tree: Tree, doc: Doc): Doc =
     if (tree.hasTokens) {
       val tokens = tree.tokens.filterNot(_.is[Trivia])
-      wrap(None, doc, trailings(tokens.last))
+      wrap(None, doc, trailings(tokens.last), isSeparator = false)
     } else doc
 
   private def pretty(token: Token): String = {
