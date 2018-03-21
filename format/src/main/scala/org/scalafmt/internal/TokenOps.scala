@@ -1,6 +1,7 @@
 package org.scalafmt.internal
 
 import scala.meta.Token
+import org.scalameta.logger
 
 object TokenOps {
   type TokenHash = Long
@@ -35,12 +36,14 @@ object TokenOps {
     value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
 
   implicit class XtensionToken(private val token: Token) extends AnyVal {
+    def show2: String = show
+
     def show: String = {
       val className =
         token.getClass.toString.stripPrefix("class scala.meta.tokens.Token$")
       val value =
-        if (token.is[Token.LF]) className
-        else token.text
+        if (token.is[Token.LF] || token.is[Token.Space]) className
+        else logger.revealWhitespace(token.text)
 
       val start = token.pos.start
       val end = token.pos.end

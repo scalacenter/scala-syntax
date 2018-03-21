@@ -57,12 +57,25 @@ object CommentsSuite extends BaseScalaPrinterTest {
   check(
     """|{
        |  a & // T
-       |   b
+       | b
        |}"""
   )
   // Term.ApplyInfix
   check(
     """|(b // T
        | & c)"""
+  )
+  check(
+    """|class C {
+     |  /* L */ v // T
+     |}""".stripMargin
+  )
+  check(
+    """|class C {
+     |  v1 // T1
+     |
+     |
+     |  v2 // T2
+     |}""".stripMargin
   )
 }

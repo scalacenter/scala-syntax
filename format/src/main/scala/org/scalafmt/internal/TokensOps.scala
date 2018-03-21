@@ -63,7 +63,28 @@ object TokensOps {
       tokens.drop(get(start)).find(p)
 
     def slice(from: Token, to: Token): Tokens =
-      tokens.slice(get(from), get(to))
+      slice2(from, to)
+
+    def slice2(
+        from: Token,
+        to: Token,
+        includeFrom: Boolean = true,
+        includeTo: Boolean = false
+    ): Tokens = {
+      val start =
+        get(from) + (
+          if (includeFrom) 0
+          else 1
+        )
+
+      val end =
+        get(to) + (
+          if (includeTo) 1
+          else 0
+        )
+
+      tokens.slice(start, end)
+    }
 
     /** Returns the next/trailing token or the original token if none exists.
      *

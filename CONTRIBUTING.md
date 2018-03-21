@@ -35,7 +35,7 @@ val ast = parse(source)
 ast0 == ast
 ```
 
-Concreatly, this means you run `slow/test` and you hit `ctrl + c` on the first error. For example:
+Concreatly, this means you run `slow/testOnly org.scalafmt.internal.IdempotentAstTest` and you hit `ctrl + c` on the first error. For example:
 
 ```
 Formatting  15% │██           │  4078/26368 (0:00:07 / 0:00:39) Success: 74.40%

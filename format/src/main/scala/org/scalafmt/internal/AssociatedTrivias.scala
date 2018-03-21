@@ -9,7 +9,7 @@ import scala.meta.Token._
 import scala.meta.contrib._
 
 import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc.{text, empty, space, lineNoFlat}
+import org.typelevel.paiges.Doc._
 
 import org.scalameta.logger
 
@@ -17,11 +17,19 @@ final case class AssociatedTrivias(
     allLeadings: Map[Token, Tokens],
     allTrailings: Map[Token, Tokens]
 ) {
+
   def leadings(token: Token): Option[Tokens] =
     allLeadings.get(token)
 
   def trailings(token: Token): Option[Tokens] =
     allTrailings.get(token)
+
+  private def dropIndentations(ts: Seq[Token]): Seq[Token] = {
+    val comment = ts.indexWhere(_.is[Comment])
+    val before = ts.slice(0, comment)
+    val after = ts.slice(comment, ts.size)
+    before.filter(_.is[LF]) ++ after
+  }
 
   private def toDoc(
       tokens: Option[Seq[Token]],
@@ -32,31 +40,53 @@ final case class AssociatedTrivias(
       case Some(ts) => {
         val hasComment = ts.exists(_.is[Comment])
         if (hasComment) {
-          val commentsToken =
-            if (isLeading) ts.dropWhile(!_.is[Comment])
+          val ts2 =
+            if (isLeading) dropIndentations(ts)
             else ts
 
-          val result = commentsToken.foldLeft(empty) {
-            case (acc, t) => {
-              val doc =
-                t match {
-                  case _: LF => lineNoFlat
-                  case _: Space => space
-                  case e => text(e.text)
-                }
-              acc + doc
+          val result = cat(ts2.map {
+            case _: LF =>
+              lineNoFlatNoIndent
+
+            case _: Space =>
+              space
+
+            case c: Comment => {
+              val lines = c.text.split("\n")
+
+              def indentSize(line: String): Int =
+                line.view.takeWhile(_ == ' ').size
+
+              val indentSize0 =
+                ts.filter(!_.is[LF]).takeWhile(!_.is[Comment]).size
+
+              var first = true
+              lines.foldLeft(empty) {
+                case (doc, commentLine) =>
+                  val unindented = commentLine.dropWhile(_ == ' ')
+
+                  val align =
+                    if (first) {
+                      first = false
+                      empty
+                    } else {
+                      val indentDiff = indentSize(commentLine) - indentSize0
+                      lineNoFlat + spaces(indentDiff)
+                    }
+
+                  doc + align + text(unindented)
+              }
             }
-          }
+            case e =>
+              text(e.text)
+          })
 
           if (!isSeparator) result
           else {
-            val endsWithSpace =
-              commentsToken.lastOption.map(_.is[Space]).getOrElse(false)
-
+            val endsWithSpace = ts2.lastOption.map(_.is[Space]).getOrElse(false)
             if (endsWithSpace) result
             else result + space
           }
-
         } else {
           if (isSeparator) space
           else empty
@@ -75,10 +105,25 @@ final case class AssociatedTrivias(
       trailings: Option[Seq[Token]],
       isSeparator: Boolean
   ): Doc = {
-    val leading = toDoc(leadings, isLeading = true)
+    val leading =
+      toDoc(
+        leadings,
+        isLeading = true
+      )
+
     val trailing =
-      toDoc(trailings, isLeading = false, isSeparator = isSeparator)
+      toDoc(
+        trailings,
+        isLeading = false,
+        isSeparator = isSeparator
+      )
     leading + doc + trailing
+  }
+
+  def hasTrailingComment(tree: Tree): Boolean = {
+    if (tree.hasTokens) {
+      trailings(tree.tokens.last).map(_.exists(_.is[Comment])).getOrElse(false)
+    } else false
   }
 
   def wrap(
@@ -88,7 +133,12 @@ final case class AssociatedTrivias(
       isSeparator: Boolean = false
   ): Doc = {
     if (tree.hasTokens) {
-      wrap(leadings(token), doc, trailings(token), isSeparator)
+      wrap(
+        leadings(token),
+        doc,
+        trailings(token),
+        isSeparator
+      )
     } else doc
   }
 
@@ -103,7 +153,12 @@ final case class AssociatedTrivias(
         }
       )
       val token = tokens.head
-      wrap(leadings(token), doc, trailings(token), isSeparator = false)
+      wrap(
+        leadings(token),
+        doc,
+        trailings(token),
+        isSeparator = false
+      )
     } else doc
   }
 
@@ -136,7 +191,12 @@ final case class AssociatedTrivias(
   def wrapTrailing(tree: Tree, doc: Doc): Doc =
     if (tree.hasTokens) {
       val tokens = tree.tokens.filterNot(_.is[Trivia])
-      wrap(None, doc, trailings(tokens.last), isSeparator = false)
+      wrap(
+        None,
+        doc,
+        trailings(tokens.last),
+        isSeparator = false
+      )
     } else doc
 
   private def pretty(token: Token): String = {
@@ -187,12 +247,16 @@ object AssociatedTrivias {
 
     def doTrailing(currentToken: Token): Unit = {
       lastToken.foreach { last =>
-        val start = tokens.binarySearch(last).get + 1
-        val includingEnd =
-          if (currentToken.is[LF]) 1
-          else 0
-        val end = tokens.binarySearch(currentToken).get + includingEnd
-        val slice = tokens.slice(start, end)
+        val start = last
+        val end = currentToken
+        val includingEnd = end.is[LF]
+
+        val slice = tokens.slice2(
+          from = start,
+          to = end,
+          includeFrom = false,
+          includeTo = includingEnd
+        )
 
         if (slice.nonEmpty) {
           allTrailings += last -> slice
@@ -222,7 +286,12 @@ object AssociatedTrivias {
       case currentToken =>
         doTrailing(currentToken)
         leadingStart.foreach { start =>
-          val slice = tokens.slice(start, currentToken)
+          val end = currentToken
+          val slice = tokens.slice2(
+            from = start,
+            to = end
+          )
+
           if (slice.nonEmpty) {
             allLeadings += currentToken -> slice
           }
@@ -231,7 +300,6 @@ object AssociatedTrivias {
         lastToken = Some(currentToken)
         isLeading = false
     }
-
     AssociatedTrivias(allLeadings.result(), allTrailings.result())
   }
 }
