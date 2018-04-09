@@ -86,14 +86,21 @@ trait TreeDocOps extends SyntacticGroupOps {
     dBlockI(stats).grouped
 
   def dBlockI(stats: List[Tree]): Doc = {
+    val hasTrailingComment =
+      stats.lastOption.map(trivia.hasTrailingComment).getOrElse(false)
+
+    val nl =
+      if (hasTrailingComment) empty
+      else line
+
     val body =
       stats match {
         case Nil =>
           empty
         case head :: Nil =>
-          (line + print(head)).nested(2) + line
+          (line + print(head)).nested(2) + nl
         case _ =>
-          (line + dStats(stats)).nested(2) + line
+          (line + dStats(stats)).nested(2) + nl
       }
 
     `{` + body + `}`

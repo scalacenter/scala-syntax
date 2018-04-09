@@ -12,6 +12,28 @@ object AssociatedTriviasSuite extends DiffSuite {
     assertNoDiff(obtained, expected.stripMargin)
   }
 
+  test("ok") {
+    check(
+      """|trait A {
+         |  /**
+         |    * L
+         |    */
+         |  def foo: Int
+         |}""".stripMargin,
+      """|AssociatedTrivias(
+         |  Leading =
+         |    def [33..36) => [∙,∙,/**¶∙∙∙∙*∙L¶∙∙∙∙*/,¶,∙,∙]
+         |  Trailing =
+         |    trait [0..5) => [∙]
+         |    A [6..7) => [∙]
+         |    { [8..9) => [¶]
+         |    def [33..36) => [∙]
+         |    : [40..41) => [∙]
+         |    Int [42..45) => [¶]
+         |)""".stripMargin
+    )
+  }
+
   test("basic") {
     check(
       """|{
