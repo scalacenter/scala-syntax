@@ -1,33 +1,18 @@
-// use fork of paiges with custom line combinators.
-// If these custom line combinators turn out to be useful, then we can try
-// to merge them upstream.
-lazy val Paiges = RootProject(
-  uri(
-    "git://github.com/olafurpg/paiges.git#114ec05b4a3099906c9159ccd1357f3b772b4f1d"
-  )
-)
-lazy val paiges = ProjectRef(Paiges.build, "coreJVM")
-
 lazy val metaV = "3.2.0"
 
 lazy val format = project
   .settings(
     moduleName := "scala-format",
     assemblyJarName in assembly := "scalafmt.jar",
-    assemblyMergeStrategy in assembly := {
-      case PathList("org", "typelevel", "paiges", xs @ _*) =>
-        MergeStrategy.first
-      case x =>
-        assemblyMergeStrategy.in(assembly).value(x)
-    },
     mainClass.in(assembly) := Some("org.scalafmt.Format"),
+    resolvers += Resolver.sonatypeRepo("releases"),
     libraryDependencies ++= List(
       "com.lihaoyi" %% "pprint" % "0.5.2", // for debugging
+      "org.scalameta" %% "paiges" % "0.2.2-SNAP1",
       "org.scalameta" %% "scalameta" % metaV,
       "org.scalameta" %% "contrib" % metaV
     )
   )
-  .dependsOn(paiges)
 
 // IntegrationTest configuration is not worth the complexity, reusing code across
 // configuration is annoying. Easier to create more projects.

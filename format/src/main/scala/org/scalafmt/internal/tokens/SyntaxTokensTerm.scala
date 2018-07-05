@@ -7,7 +7,7 @@ import scala.meta
 import scala.meta._
 import scala.meta.tokens.Token._
 
-import org.typelevel.paiges.Doc
+import scala.meta.internal.paiges.Doc
 
 object SyntaxTokensTerm {
   import Term._

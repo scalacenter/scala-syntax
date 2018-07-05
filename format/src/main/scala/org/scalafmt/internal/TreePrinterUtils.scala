@@ -2,8 +2,8 @@ package org.scalafmt.internal
 
 import scala.meta._
 
-import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc._
+import scala.meta.internal.paiges.Doc
+import scala.meta.internal.paiges.Doc._
 
 trait TreePrinterUtils extends WithPrinter {
   implicit class XtensionTerms(private val terms: List[Term]) {

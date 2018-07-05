@@ -5,7 +5,7 @@ import org.scalafmt.internal.ScalaToken._
 import scala.meta.Tree
 import scala.meta.internal.fmt.SyntacticGroup
 
-import org.typelevel.paiges.Doc
+import scala.meta.internal.paiges.Doc
 
 trait SyntacticGroupOps extends WithPrinter {
   def wrapParens(doc: Doc): Doc = `(` + doc + `)`
