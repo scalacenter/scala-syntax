@@ -3,8 +3,8 @@ package org.scalafmt.internal
 import org.scalafmt.internal.ScalaToken._
 import org.scalafmt.internal.TokenOps._
 
-import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc._
+import scala.meta.internal.paiges.Doc
+import scala.meta.internal.paiges.Doc._
 
 import scala.meta._
 import scala.meta.internal.fmt.SyntacticGroup.Term._

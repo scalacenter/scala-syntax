@@ -1,9 +1,9 @@
 package org.scalafmt.internal
 
-import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc._
-import org.typelevel.paiges.Doc.char
-import org.typelevel.paiges.Doc.text
+import scala.meta.internal.paiges.Doc
+import scala.meta.internal.paiges.Doc._
+import scala.meta.internal.paiges.Doc.char
+import scala.meta.internal.paiges.Doc.text
 
 object ScalaToken {
   val backtick: Doc = char('`')

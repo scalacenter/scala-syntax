@@ -6,7 +6,7 @@ import org.scalafmt.internal.{ScalaToken => S}
 import scala.meta._
 import scala.meta.tokens.Token._
 
-import org.typelevel.paiges.Doc
+import scala.meta.internal.paiges.Doc
 
 object SyntaxTokensMod {
   import Mod._

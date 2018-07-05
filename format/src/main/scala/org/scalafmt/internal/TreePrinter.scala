@@ -10,8 +10,8 @@ import org.scalafmt.internal.tokens.SyntaxTokensTerm._
 // import org.scalafmt.internal.tokens.SyntaxTokensType._
 // import org.scalafmt.internal.tokens.SyntaxTokensUtils._
 
-import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc._
+import scala.meta.internal.paiges.Doc
+import scala.meta.internal.paiges.Doc._
 
 import scala.meta.{`package` => _, _}
 import scala.meta.internal.fmt.SyntacticGroup.Pat._

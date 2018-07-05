@@ -8,8 +8,8 @@ import scala.meta.Token
 import scala.meta.Token._
 import scala.meta.contrib._
 
-import org.typelevel.paiges.Doc
-import org.typelevel.paiges.Doc._
+import scala.meta.internal.paiges.Doc
+import scala.meta.internal.paiges.Doc._
 
 import org.scalameta.logger
 

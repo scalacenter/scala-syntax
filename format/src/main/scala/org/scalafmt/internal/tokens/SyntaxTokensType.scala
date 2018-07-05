@@ -1,12 +1,8 @@
 package org.scalafmt.internal
 package tokens
 
-import org.scalafmt.internal.{ScalaToken => S}
-
 import scala.meta._
 import scala.meta.tokens.Token._
-
-import org.typelevel.paiges.Doc
 
 object SyntaxTokensType {
   import Type._
