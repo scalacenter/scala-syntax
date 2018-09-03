@@ -1,4 +1,4 @@
-lazy val metaV = "3.2.0"
+lazy val metaV = "4.0.0-M11"
 
 lazy val format = project
   .settings(
