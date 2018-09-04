@@ -7,6 +7,8 @@ import scala.meta.internal.tokens.TokenStreamPosition
 import scala.meta.internal.trees.Origin
 import scala.meta.internal.paiges.Doc
 
+import org.scalafmt.internal.AssociatedTrivias
+
 case class Comments(leading: List[String], trailing: List[String])
     extends InputStream {
   def join(ss: List[String]): Doc = Doc.intercalate(Doc.empty, ss.map(Doc.text))
@@ -16,10 +18,16 @@ case class Comments(leading: List[String], trailing: List[String])
 
 object Comments {
   val default = Comments(Nil, Nil)
-  def doc(tree: Tree, print: Doc): Doc = Comments(tree).wrap(print)
-  def apply(tree: Tree): Comments = tree.origin match {
-    case Origin.Parsed(Input.Stream(c: Comments, _), _, _) => c
-    case _ => default
+  // def doc(tree: Tree, print: Doc): Doc = Comments(tree).wrap(print)
+  def apply(tree: Tree, doc: Doc)(implicit trivia: AssociatedTrivias): Doc = {
+    val comments =
+      tree.origin match {
+        case Origin.Parsed(Input.Stream(c: Comments, _), _, _) => c
+        case _ => default
+      }
+
+    // doc
+    trivia.wrap(tree, comments.wrap(doc))
   }
   implicit class XtensionTreeComments[T <: Tree](val tree: T) extends AnyVal {
 
@@ -57,6 +65,7 @@ object Comments {
      */
     def withTrailingComment(comment: String): T =
       withComments(x => x.copy(trailing = comment :: x.trailing))
+
     private def withComments(f: Comments => Comments): T = tree.withOrigin(
       tree.origin match {
         case o @ Origin.Parsed(

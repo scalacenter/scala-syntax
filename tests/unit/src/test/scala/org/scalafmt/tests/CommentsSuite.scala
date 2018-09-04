@@ -1,12 +1,6 @@
-// format: off
 package org.scalafmt.tests
 
 object CommentsSuite extends BaseScalaPrinterTest {
-
-  // meta.Term
-  check("/* L */ f /* I */() // T")    // Term.Apply
-  check("/* L */ a op f // T")         // Term.ApplyInfix
-  check("/* L */ (1, /* I */ 1) // T") // Term.Tuple
 
   // meta.Decl
   check("/* L */ val a: Int // T")    // Decl.Val
@@ -32,8 +26,25 @@ object CommentsSuite extends BaseScalaPrinterTest {
   checkSource("/* L */ package A")        // Pkg
   checkSource("/* L */ import a.b")       // Import
 
+  // meta.Term
+  // check("f /* L */{/* T */ x /* L */}/* T */")
+  // check("/* L */f/* T *//* L */(/* T *//* L */)/* T */")
+
+  check("f { x => x } // T")
+  // check("f { case x => x } // T")
+
+  check("/* L */ a op f // T")                // Term.ApplyInfix
+  // check("x f (g(x), y) // T")                 // Term.ApplyInfix
+  // check("x f (g(y)) // T")
+  // check("x f (g(y)) // T")                    // Term.ApplyInfix
+  // check("x f ((x, y)) // T")                  // Term.ApplyInfix
+
+  // check("/* L */ (1, /* I */ 1) // T")        // Term.Tuple
+  // check("a/* L */./* T *//* L */this/* T */") // Term.This
+  // check("a/* L */./* T */b")                  // Term.Select
+  check("/* L */!/* T */a")                   // Term.ApplyUnary
+
   // meta.Mod
-  // TODO: trailing
   check("/* L */ @tailrec def f = 1")       // Mod.Annotation
   check("/* L */ private[foo] val a = 1")   // Mod.Private
   check("/* L */ protected[foo] val a = 1") // Mod.Protected
@@ -45,37 +56,34 @@ object CommentsSuite extends BaseScalaPrinterTest {
   check("/* L */ abstract class A")         // Mod.Abstract
   check("/* L */ lazy val a = 1")           // Mod.Lazy
   check("/* L */ inline def f = 1", dotty)  // Mod.Inline
-  // TODO check("class A[/* L */+ T]")      // Mod.Covariant
-  // TODO check("class A[/* L */- T]")      // Mod.Contravariant
-  // TODO check("class A(/* L */val b: B)") // Mod.ValParam
-  // TODO check("class A(/* L */var b: B)") // Mod.VarParam
-
+  // check("class A[/* L */+T]")               // Mod.Covariant
+  // check("class A[/* L */-T]")               // Mod.Contravariant
+  // check("class A(/* L */val b: B)")         // Mod.ValParam
+  // check("class A(/* L */var b: B)")         // Mod.VarParam
 
   // == Advanced ==
-
-  // Term.ApplyInfix
   check(
     """|{
        |  a & // T
        | b
        |}"""
   )
-  // Term.ApplyInfix
   check(
     """|(b // T
        | & c)"""
   )
+
   check(
     """|class C {
-     |  /* L */ v // T
-     |}""".stripMargin
+       |  /* L */ v // T
+       |}""".stripMargin
   )
   check(
     """|class C {
-     |  v1 // T1
-     |
-     |
-     |  v2 // T2
-     |}""".stripMargin
+       |  v1 // T1
+       |
+       |
+       |  v2 // T2
+       |}""".stripMargin
   )
 }
