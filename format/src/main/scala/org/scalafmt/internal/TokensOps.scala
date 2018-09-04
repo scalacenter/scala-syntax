@@ -47,6 +47,8 @@ object TokensOps {
     }
 
   implicit class XtensionTokens(private val tokens: Tokens) extends AnyVal {
+    def show2: String = tokens.map(_.showClass).toList.mkString("[", ", ", "]")
+
     def binarySearch(token: Token): Option[Int] = {
       val res = Searching.search(tokens, token)
       if (res >= 0) Some(res)
