@@ -1,6 +1,6 @@
 package org.scalafmt.internal
 
-import scala.meta.Token
+import scala.meta.{Token, Tokens}
 import org.scalameta.logger
 
 object TokenOps {
@@ -38,16 +38,19 @@ object TokenOps {
   implicit class XtensionToken(private val token: Token) extends AnyVal {
     def show2: String = show
 
-    def show: String = {
+    def showClass: String = {
       val className =
         token.getClass.toString.stripPrefix("class scala.meta.tokens.Token$")
-      val value =
-        if (token.is[Token.LF] || token.is[Token.Space]) className
-        else logger.revealWhitespace(token.text)
 
+      if (token.is[Token.LF] || token.is[Token.Space] ||
+        token.is[Token.BOF] || token.is[Token.EOF]) className
+      else logger.revealWhitespace(token.text)
+    }
+
+    def show: String = {
       val start = token.pos.start
       val end = token.pos.end
-      s"$value [${start}..${end})"
+      s"$showClass [${start}..${end})"
     }
   }
 }

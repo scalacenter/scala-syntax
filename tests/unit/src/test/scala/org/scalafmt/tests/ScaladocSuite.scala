@@ -70,7 +70,7 @@ object ScaladocSuite extends BaseScalaPrinterTest {
   checkSource(
     """|/*
        | L
-       | 
+       |
        | L
        |*/
        |class J""".stripMargin

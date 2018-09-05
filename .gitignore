@@ -26,3 +26,6 @@ tests/slow/repos.tar.gz*
 tests/slow/todo*
 PlaygroundSuite.scala
 repos.tar.gz
+
+.coursier
+.scalafmt*

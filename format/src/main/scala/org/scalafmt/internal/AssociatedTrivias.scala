@@ -13,16 +13,67 @@ import scala.meta.internal.paiges.Doc._
 
 import org.scalameta.logger
 
+import scala.collection.mutable
+
 final case class AssociatedTrivias(
     allLeadings: Map[Token, Tokens],
     allTrailings: Map[Token, Tokens]
 ) {
 
+  val attached = mutable.Set[Token]()
+
   def leadings(token: Token): Option[Tokens] =
-    allLeadings.get(token)
+    if (attached.contains(token)) None
+    else allLeadings.get(token)
 
   def trailings(token: Token): Option[Tokens] =
-    allTrailings.get(token)
+    if (attached.contains(token)) None
+    else allTrailings.get(token)
+
+  def hasTrailingComment(tree: Tree): Boolean = {
+    if (tree.hasTokens) {
+      trailings(tree.tokens.last).map(_.exists(_.is[Comment])).getOrElse(false)
+    } else false
+  }
+
+  def wrap(tree: Tree, doc: Doc): Doc = {
+    if (tree.hasTokens) {
+      val tokens = tree.tokens.filterNot(_.is[Trivia])
+      if (tokens.nonEmpty) {
+        val firstToken = tokens.head
+        val lastToken = tokens.last
+
+        val l = leadings(firstToken)
+        val t = trailings(lastToken)
+
+        attached += firstToken
+        attached += lastToken
+
+        wrap(
+          l,
+          doc,
+          t,
+          isSeparator = false
+        )
+      } else doc
+    } else doc
+  }
+
+  def wrap(
+      tree: Tree,
+      token: => Token,
+      doc: Doc,
+      isSeparator: Boolean = false
+  ): Doc = {
+    if (tree.hasTokens) {
+      wrap(
+        leadings(token),
+        doc,
+        trailings(token),
+        isSeparator
+      )
+    } else doc
+  }
 
   private def dropIndentations(ts: Seq[Token]): Seq[Token] = {
     val comment = ts.indexWhere(_.is[Comment])
@@ -105,6 +156,7 @@ final case class AssociatedTrivias(
       trailings: Option[Seq[Token]],
       isSeparator: Boolean
   ): Doc = {
+
     val leading =
       toDoc(
         leadings,
@@ -120,113 +172,36 @@ final case class AssociatedTrivias(
     leading + doc + trailing
   }
 
-  def hasTrailingComment(tree: Tree): Boolean = {
-    if (tree.hasTokens) {
-      trailings(tree.tokens.last).map(_.exists(_.is[Comment])).getOrElse(false)
-    } else false
-  }
-
-  def wrap(
-      tree: Tree,
-      token: => Token,
-      doc: Doc,
-      isSeparator: Boolean = false
-  ): Doc = {
-    if (tree.hasTokens) {
-      wrap(
-        leadings(token),
-        doc,
-        trailings(token),
-        isSeparator
-      )
-    } else doc
-  }
-
-  def wrap(tree: Tree, doc: Doc): Doc = {
-    if (tree.hasTokens) {
-      val tokens = tree.tokens.filterNot(_.is[Trivia])
-      assert(tokens.nonEmpty, "expected one token, got empty")
-      assert(
-        tokens.size == 1, {
-          val structure = tokens.map(_.structure).mkString("[", ", ", "]")
-          s"""expected one token, got $structure"""
-        }
-      )
-      val token = tokens.head
-      wrap(
-        leadings(token),
-        doc,
-        trailings(token),
-        isSeparator = false
-      )
-    } else doc
-  }
-
-  /* scala.meta sometimes generate synthetic tree durring parsing. For example,
-   * Decl.Defn can have a declared type Unit, without any tokens:
-   * ```
-   * val tree = "def f".parse[Stat].get.asInstanceOf[Decl.Def]
-   * tree.decltpe        // Type.Name("Unit")
-   * tree.decltpe.tokens // Tokens()
-   * ```
-   * Also, in scalameta#1444 (Inconsistent tokens results for Term.ApplyInfix.args)
-   * we want to wrap parens for single args
-   */
-  def wrapName(tree: Tree, doc: Doc): Doc = {
-    if (tree.hasTokens) {
-      val tokens = tree.tokens.filterNot(_.is[Trivia])
-      if (tokens.nonEmpty) {
-        val firstToken = tokens.head
-        val lastToken = tokens.last
-        wrap(
-          leadings(firstToken),
-          doc,
-          trailings(lastToken),
-          isSeparator = false
-        )
-      } else doc
-    } else doc
-  }
-
-  def wrapTrailing(tree: Tree, doc: Doc): Doc =
-    if (tree.hasTokens) {
-      val tokens = tree.tokens.filterNot(_.is[Trivia])
-      wrap(
-        None,
-        doc,
-        trailings(tokens.last),
-        isSeparator = false
-      )
-    } else doc
-
-  private def pretty(token: Token): String = {
-    if (token.is[Token.BOF]) {
-      "BOF"
-    } else {
-      token.syntax
+  def syntax: String = {
+    def prettyToken(token: Token): String = {
+      if (token.is[Token.BOF]) {
+        "BOF"
+      } else {
+        token.syntax
+      }
     }
-  }
-  private def pretty(association: Map[Token, Tokens]): String =
-    association.toList
-      .sortBy {
-        case (tok, tokens) =>
-          (tok.start, tok.end, tokens.start, tokens.end)
-      }
-      .map {
-        case (tok, tokens) =>
-          val tokensStructure = tokens
-            .map(token => logger.revealWhitespace(pretty(token)))
-            .mkString("[", ",", "]")
-          s"    ${tok.structure} => $tokensStructure"
-      }
-      .mkString("\n")
-  def syntax: String =
+    def pretty(association: Map[Token, Tokens]): String =
+      association.toList
+        .sortBy {
+          case (tok, tokens) =>
+            (tok.start, tok.end, tokens.start, tokens.end)
+        }
+        .map {
+          case (tok, tokens) =>
+            val tokensStructure = tokens
+              .map(token => logger.revealWhitespace(prettyToken(token)))
+              .mkString("[", ",", "]")
+            s"    ${tok.structure} => $tokensStructure"
+        }
+        .mkString("\n")
+
     s"""|AssociatedTrivias(
         |  Leading =
         |${pretty(allLeadings)}
         |  Trailing =
         |${pretty(allTrailings)}
         |)""".stripMargin
+  }
   override def toString: String = syntax
 }
 object AssociatedTrivias {

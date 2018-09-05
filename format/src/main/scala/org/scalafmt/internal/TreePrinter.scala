@@ -2,13 +2,6 @@ package org.scalafmt.internal
 
 import org.scalafmt.Options
 import org.scalafmt.internal.ScalaToken._
-import org.scalafmt.internal.tokens.SyntaxTokensDecl._
-import org.scalafmt.internal.tokens.SyntaxTokensDefn._
-import org.scalafmt.internal.tokens.SyntaxTokensMisc._
-import org.scalafmt.internal.tokens.SyntaxTokensMod._
-import org.scalafmt.internal.tokens.SyntaxTokensTerm._
-// import org.scalafmt.internal.tokens.SyntaxTokensType._
-// import org.scalafmt.internal.tokens.SyntaxTokensUtils._
 
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._
@@ -63,8 +56,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         t match {
           case _: Name.Anonymous => empty
           case _: PatName => backtick + text(t.value) + backtick
-          case _ =>
-            trivia.wrapName(t, text(Identifier.backtickWrap(t.value)))
+          case _ => text(Identifier.backtickWrap(t.value))
         }
       case _: Lit =>
         tree match {
@@ -221,12 +213,12 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
               case _ => dBlock(t.stats)
             }
           case t: Term.PartialFunction =>
-            dBlock(t.cases)
+            dBlock(`{`, t.cases, `}`)
           case t: Term.Function =>
             val dbody = (line + print(t.body)).nested(2).grouped
             dParams(t.params, forceParens = true) + space + `=>` + dbody
           case t: Term.Tuple =>
-            t.args.mkDoc(t.`(`, t.`,`, t.`)`)
+            t.args.mkDoc(`(`, List(`,` + space), `)`)
 
           case t: Term.Match =>
             PostfixExpr.wrap(t.expr) + space + `match` + space + dBlock(t.cases)
@@ -276,28 +268,28 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             print(t.op) + group.wrap1(PrefixArg(t.arg), print(t.arg))
           case t: Term.Apply =>
             val dfun = SimpleExpr1.wrap(t.fun)
-            val doc =
-              t.args match {
-                case LambdaArg(arg) =>
-                  dfun + space + arg.grouped
-                case Term.Block(stats) :: Nil =>
-                  dfun + space + dBlock(stats)
-                case _ =>
-                  dApplyParen(dfun, t.args)
-              }
-            trivia.wrapTrailing(t, doc)
+            t.args match {
+              case LambdaArg(arg) =>
+                dfun + space + arg.grouped
+              case Term.Block(stats) :: Nil =>
+                dfun + space + dBlock(`{`, stats, `}`)
+              case _ =>
+                dApplyParen(dfun, `(`, t.args, `)`)
+            }
           case t: Term.ApplyType =>
             dApplyBracket(SimpleExpr1.wrap(t.fun), t.targs)
           case t: Term.ApplyInfix =>
             val group = InfixExpr(t.op.value)
             val dlhs = group.wrap(t.lhs, Side.Left)
             val dargs = t.args match {
-              case Lit.Unit() :: Nil => `(` + `(` + `)` + `)`
-              // NOTE(olafur) InfixExpr.wrap() will not wrap tuples here.
-              // This is a bug in Scalameta.syntax
-              case (_: Term.Tuple) :: Nil => dArgs(t.args)
-              case arg :: Nil => group.wrap(arg, Side.Right)
-              case args => dArgs(args)
+              case Lit.Unit() :: Nil =>
+                `(` + `(` + `)` + `)`
+              case (_: Term.Tuple) :: Nil =>
+                dArgs(`(`, t.args, `)`)
+              case arg :: Nil =>
+                group.wrap(arg, Side.Right)
+              case args =>
+                dArgs(`(`, args, `)`)
             }
             val dlhsHasNewline = dlhs.flatten.isEmpty
 
@@ -372,9 +364,9 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val dstats =
           if (guessHasBraces(t)) space + dBlockI(t.stats)
           else line + dStats(t.stats)
-        t.`package` + space + print(t.ref) + dstats
+        `package` + space + print(t.ref) + dstats
       case t: Import =>
-        t.`import` + space + intercalate(comma + space, t.importers.map(print))
+        `import` + space + intercalate(comma + space, t.importers.map(print))
       case t: Importee =>
         t match {
           case i: Importee.Name => print(i.name)
@@ -453,7 +445,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case t: Decl.Def =>
         dDef(
           t.mods,
-          t.`def`,
+          `def`,
           print(t.name),
           t.tparams,
           t.paramss,
@@ -462,7 +454,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case t: Defn.Macro =>
         dDef(
           t.mods,
-          t.`def`,
+          `def`,
           print(t.name),
           t.tparams,
           t.paramss,
@@ -472,7 +464,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case t: Defn.Def =>
         dDef(
           t.mods,
-          t.`def`,
+          `def`,
           print(t.name),
           t.tparams,
           t.paramss,
@@ -482,7 +474,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case t: Defn.Type =>
         dDef(
           t.mods,
-          t.`type`,
+          `type`,
           print(t.name),
           t.tparams,
           Nil,
@@ -490,16 +482,16 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           dBody(t.body)
         )
       case t: Defn.Val =>
-        dDefPats(t.mods, t.`val`, t.pats, Nil, Nil, t.decltpe, dBody(t.rhs))
+        dDefPats(t.mods, `val`, t.pats, Nil, Nil, t.decltpe, dBody(t.rhs))
       case t: Defn.Var =>
         val drhs = Some(t.rhs.fold(Term.Placeholder(): Term)(identity))
-        dDefPats(t.mods, t.`var`, t.pats, Nil, Nil, t.decltpe, dBodyO(drhs))
+        dDefPats(t.mods, `var`, t.pats, Nil, Nil, t.decltpe, dBodyO(drhs))
       case t: Decl.Val =>
-        dDefPats(t.mods, t.`val`, t.pats, Nil, Nil, Some(t.decltpe), empty)
+        dDefPats(t.mods, `val`, t.pats, Nil, Nil, Some(t.decltpe), empty)
       case t: Decl.Var =>
-        dDefPats(t.mods, t.`var`, t.pats, Nil, Nil, Some(t.decltpe), empty)
+        dDefPats(t.mods, `var`, t.pats, Nil, Nil, Some(t.decltpe), empty)
       case t: Decl.Type =>
-        dDef(t.mods, t.`type`, print(t.name), t.tparams, Nil, None) +
+        dDef(t.mods, `type`, print(t.name), t.tparams, Nil, None) +
           print(t.bounds)
       case t: Defn.Class =>
         val dctormods =
@@ -510,19 +502,19 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             dParamss(t.ctor.paramss)
         spaceSeparated(
           dMods(t.mods) ::
-            t.`class` ::
+            `class` ::
             dsignature ::
             Nil
         ) + print(t.templ)
       case t: Pkg.Object =>
         val ddefn =
-          dDef(t.mods, t.`package` + space + `object`, print(t.name), Nil, Nil)
+          dDef(t.mods, `package` + space + `object`, print(t.name), Nil, Nil)
         ddefn + print(t.templ)
       case t: Defn.Object =>
-        val ddefn = dDef(t.mods, t.`object`, print(t.name), Nil, Nil)
+        val ddefn = dDef(t.mods, `object`, print(t.name), Nil, Nil)
         ddefn + print(t.templ)
       case t: Defn.Trait =>
-        val ddefn = dDef(t.mods, t.`trait`, print(t.name), t.tparams, Nil)
+        val ddefn = dDef(t.mods, `trait`, print(t.name), t.tparams, Nil)
         ddefn + print(t.templ)
       case t: Source =>
         dStats(t.stats)
@@ -534,11 +526,11 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case m: Mod =>
         m match {
           case t: Mod.Annot =>
-            t.`@` + SimpleTyp.wrap(t.init.tpe) + dArgss(t.init.argss)
-          case t: Mod.Private => dWithin(t.`private`, t.within)
-          case t: Mod.Protected => dWithin(t.`protected`, t.within)
+            `@` + SimpleTyp.wrap(t.init.tpe) + dArgss(t.init.argss)
+          case t: Mod.Private => dWithin(`private`, t.within)
+          case t: Mod.Protected => dWithin(`protected`, t.within)
           case _ => {
-            val doc = m match {
+            m match {
               case _: Mod.Final => `final`
               case _: Mod.Case => `case`
               case _: Mod.Sealed => `sealed`
@@ -552,7 +544,6 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
               case _: Mod.ValParam => `val`
               case _: Mod.Inline => `inline`
             }
-            trivia.wrap(m, doc)
           }
         }
       case p: Pat =>
@@ -595,7 +586,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             dPatXml(t)
         }
     }
-    Comments.doc(tree, result)
+    Comments(tree, result)
   }
 
   private implicit def toDoc(quote: QuoteStyle): Doc = text(quote.toString)
