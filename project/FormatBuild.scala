@@ -7,13 +7,16 @@ object FormatBuild extends AutoPlugin {
   override def requires: Plugins = JvmPlugin
 
   override def globalSettings: Seq[Def.Setting[_]] = List(
-    scalaVersion := "2.12.4",
+    scalaVersion := "2.12.6",
     scalacOptions ++= Seq(
-      "-Xlint", "-deprecation", "-encoding", "UTF-8", "-feature", "-unchecked",
-      "-Ywarn-unused-import", "-Ywarn-unused:locals", "-Ywarn-unused:privates"
+      "-deprecation",
+      "-encoding",
+      "UTF-8",
+      "-feature",
+      "-unchecked"
     ),
     testFrameworks := List(
-      new TestFramework("org.scalafmt.tests.CustomFramework")
+      new TestFramework("scala.meta.internal.prettyprinters.CustomFramework")
     )
   )
 
