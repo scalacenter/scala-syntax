@@ -1,31 +1,5 @@
-*.class
-*.log
-
-# sbt specific
-.cache
-.history
-.lib/
-dist/*
 target/
-lib_managed/
-src_managed/
-project/boot/
-project/plugins/project/
-
-# Scala-IDE specific
-.scala_dependencies
-.worksheet
-
-.idea
-
-# ENSIME specific
-.ensime_cache/
-.ensime
-
-tests/slow/repos.tar.gz*
-tests/slow/todo*
 PlaygroundSuite.scala
-repos.tar.gz
-
+repos.tar.gz*
 .coursier
 .scalafmt*
