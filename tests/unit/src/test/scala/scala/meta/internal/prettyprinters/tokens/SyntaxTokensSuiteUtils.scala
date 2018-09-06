@@ -1,30 +1,12 @@
 package scala.meta.internal.prettyprinters
 package tokens
 
-import SyntaxTokensDefn._
-import SyntaxTokensTerm._
-
 import scala.meta._
 import scala.meta.parsers.Parse
 
 abstract class SyntaxTokensSuiteUtils extends FunSuite {
   val dq = '"'
   val tq = s"${dq}${dq}${dq}"
-
-  def superDot(sel: Term.Select): Option[Token] = {
-    val Term.Select(sup: Term.Super, _) = sel
-    sup.tokensDot
-  }
-
-  def commasCtor(clazz: Defn.Class): List[Token] = {
-    clazz.tokensCommaCtor.flatten
-  }
-
-  def parensParamss(clazz: Defn.Class): List[Token] = {
-    clazz.tokensParenthesis.flatMap {
-      case (l, r) => List(l, r)
-    }
-  }
 
   /* It's not always possible to write the syntax of a tree node directly
    * for example, Term.Repeated are wraped in Term.Apply: f(x: _*)

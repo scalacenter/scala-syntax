@@ -14,7 +14,7 @@ import scala.meta.internal.prettyprinters._
 
 import scala.annotation.tailrec
 
-trait TreeDocOps extends SyntacticGroupOps {
+trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
   def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
     val op = operator.render(100)
     val leftWraped = InfixTyp(op).wrap(left)
@@ -63,7 +63,14 @@ trait TreeDocOps extends SyntacticGroupOps {
     dApply(fun, args, `(`, `)`)
 
   def dApplyParen(fun: Doc, `(`: Doc, args: List[Tree], `)`: Doc): Doc =
-    dApply(fun, args, `(`, `)`)
+    dApplyParen(fun, args, Nil)
+
+  def dApplyParen(
+      fun: Doc,
+      args: List[Tree],
+      commas: List[Doc]
+  ): Doc =
+    dApply(fun, args, commas)
 
   def dApplyBracket(fun: Doc, args: List[Tree]): Doc =
     if (args.isEmpty) fun
@@ -72,6 +79,14 @@ trait TreeDocOps extends SyntacticGroupOps {
   def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc): Doc = {
     val dargs = intercalate(comma + line, args.map(print))
     dargs.tightBracketBy(fun + left, right)
+  }
+
+  def dApply(
+      fun: Doc,
+      args: List[Tree],
+      commas: List[Doc],
+  ): Doc = {
+    args.mkDoc(commas).tightBracketBy(fun + `(`, `)`)
   }
 
   def dApplyParenPat(fun: Doc, args: List[Pat]): Doc = {
@@ -139,7 +154,7 @@ trait TreeDocOps extends SyntacticGroupOps {
   def dMods(mods: List[Mod]): Doc =
     intercalate(space, mods.map(print))
 
-  def dParamss(paramss: List[List[Term.Param]]): Doc =
+  def dParamss(paramss: List[List[Term.Param]], `,`: List[List[Doc]]): Doc =
     paramss match {
       case Nil => empty
       case List(Nil) => `(` + `)`
@@ -158,13 +173,29 @@ trait TreeDocOps extends SyntacticGroupOps {
                 )
               }
 
-            (dimplicit + intercalate(comma + line, dparams))
-              .tightBracketBy(`(`, `)`)
+            (dimplicit + dparams.head) :: dparams.tail
           }
 
-        joined(printedParams)
+        joined(printedParams, `,`)
       }
     }
+
+  def joined(docss: List[List[Doc]], sepss: List[List[Doc]]): Doc = {
+    assert(docss.size == sepss.size)
+
+    cat(docss.zip(sepss).map {
+      case (docs, seps) =>
+        assert(docs.size == seps.size + 1)
+        docs
+          .zipAll(seps, empty, empty)
+          .foldLeft(empty) {
+            case (acc, (term, sep)) => {
+              acc + term + sep
+            }
+          }
+          .tightBracketBy(`(`, `)`)
+    })
+  }
 
   def dBody(body: Tree): Doc =
     dBodyO(Some(body))
@@ -183,11 +214,12 @@ trait TreeDocOps extends SyntacticGroupOps {
       pats: List[Pat],
       tparams: List[Type.Param],
       paramss: List[List[Term.Param]],
+      `,`: List[List[Doc]],
       decltpe: Option[Type],
       body: Doc
   ): Doc = {
     val dname = commaSeparated(pats.map(print))
-    dDef(mods, keyword, dname, tparams, paramss, decltpe, body)
+    dDef(mods, keyword, dname, tparams, paramss, `,`, decltpe, body)
   }
 
   def dDef(
@@ -196,11 +228,12 @@ trait TreeDocOps extends SyntacticGroupOps {
       name: Doc,
       tparams: List[Type.Param],
       paramss: List[List[Term.Param]],
+      `,`: List[List[Doc]],
       decltpe: Option[Type] = None,
       dbody: Doc = empty
   ): Doc = {
     val dname = dApplyBracket(name, tparams)
-    val dparamss = dParamss(paramss)
+    val dparamss = dParamss(paramss, `,`)
     val ddecltpe =
       decltpe.fold(empty)(tpe => typedColon(name) + space + print(tpe))
     spaceSeparated(

@@ -75,6 +75,33 @@ final case class AssociatedTrivias(
     } else doc
   }
 
+  def addLeading(
+      tree: Tree,
+      token: => Token,
+      doc: Doc
+  ): Doc = {
+    if (tree.hasTokens) {
+      addLeading(
+        leadings(token),
+        doc
+      )
+    } else doc
+  }
+
+  def addTrailing(
+      tree: Tree,
+      token: => Token,
+      doc: Doc,
+      isSeparator: Boolean = false
+  ): Doc = {
+    if (tree.hasTokens) {
+      addTrailing(
+        trailings(token),
+        doc
+      )
+    } else doc
+  }
+
   private def dropIndentations(ts: Seq[Token]): Seq[Token] = {
     val comment = ts.indexWhere(_.is[Comment])
     val before = ts.slice(0, comment)
@@ -171,6 +198,12 @@ final case class AssociatedTrivias(
       )
     leading + doc + trailing
   }
+
+  private def addLeading(leadings: Option[Seq[Token]], doc: Doc): Doc =
+    toDoc(leadings, isLeading = true) + doc
+
+  private def addTrailing(trailing: Option[Seq[Token]], doc: Doc): Doc =
+    doc + toDoc(trailing, isLeading = false)
 
   def syntax: String = {
     def prettyToken(token: Token): String = {

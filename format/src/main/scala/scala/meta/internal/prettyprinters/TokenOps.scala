@@ -4,13 +4,6 @@ import scala.meta.{Token, Tokens}
 import org.scalameta.logger
 
 object TokenOps {
-  type TokenHash = Long
-  def hash(token: Token): TokenHash = {
-    val longHash: Long =
-      (token.productPrefix.hashCode.toLong << (62 - 8)) |
-        (token.start.toLong << (62 - (8 + 28))) | token.end
-    longHash
-  }
 
   /** Returns true if this token is an identifier that requires a leading space before colon.
    *
@@ -34,23 +27,4 @@ object TokenOps {
 
   def isIdentifierStart(value: String): Boolean =
     value.nonEmpty && (Character.isLetterOrDigit(value.head) || value.head == '_')
-
-  implicit class XtensionToken(private val token: Token) extends AnyVal {
-    def show2: String = show
-
-    def showClass: String = {
-      val className =
-        token.getClass.toString.stripPrefix("class scala.meta.tokens.Token$")
-
-      if (token.is[Token.LF] || token.is[Token.Space] ||
-        token.is[Token.BOF] || token.is[Token.EOF]) className
-      else logger.revealWhitespace(token.text)
-    }
-
-    def show: String = {
-      val start = token.pos.start
-      val end = token.pos.end
-      s"$showClass [${start}..${end})"
-    }
-  }
 }

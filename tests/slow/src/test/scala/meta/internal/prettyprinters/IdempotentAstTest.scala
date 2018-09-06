@@ -10,6 +10,7 @@ object IdempotentAstTest extends PropertyTest("idempotent-ast") {
     val originalTree = file.parse[Source].get
     val formatted = prettyPrint(originalTree)
     val formattedTree = formatted.parse[Source].get
+
     val normalizedOriginalTree = normalize(originalTree)
     val normalizeFormattedTree = normalize(formattedTree)
 
@@ -27,5 +28,6 @@ object IdempotentAstTest extends PropertyTest("idempotent-ast") {
     } else {
       Success
     }
+
   }
 }
