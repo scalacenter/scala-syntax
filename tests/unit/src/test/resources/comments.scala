@@ -21,6 +21,10 @@ object A {
   m match {
     case a => // T
   }
+
+  f(
+    // L
+  )
 }
 
 class B(
@@ -30,3 +34,21 @@ class B(
     c: Int, // T c
     d: Int
 )
+
+object A {
+  // T
+}
+
+object A {
+  1
+  // T
+}
+
+package object A {
+  // T
+}
+
+package object A {
+  1
+  // T
+}

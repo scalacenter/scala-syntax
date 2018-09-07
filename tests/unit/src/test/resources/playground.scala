@@ -1,7 +1,5 @@
-
 object A {
-  a match {
-    case _ => // T
-      ()
-  }
+  f(
+    // L
+  )
 }

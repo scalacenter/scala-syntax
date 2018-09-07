@@ -291,8 +291,8 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       StandardCharsets.UTF_8
     )
 
+  private val nl = "\n"
   def extractComments(tree: Tree): String = {
-    val nl = "\n"
 
     def trimIndent(in: String): String =
       in.lines.map(_.trim).mkString(nl)
@@ -315,7 +315,16 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       val originalComments = extractComments(originalTree)
 
       val formatted = prettyPrint(originalTree)
-      val formattedTree = formatted.parse[Source].get
+      val formattedTree = formatted.parse[Source] match {
+        case Parsed.Success(t) => t
+        case e: Parsed.Error =>
+          throw new Exception(
+            s"""|
+                |${formatted}
+                |---------------
+                |${e.toString}""".stripMargin
+          )
+      }
       val formattedComments = extractComments(formattedTree)
 
       if (save) {
@@ -327,12 +336,12 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
 
       if (originalComments != formattedComments) {
 
-        // println("----")
-        // println(input.text)
-        // println("----")
-        // println(formatted)
-        assertNoDiff(originalComments, formattedComments)
+        println("----")
+        println(input.text)
+        println("----")
+        println(formatted)
         // assert(false)
+        assertNoDiff(originalComments, formattedComments)
       }
     }
   }

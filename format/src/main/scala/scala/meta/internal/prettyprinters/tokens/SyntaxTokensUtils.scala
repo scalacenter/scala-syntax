@@ -45,8 +45,9 @@ object SyntaxTokensUtils {
       between(afterP, beforeP).flatMap(tokens => find[T](tokens)(ev))
     }
     private def after(p: A => Tree, tokens: Tokens): Option[Tokens] = {
-      val end = p(tree).tokens.last
-      tokens.binarySearch(end).map(tokens.drop).map(_.drop(1))
+      p(tree).tokens.lastOption.flatMap(end =>
+        tokens.binarySearch(end).map(tokens.drop).map(_.drop(1))
+      )
     }
     private def before(p: A => Tree, tokens: Tokens): Option[Tokens] = {
       val end = p(tree).tokens.head

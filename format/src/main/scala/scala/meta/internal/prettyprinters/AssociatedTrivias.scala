@@ -59,12 +59,7 @@ final case class AssociatedTrivias(
     } else doc
   }
 
-  def wrap(
-      tree: Tree,
-      token: => Token,
-      doc: Doc,
-      isSeparator: Boolean = false
-  ): Doc = {
+  def wrap(tree: Tree, token: => Token, doc: Doc, isSeparator: Boolean = false): Doc = {
     if (tree.hasTokens) {
       wrap(
         leadings(token),
@@ -75,31 +70,24 @@ final case class AssociatedTrivias(
     } else doc
   }
 
-  def addLeading(
-      tree: Tree,
-      token: => Token,
-      doc: Doc
-  ): Doc = {
-    if (tree.hasTokens) {
-      addLeading(
-        leadings(token),
-        doc
-      )
-    } else doc
+  def addLeadingOpt(tree: Tree, token: => Option[Token], doc: Doc): Doc = {
+    if (tree.hasTokens) token.map(t => addLeading(leadings(t), doc)).getOrElse(doc)
+    else doc
   }
 
-  def addTrailing(
-      tree: Tree,
-      token: => Token,
-      doc: Doc,
-      isSeparator: Boolean = false
-  ): Doc = {
-    if (tree.hasTokens) {
-      addTrailing(
-        trailings(token),
-        doc
-      )
-    } else doc
+  def addTrailingOpt(tree: Tree, token: => Option[Token], doc: Doc): Doc = {
+    if (tree.hasTokens) token.map(t => addTrailing(trailings(t), doc)).getOrElse(doc)
+    else doc
+  }
+
+  def addLeading(tree: Tree, token: => Token, doc: Doc): Doc = {
+    if (tree.hasTokens) addLeading(leadings(token), doc)
+    else doc
+  }
+
+  def addTrailing(tree: Tree, token: => Token, doc: Doc): Doc = {
+    if (tree.hasTokens) addTrailing(trailings(token), doc)
+    else doc
   }
 
   private def dropIndentations(ts: Seq[Token]): Seq[Token] = {

@@ -273,7 +273,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
               case Term.Block(stats) :: Nil =>
                 dfun + space + dBlock(stats)
               case _ =>
-                dApplyParen(dfun, t.args, t.`,`)
+                t.args.mkDoc(t.`,`).tightBracketBy(dfun + t.`(`, t.`)`)
             }
           case t: Term.ApplyType =>
             dApplyBracket(SimpleExpr1.wrap(t.fun), t.targs)
@@ -412,7 +412,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           else space + `extends` + space + dBlock(t.early)
         }
         val dinits = t.inits match {
-          case Nil if isTermNewAnon => space + `{` + `}`
+          case Nil if isTermNewAnon => space
           case Nil => empty
           case head :: tail =>
             val keyword =
@@ -429,11 +429,13 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           val isEmptySelf = isEmpty(t.self)
           if (isEmptySelf &&
             t.stats.isEmpty &&
-            !(t.inits.lengthCompare(1) == 0 && isTermNewAnon)) empty
-          else {
+            !(t.inits.lengthCompare(1) == 0 && isTermNewAnon)) {
+
+            t.`{ }`
+          } else {
             val x =
-              if (isEmptySelf) dBlock(t.stats)
-              else dBlock(t.self :: t.stats)
+              if (isEmptySelf) dBlock(t.`{`, t.stats, t.`}`)
+              else dBlock(t.`{`, t.self :: t.stats, t.`}`)
             space + x
           }
         }
@@ -510,19 +512,19 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             Nil
         ) + print(t.templ)
       case t: Pkg.Object =>
-        val ddefn =
-          dDef(
-            t.mods,
-            `package` + space + `object`,
-            print(t.name),
-            Nil,
-            Nil,
-            Nil
-          )
-        ddefn + print(t.templ)
+        spaceSeparated(List(
+          dMods(t.mods),
+          `package` + space + `object`,
+          print(t.name)
+        )) + print(t.templ)
+
       case t: Defn.Object =>
-        val ddefn = dDef(t.mods, `object`, print(t.name), Nil, Nil, Nil)
-        ddefn + print(t.templ)
+        spaceSeparated(List(
+          dMods(t.mods),
+          `object`,
+          print(t.name)
+        )) + print(t.templ)
+
       case t: Defn.Trait =>
         val ddefn = dDef(t.mods, `trait`, print(t.name), t.tparams, Nil, Nil)
         ddefn + print(t.templ)
