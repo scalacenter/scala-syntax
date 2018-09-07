@@ -1,5 +1,7 @@
-object A {
-  f(
-    // L
-  )
+class A {
+  f {
+    class A {
+      // nothing here.
+    }
+  }
 }

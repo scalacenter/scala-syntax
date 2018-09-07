@@ -38,6 +38,12 @@ object SyntaxTokensUtils {
       after(p, tree.tokens).flatMap(tokens => find[T](tokens)(ev))
     }
 
+    def findBefore[T <: Token](
+        p: A => Tree
+    )(implicit ev: Classifier[Token, T]): Option[T] = {
+      before(p, tree.tokens).flatMap(tokens => find[T](tokens)(ev))
+    }
+
     def findBetween[T <: Token](
         afterP: A => Tree,
         beforeP: A => Tree

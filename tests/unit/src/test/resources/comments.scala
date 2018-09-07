@@ -25,6 +25,14 @@ object A {
   f(
     // L
   )
+
+  new { // T
+
+  }
+
+  f() { // T f
+
+  }
 }
 
 class B(

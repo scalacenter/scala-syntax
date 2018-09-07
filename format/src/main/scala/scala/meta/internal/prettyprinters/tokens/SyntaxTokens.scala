@@ -29,13 +29,21 @@ object SyntaxTokens {
     }
 
     def tokensLeftParen: LeftParen = tree.findAfter[LeftParen](_.fun).get
-    def `(`(implicit trivia: AssociatedTrivias): Doc = trivia.wrap(tree, tokensLeftParen, S.`(`)
+    def `(`(implicit trivia: AssociatedTrivias): Doc = trivia.addTrailing(tree, tokensLeftParen, S.`(`)
 
     def tokensRightParen: RightParen =
       if (tree.args.nonEmpty) tree.findAfter[RightParen](_.args.last).get
       else tree.findAfter[RightParen](_.fun).get
 
-    def `)`(implicit trivia: AssociatedTrivias): Doc = trivia.wrap(tree, tokensRightParen, S.`)`)
+    def `)`(implicit trivia: AssociatedTrivias): Doc = trivia.addLeading(tree, tokensRightParen, S.`)`)
+
+    def tokensLeftBrace: LeftBrace = tree.findAfter[LeftBrace](_.fun).get
+    def `{`(implicit trivia: AssociatedTrivias): Doc = trivia.addTrailing(tree, tokensLeftBrace, S.`{`)
+    def tokensRightBrace: RightBrace = {
+      if (tree.args.nonEmpty) tree.args.head.tokens.reverse.collectFirst{ case r: RightBrace => r}.get
+      else tree.findAfter[RightBrace](_.fun).get
+    }
+    def `}`(implicit trivia: AssociatedTrivias): Doc = trivia.addLeading(tree, tokensRightBrace, S.`}`)
   }
 
   implicit class XtensionTermBlockSyntax(private val tree: Term.Block) extends AnyVal {
@@ -66,7 +74,7 @@ object SyntaxTokens {
         templ.findAfter[LeftBrace](_.self)
       }
       else if (templ.stats.nonEmpty) {
-        templ.findAfter[LeftBrace](_.stats.last)
+        templ.findBefore[LeftBrace](_.stats.head)
       }
       else {
         templ.find[LeftBrace]

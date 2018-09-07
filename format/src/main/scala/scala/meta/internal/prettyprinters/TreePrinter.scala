@@ -270,8 +270,8 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             t.args match {
               case LambdaArg(arg) =>
                 dfun + space + arg.grouped
-              case Term.Block(stats) :: Nil =>
-                dfun + space + dBlock(stats)
+              case (b: Term.Block) :: Nil =>
+                dfun + space + dBlock(t.`{`, b.stats, t.`}`)
               case _ =>
                 t.args.mkDoc(t.`,`).tightBracketBy(dfun + t.`(`, t.`)`)
             }
