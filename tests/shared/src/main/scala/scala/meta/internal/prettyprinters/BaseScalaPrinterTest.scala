@@ -336,10 +336,10 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
 
       if (originalComments != formattedComments) {
 
-        println("----")
-        println(input.text)
-        println("----")
-        println(formatted)
+        // println("----")
+        // println(input.text)
+        // println("----")
+        // println(formatted)
         // assert(false)
         assertNoDiff(originalComments, formattedComments)
       }

@@ -18,7 +18,8 @@ import scala.language.implicitConversions
 object TreePrinter {
   def print(tree: Tree): Doc = {
     val trivia = AssociatedTrivias(tree)
-    (new TreePrinter()(trivia)).print(tree)
+    val doc = (new TreePrinter()(trivia)).print(tree)
+    trivia.lastToken(tree, doc)
   }
 
   def printInput(input: Input, options: Options): Doc = {

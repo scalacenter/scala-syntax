@@ -110,4 +110,19 @@ object AssociatedTriviasSuite extends DiffSuite {
          |)"""
     )
   }
+
+  test("leading EOF") {
+    check(
+      """|class A
+         |// L
+         |""".stripMargin,
+      """|AssociatedTrivias(
+         |  Leading =
+         |    EOF [13..13) => [//∙L,¶]
+         |  Trailing =
+         |    class [0..5) => [∙]
+         |    A [6..7) => [¶]
+         |)"""
+    )
+  }
 }
