@@ -60,7 +60,12 @@ final case class AssociatedTrivias(
     } else doc
   }
 
-  def wrap(tree: Tree, token: => Token, doc: Doc, isSeparator: Boolean = false): Doc = {
+  def wrap(
+      tree: Tree,
+      token: => Token,
+      doc: Doc,
+      isSeparator: Boolean = false
+  ): Doc = {
     if (tree.hasTokens) {
       wrap(
         leadings(token),
@@ -72,12 +77,14 @@ final case class AssociatedTrivias(
   }
 
   def addLeadingOpt(tree: Tree, token: => Option[Token], doc: Doc): Doc = {
-    if (tree.hasTokens) token.map(t => addLeading(leadings(t), doc, t)).getOrElse(doc)
+    if (tree.hasTokens)
+      token.map(t => addLeading(leadings(t), doc, t)).getOrElse(doc)
     else doc
   }
 
   def addTrailingOpt(tree: Tree, token: => Option[Token], doc: Doc): Doc = {
-    if (tree.hasTokens) token.map(t => addTrailing(trailings(t), doc, t)).getOrElse(doc)
+    if (tree.hasTokens)
+      token.map(t => addTrailing(trailings(t), doc, t)).getOrElse(doc)
     else doc
   }
 
@@ -196,12 +203,20 @@ final case class AssociatedTrivias(
     leading + doc + trailing
   }
 
-  private def addLeading(leadings: Option[Seq[Token]], doc: Doc, token: Token): Doc = {
+  private def addLeading(
+      leadings: Option[Seq[Token]],
+      doc: Doc,
+      token: Token
+  ): Doc = {
     attachedLeading += token
     toDoc(leadings, isLeading = true) + doc
   }
 
-  private def addTrailing(trailing: Option[Seq[Token]], doc: Doc, token: Token): Doc = {
+  private def addTrailing(
+      trailing: Option[Seq[Token]],
+      doc: Doc,
+      token: Token
+  ): Doc = {
     attachedTrailings += token
     doc + toDoc(trailing, isLeading = false)
   }
@@ -275,12 +290,14 @@ object AssociatedTrivias {
         val end = currentToken
         val includingEnd = end.is[LF]
 
-        val slice = trim(tokens.slice2(
-          from = start,
-          to = end,
-          includeFrom = false,
-          includeTo = includingEnd
-        ))
+        val slice = trim(
+          tokens.slice2(
+            from = start,
+            to = end,
+            includeFrom = false,
+            includeTo = includingEnd
+          )
+        )
 
         if (slice.nonEmpty && slice.exists(_.is[Comment])) {
           allTrailings += last -> slice
@@ -294,17 +311,18 @@ object AssociatedTrivias {
     def doLeading(currentToken: Token): Unit = {
       leadingStart.foreach { start =>
         val end = currentToken
-        val slice = trim(tokens.slice2(
-          from = start,
-          to = end
-        ))
+        val slice = trim(
+          tokens.slice2(
+            from = start,
+            to = end
+          )
+        )
 
         if (slice.nonEmpty && slice.exists(_.is[Comment])) {
           allLeadings += currentToken -> slice
         }
       }
       leadingStart = None
-      lastToken = Some(currentToken)
     }
 
     tokens.foreach {
@@ -325,7 +343,13 @@ object AssociatedTrivias {
         setTrivia(t)
 
       case currentToken =>
-        doLeading(currentToken)
+        if (!currentToken
+            .is[Token.Ident] && lastToken.exists(_.is[Token.Ident])) {
+          doTrailing(currentToken)
+        } else {
+          doLeading(currentToken)
+        }
+        lastToken = Some(currentToken)
     }
     AssociatedTrivias(allLeadings.result(), allTrailings.result())
   }

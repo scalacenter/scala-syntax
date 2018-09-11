@@ -78,7 +78,6 @@ object AssociatedTriviasSuite extends DiffSuite {
   test("trailing EOF") {
     check(
       "class A // trailing",
-
       """|AssociatedTrivias(
          |  Leading =
          |
@@ -91,7 +90,6 @@ object AssociatedTriviasSuite extends DiffSuite {
     check(
       """|class A // trailing
          |""",
-
       """|AssociatedTrivias(
          |  Leading =
          |
@@ -106,7 +104,6 @@ object AssociatedTriviasSuite extends DiffSuite {
       """|class A
          |// L
          |""",
-
       """|AssociatedTrivias(
          |  Leading =
          |    EOF [13..13) => [//∙L,¶]
@@ -121,7 +118,6 @@ object AssociatedTriviasSuite extends DiffSuite {
       """|class A {
          |  val a = /*L*/ b /*T*/
          |}""",
-
       """|AssociatedTrivias(
          |  Leading =
          |    b [26..27) => [/*L*/]
@@ -137,13 +133,24 @@ object AssociatedTriviasSuite extends DiffSuite {
          |  val a = // T
          |    1
          |}""",
-
       """|AssociatedTrivias(
          |  Leading =
          |
          |  Trailing =
          |    = [18..19) => [//∙T,¶]
          |)""".stripMargin
+    )
+  }
+
+  test("attach to ident") {
+    check(
+      "class A /* T */ extends B",
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    A [6..7) => [/*∙T∙*/]
+         |)"""
     )
   }
 }

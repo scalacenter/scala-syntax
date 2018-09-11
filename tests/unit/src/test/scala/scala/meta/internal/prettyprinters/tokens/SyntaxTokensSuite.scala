@@ -11,7 +11,9 @@ object SyntaxTokensSuite extends SyntaxTokensSuiteUtils {
   checkNil[Defn.Class](classCommas)("class A")
   checkNil[Defn.Class](classCommas)("class A(a: A)")
   checkAll[Defn.Class](classCommas)("class A(a1: A→,← a2: A)")
-  checkAll[Defn.Class](classCommas)("class A(a1: A→,← a2: A→,← a3: A)(b1: B→,← b2: B→,← b3: B)")
+  checkAll[Defn.Class](classCommas)(
+    "class A(a1: A→,← a2: A→,← a3: A)(b1: B→,← b2: B→,← b3: B)"
+  )
 
   checkNone[Defn.Object](_.templ.tokensRightBrace)("object A")
   checkSome[Defn.Object](_.templ.tokensRightBrace)("object A { →}←")
@@ -19,7 +21,7 @@ object SyntaxTokensSuite extends SyntaxTokensSuiteUtils {
 
   checkNone[Defn.Object](_.templ.tokensLeftBrace)("object A")
   checkSome[Defn.Object](_.templ.tokensLeftBrace)("object A →{← }")
-  checkSome[Defn.Object](_.templ.tokensLeftBrace)("object A extends A with C→{← _: self => }")
+  checkSome[Defn.Object](_.templ.tokensLeftBrace)(
+    "object A extends A with C→{← _: self => }"
+  )
 }
-
-

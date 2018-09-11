@@ -513,18 +513,22 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             Nil
         ) + print(t.templ)
       case t: Pkg.Object =>
-        spaceSeparated(List(
-          dMods(t.mods),
-          `package` + space + `object`,
-          print(t.name)
-        )) + print(t.templ)
+        spaceSeparated(
+          List(
+            dMods(t.mods),
+            `package` + space + `object`,
+            print(t.name)
+          )
+        ) + print(t.templ)
 
       case t: Defn.Object =>
-        spaceSeparated(List(
-          dMods(t.mods),
-          `object`,
-          print(t.name)
-        )) + print(t.templ)
+        spaceSeparated(
+          List(
+            dMods(t.mods),
+            `object`,
+            print(t.name)
+          )
+        ) + print(t.templ)
 
       case t: Defn.Trait =>
         val ddefn = dDef(t.mods, `trait`, print(t.name), t.tparams, Nil, Nil)

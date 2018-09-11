@@ -3,7 +3,9 @@ package scala.meta.internal.prettyprinters
 import scala.meta._
 import scala.meta.tokens.Token._
 
-sealed abstract class MatchingParens(map: Map[MatchingParens.TokenHash, Token]) {
+sealed abstract class MatchingParens(
+    map: Map[MatchingParens.TokenHash, Token]
+) {
   private def lookup(token: Token) = map.get(MatchingParens.hash(token))
   def close(open: Token.LeftParen): Option[Token.RightParen] =
     lookup(open).collect { case x: Token.RightParen => x }
@@ -40,10 +42,10 @@ object MatchingParens {
   }
 
   /**
-    * Finds matching parens [({})].
-    *
-    * Contains lookup keys in both directions, opening [({ and closing })].
-    */
+   * Finds matching parens [({})].
+   *
+   * Contains lookup keys in both directions, opening [({ and closing })].
+   */
   private def getMatchingParentheses(tokens: Tokens): Map[TokenHash, Token] = {
     val ret = Map.newBuilder[TokenHash, Token]
     var stack = List.empty[Token]

@@ -20,7 +20,10 @@ object SyntaxTokens {
       _.map(token => trivia.wrap(tree, token, S.`,`, isSeparator = true))
     )
 
-  implicit class XtensionTermApplySyntax(private val tree: Term.Apply) extends AnyVal {
+  // implicit class XtensionTermApplySyntax(private val tree: Term.Apply) extends AnyVal {
+
+  implicit class XtensionTermApplySyntax(private val tree: Term.Apply)
+      extends AnyVal {
     def tokensComma: List[Comma] = commaSeparated(tree)(_.args)
     def `,`(implicit trivia: AssociatedTrivias): List[Doc] = {
       tokensComma.map(
@@ -29,24 +32,31 @@ object SyntaxTokens {
     }
 
     def tokensLeftParen: LeftParen = tree.findAfter[LeftParen](_.fun).get
-    def `(`(implicit trivia: AssociatedTrivias): Doc = trivia.addTrailing(tree, tokensLeftParen, S.`(`)
+    def `(`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.addTrailing(tree, tokensLeftParen, S.`(`)
 
     def tokensRightParen: RightParen =
       if (tree.args.nonEmpty) tree.findAfter[RightParen](_.args.last).get
       else tree.findAfter[RightParen](_.fun).get
 
-    def `)`(implicit trivia: AssociatedTrivias): Doc = trivia.addLeading(tree, tokensRightParen, S.`)`)
+    def `)`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.addLeading(tree, tokensRightParen, S.`)`)
 
     def tokensLeftBrace: LeftBrace = tree.findAfter[LeftBrace](_.fun).get
-    def `{`(implicit trivia: AssociatedTrivias): Doc = trivia.addTrailing(tree, tokensLeftBrace, S.`{`)
+    def `{`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.addTrailing(tree, tokensLeftBrace, S.`{`)
     def tokensRightBrace: RightBrace = {
-      if (tree.args.nonEmpty) tree.args.head.tokens.reverse.collectFirst{ case r: RightBrace => r}.get
+      if (tree.args.nonEmpty) tree.args.head.tokens.reverse.collectFirst {
+        case r: RightBrace => r
+      }.get
       else tree.findAfter[RightBrace](_.fun).get
     }
-    def `}`(implicit trivia: AssociatedTrivias): Doc = trivia.addLeading(tree, tokensRightBrace, S.`}`)
+    def `}`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.addLeading(tree, tokensRightBrace, S.`}`)
   }
 
-  implicit class XtensionTermBlockSyntax(private val tree: Term.Block) extends AnyVal {
+  implicit class XtensionTermBlockSyntax(private val tree: Term.Block)
+      extends AnyVal {
     def tokensLeftBrace: LeftBrace = blockStartBrace(tree)
     def `{`(implicit trivia: AssociatedTrivias): Doc =
       trivia.addTrailing(tree, tokensLeftBrace, S.`{`)
@@ -62,21 +72,18 @@ object SyntaxTokens {
   // self
   // stats
   // }
-  implicit class XtensionTemplateSyntax(private val templ: Template) extends AnyVal {
-    def tokensLeftBrace: Option[LeftBrace] = 
+  implicit class XtensionTemplateSyntax(private val templ: Template)
+      extends AnyVal {
+    def tokensLeftBrace: Option[LeftBrace] =
       if (templ.inits.nonEmpty) {
         templ.findAfter[LeftBrace](_.inits.last)
-      }
-      else if (templ.early.nonEmpty) {
+      } else if (templ.early.nonEmpty) {
         templ.findAfter[LeftBrace](_.early.last)
-      }
-      else if (templ.self.tokens.nonEmpty) {
+      } else if (templ.self.tokens.nonEmpty) {
         templ.findAfter[LeftBrace](_.self)
-      }
-      else if (templ.stats.nonEmpty) {
+      } else if (templ.stats.nonEmpty) {
         templ.findBefore[LeftBrace](_.stats.head)
-      }
-      else {
+      } else {
         templ.find[LeftBrace]
       }
 
@@ -86,20 +93,16 @@ object SyntaxTokens {
     def tokensRightBrace: Option[RightBrace] =
       if (templ.stats.nonEmpty) {
         templ.findAfter[RightBrace](_.stats.last)
-      }
-      else if (templ.self.tokens.nonEmpty) {
+      } else if (templ.self.tokens.nonEmpty) {
         templ.findAfter[RightBrace](_.self)
-      }
-      else if (templ.inits.nonEmpty) {
+      } else if (templ.inits.nonEmpty) {
         templ.findAfter[RightBrace](_.inits.last)
-      }
-      else if (templ.early.nonEmpty) {
+      } else if (templ.early.nonEmpty) {
         templ.findAfter[RightBrace](_.early.last)
-      }
-      else {
+      } else {
         templ.find[RightBrace]
       }
-      
+
     def `}`(implicit trivia: AssociatedTrivias): Doc =
       trivia.addLeadingOpt(templ, tokensRightBrace, S.`}`)
 
@@ -109,20 +112,22 @@ object SyntaxTokens {
 
       (tokensLeftBrace, tokensRightBrace) match {
         case (Some(l), Some(r)) => left(l) + right(r)
-        case (None   , Some(r)) => S.`{` + right(r)
-        case (Some(l), None   ) => left(l) + S.`}`
-        case (None   , None   ) => Doc.empty
+        case (None, Some(r)) => S.`{` + right(r)
+        case (Some(l), None) => left(l) + S.`}`
+        case (None, None) => Doc.empty
       }
     }
   }
 
-  implicit class XtensionCtorPrimary(private val tree: Ctor.Primary) extends AnyVal {
+  implicit class XtensionCtorPrimary(private val tree: Ctor.Primary)
+      extends AnyVal {
     def tokensComma: List[List[Comma]] = tree.paramss.map(commaSeparated0(tree))
     def `,`(implicit trivia: AssociatedTrivias): List[List[Doc]] =
       commas(tokensComma, tree, trivia)
   }
 
-  implicit class XtensionCtorSecondary(private val tree: Ctor.Secondary) extends AnyVal {
+  implicit class XtensionCtorSecondary(private val tree: Ctor.Secondary)
+      extends AnyVal {
     def tokensComma: List[List[Comma]] = tree.paramss.map(commaSeparated0(tree))
     def `,`(implicit trivia: AssociatedTrivias): List[List[Doc]] =
       commas(tokensComma, tree, trivia)
@@ -134,7 +139,8 @@ object SyntaxTokens {
       commas(tokensComma, tree, trivia)
   }
 
-  implicit class XtensionDefnMacro(private val tree: Defn.Macro) extends AnyVal {
+  implicit class XtensionDefnMacro(private val tree: Defn.Macro)
+      extends AnyVal {
     def tokensComma: List[List[Comma]] = tree.paramss.map(commaSeparated0(tree))
     def `,`(implicit trivia: AssociatedTrivias): List[List[Doc]] =
       commas(tokensComma, tree, trivia)
@@ -145,6 +151,5 @@ object SyntaxTokens {
     def `,`(implicit trivia: AssociatedTrivias): List[List[Doc]] =
       commas(tokensComma, tree, trivia)
   }
-
 
 }
