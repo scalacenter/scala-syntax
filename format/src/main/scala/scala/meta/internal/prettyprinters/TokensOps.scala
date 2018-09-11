@@ -22,7 +22,7 @@ object TokensOps {
       case (_: EOF, _) => GT
       case (_, _: EOF) => LT
       case _ =>
-        sys.error(s"undefined token partial order: ${a.show} ??? ${b.show}")
+        sys.error(s"undefined token partial order: ${a.syntax} ??? ${b.syntax}")
     }
   }
 
@@ -47,8 +47,6 @@ object TokensOps {
     }
 
   implicit class XtensionTokens(private val tokens: Tokens) extends AnyVal {
-    def show2: String = tokens.map(_.showClass).toList.mkString("[", ", ", "]")
-
     def binarySearch(token: Token): Option[Int] = {
       val res = Searching.search(tokens, token)
       if (res >= 0) Some(res)

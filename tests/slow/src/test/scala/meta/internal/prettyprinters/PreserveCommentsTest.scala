@@ -5,16 +5,6 @@ import scala.meta.tokens.Token
 
 object PreserveCommentsTest extends PropertyTest("comments") {
 
-  def extractComments(tree: Tree): String = {
-    val nl = "\n"
-    val sep = "--------------------------------------"
-    val comments =
-      tree.tokens.collect {
-        case Token.Comment(content) => content
-      }
-    comments.mkString("", nl + sep + nl, nl)
-  }
-
   def noDiff(
       relativePath: String,
       originalComments: String,

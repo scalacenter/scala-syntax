@@ -25,6 +25,7 @@ lazy val testsShared = project
       "com.lihaoyi" %% "utest" % "0.6.3",
       "org.scalatest" %% "scalatest" % "3.0.4",
       "com.lihaoyi" %% "fansi" % "0.2.5" % Test
+      // "com.github.masseguillaume" %% "scalameta-structure" % "0.1.1"
     )
   )
   .dependsOn(format)
@@ -41,7 +42,7 @@ lazy val slow = project
     fork in (Test, testOnly) := true,
     fork in (Test, testQuick) := true,
     cancelable in Global := true,
-    javaOptions in (Test, test) ++= {
+    javaOptions in Test ++= {
       val mem =
         if (sys.env.get("CI").isDefined) "4"
         else sys.env.get("SLOWMEM").getOrElse("20")
@@ -54,8 +55,6 @@ lazy val slow = project
         "-XX:+TieredCompilation",
         "-XX:+CMSClassUnloadingEnabled"
       )
-    },
-    javaOptions in (Test, testOnly) ++= (javaOptions in (Test, test)).value,
-    javaOptions in (Test, testQuick) ++= (javaOptions in (Test, test)).value
+    }
   )
   .dependsOn(testsShared)

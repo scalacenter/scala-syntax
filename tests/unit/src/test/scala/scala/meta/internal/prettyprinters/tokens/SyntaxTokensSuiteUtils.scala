@@ -1,63 +1,17 @@
 package scala.meta.internal.prettyprinters
 package tokens
 
-import SyntaxTokensDefn._
-import SyntaxTokensTerm._
+import SyntaxTokens._
 
 import scala.meta._
+import scala.meta.Token._
 import scala.meta.parsers.Parse
 
 abstract class SyntaxTokensSuiteUtils extends FunSuite {
   val dq = '"'
   val tq = s"${dq}${dq}${dq}"
 
-  def superDot(sel: Term.Select): Option[Token] = {
-    val Term.Select(sup: Term.Super, _) = sel
-    sup.tokensDot
-  }
-
-  def commasCtor(clazz: Defn.Class): List[Token] = {
-    clazz.tokensCommaCtor.flatten
-  }
-
-  def parensParamss(clazz: Defn.Class): List[Token] = {
-    clazz.tokensParenthesis.flatMap {
-      case (l, r) => List(l, r)
-    }
-  }
-
-  /* It's not always possible to write the syntax of a tree node directly
-   * for example, Term.Repeated are wraped in Term.Apply: f(x: _*)
-   * We can write an arbitary function to extract a child node.
-   * ex: checkSome[Term.Param, Decl.Def](_.tokenEqual)("def f(x: A →=← 1): B")
-   *   R: Term.Param, T: Decl.Def, apply: extract first parameter
-   */
-  trait Projection[R, T] {
-    def apply(root: R): T
-  }
-
-  implicit val repeated: Projection[Term.Apply, Term.Repeated] =
-    new Projection[Term.Apply, Term.Repeated] {
-      def apply(ap: Term.Apply): Term.Repeated = {
-        val Term.Apply(_, List(r: Term.Repeated)) = ap
-        r
-      }
-    }
-
-  implicit val defparam: Projection[Decl.Def, Term.Param] =
-    new Projection[Decl.Def, Term.Param] {
-      def apply(dec: Decl.Def): Term.Param = dec.paramss.head.head
-    }
-
-  implicit val funparam: Projection[Term.Function, Term.Param] =
-    new Projection[Term.Function, Term.Param] {
-      def apply(fun: Term.Function): Term.Param = fun.params.head
-    }
-
-  def checkNone[T <: Tree, R <: Tree](
-      f: T => Option[Token]
-  )(annotedSource: String)(implicit projection: Projection[R, T]): Unit =
-    checkNone[R](tree => f(projection(tree)))(annotedSource)
+  def classCommas(cls: Defn.Class): List[Comma] = cls.ctor.tokensComma.flatten
 
   def checkNone[T <: Tree](f: T => Option[Token])(source: String): Unit = {
     val tree = source.parse[Stat].get.asInstanceOf[T]
@@ -66,33 +20,23 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
     }
   }
 
-  def checkSome[T <: Tree, R <: Tree](
-      f: T => Option[Token]
-  )(annotedSource: String)(implicit projection: Projection[R, T]): Unit =
-    checkSome[R](tree => f(projection(tree)))(annotedSource)
-
   def checkSome[T <: Tree](f: T => Option[Token])(annotedSource: String): Unit =
     checkAll[T](tree => List(f(tree).get))(annotedSource)
 
-  def checkOne[T <: Tree, R <: Tree](
-      f: T => Token
-  )(annotedSource: String)(implicit projection: Projection[R, T]): Unit =
-    checkOne[R](tree => f(projection(tree)))(annotedSource)
+  // def checkOne[T <: Tree](f: T => Token)(annotedSource: String): Unit =
+  //   checkAll[T](tree => List(f(tree)))(annotedSource)
 
-  def checkOne[T <: Tree](f: T => Token)(annotedSource: String): Unit =
-    checkAll[T](tree => List(f(tree)))(annotedSource)
+  // def checkOneType[T <: Tree](f: T => Token)(annotedSource: String): Unit =
+  //   checkAllType[T](tree => List(f(tree)))(annotedSource)
 
-  def checkOneType[T <: Tree](f: T => Token)(annotedSource: String): Unit =
-    checkAllType[T](tree => List(f(tree)))(annotedSource)
+  // def checkAllType[T <: Tree](
+  //     f: T => List[Token]
+  // )(annotedSource: String): Unit =
+  //   checkAll0[T, Type](f)(annotedSource)
 
   def checkNil[T <: Tree](f: T => List[Token])(source: String): Unit = {
     checkAll[T](f)(source, isNil = true)
   }
-
-  def checkAllType[T <: Tree](
-      f: T => List[Token]
-  )(annotedSource: String): Unit =
-    checkAll0[T, Type](f)(annotedSource)
 
   def checkAll[T <: Tree](
       f: T => List[Token]

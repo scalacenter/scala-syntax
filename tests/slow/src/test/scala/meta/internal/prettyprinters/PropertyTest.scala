@@ -23,6 +23,8 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
   def check(file: Input.File, relativePath: String): PropertyResult
 
+  private val ignoreRegressions = false
+
   private val failed = TrieMap.empty[File, Boolean]
   private val regressions = TrieMap.empty[File, Boolean]
   private val nl = "\n"
@@ -85,12 +87,14 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
             }
 
             if (!previouslyFailed.contains(file.jFile)) {
-              regressions += file.jFile -> true
-              print(Console.RED)
-              println("*************************")
-              println("Regression: " + file.jFile)
-              println("*************************")
-              print(Console.RESET)
+              if (!ignoreRegressions) {
+                regressions += file.jFile -> true
+                print(Console.RED)
+                println("*************************")
+                println("Regression: " + file.jFile)
+                println("*************************")
+                print(Console.RESET)
+              }
             } else {
               Files.write(
                 todoFile,
@@ -125,7 +129,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
     progress.stop()
 
-    if (regressions.isEmpty) {
+    if (regressions.isEmpty || ignoreRegressions) {
       Files.write(
         coverageFile,
         fileList(failed, nl).getBytes("utf-8"),
@@ -134,7 +138,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       )
     }
 
-    if (regressions.nonEmpty) {
+    if (regressions.nonEmpty && !ignoreRegressions) {
       val sep = nl + "  "
       val regressionList = fileList(regressions, sep)
       sys.error("Regressions:" + sep + regressionList)

@@ -6,16 +6,27 @@ import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._
 
 trait TreePrinterUtils extends WithPrinter {
-  implicit class XtensionTerms(private val terms: List[Term]) {
-    def mkDoc(start: Doc, separators: List[Doc], end: Doc): Doc = {
-      assert(terms.size == separators.size + 1)
-      val commaSeparated =
-        terms.map(print).zipAll(separators, empty, empty).foldLeft(empty) {
+  implicit class XtensionTrees(private val trees: List[Tree]) {
+    def mkDoc(separators: List[Doc]): Doc = {
+      if (separators.nonEmpty) {
+        assert(trees.size == separators.size + 1)
+      }
+      var i = 0
+      val t = trees.size - 1
+      trees
+        .map(print)
+        .zipAll(separators, empty, comma + space)
+        .foldLeft(empty) {
           case (acc, (term, sep)) => {
-            acc + term + sep
+            val s = if (i == t) empty else sep
+            i += 1
+            acc + term + s
           }
         }
-      start + commaSeparated + end
+    }
+
+    def mkDoc(start: Doc, separators: List[Doc], end: Doc): Doc = {
+      start + mkDoc(separators) + end
     }
   }
 }
