@@ -5,8 +5,10 @@ import scala.meta._
 object AssociatedTriviasSuite extends DiffSuite {
 
   def check(source: String, expected: String): Unit = {
-    val trivias = AssociatedTrivias(source.stripMargin.parse[Stat].get)
+    val in = source.stripMargin
+    val trivias = AssociatedTrivias(in.parse[Stat].get)
     val obtained = trivias.toString
+
     assertNoDiff(obtained, expected.stripMargin)
   }
 
@@ -17,17 +19,12 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    * L
          |    */
          |  def foo: Int
-         |}""".stripMargin,
+         |}""",
       """|AssociatedTrivias(
          |  Leading =
-         |    def [33..36) => [∙,∙,/**¶∙∙∙∙*∙L¶∙∙∙∙*/,¶,∙,∙]
+         |    def [33..36) => [/**¶∙∙∙∙*∙L¶∙∙∙∙*/,¶]
          |  Trailing =
-         |    trait [0..5) => [∙]
-         |    A [6..7) => [∙]
-         |    { [8..9) => [¶]
-         |    def [33..36) => [∙]
-         |    : [40..41) => [∙]
-         |    Int [42..45) => [¶]
+         |
          |)""".stripMargin
     )
   }
@@ -43,16 +40,9 @@ object AssociatedTriviasSuite extends DiffSuite {
          |}""",
       """|AssociatedTrivias(
          |  Leading =
-         |    val [29..32) => [∙,∙,/*∙java¶∙∙∙*∙doc¶∙∙∙*/,¶,∙,∙]
-         |    class [41..46) => [∙,∙]
+         |    val [29..32) => [/*∙java¶∙∙∙*∙doc¶∙∙∙*/,¶]
          |  Trailing =
-         |    { [0..1) => [¶]
-         |    val [29..32) => [∙]
-         |    a [33..34) => [∙]
-         |    = [35..36) => [∙]
-         |    1 [37..38) => [¶]
-         |    class [41..46) => [∙]
-         |    A [47..48) => [∙,∙,∙,//∙trailing,¶]
+         |    A [47..48) => [//∙trailing,¶]
          |)"""
     )
   }
@@ -66,7 +56,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |  Leading =
          |    class [9..14) => [//∙test,¶,¶]
          |  Trailing =
-         |    class [9..14) => [∙]
+         |
          |)""",
     )
   }
@@ -80,7 +70,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |  Leading =
          |    class [12..17) => [//∙c1,¶,//∙c2,¶]
          |  Trailing =
-         |    class [12..17) => [∙]
+         |
          |)""",
     )
   }
@@ -88,25 +78,25 @@ object AssociatedTriviasSuite extends DiffSuite {
   test("trailing EOF") {
     check(
       "class A // trailing",
+
       """|AssociatedTrivias(
          |  Leading =
          |
          |  Trailing =
-         |    class [0..5) => [∙]
-         |    A [6..7) => [∙,//∙trailing]
+         |    A [6..7) => [//∙trailing]
          |)"""
     )
   }
   test("trailing NL EOF") {
     check(
       """|class A // trailing
-         |""".stripMargin,
+         |""",
+
       """|AssociatedTrivias(
          |  Leading =
          |
          |  Trailing =
-         |    class [0..5) => [∙]
-         |    A [6..7) => [∙,//∙trailing,¶]
+         |    A [6..7) => [//∙trailing,¶]
          |)"""
     )
   }
@@ -115,14 +105,45 @@ object AssociatedTriviasSuite extends DiffSuite {
     check(
       """|class A
          |// L
-         |""".stripMargin,
+         |""",
+
       """|AssociatedTrivias(
          |  Leading =
          |    EOF [13..13) => [//∙L,¶]
          |  Trailing =
-         |    class [0..5) => [∙]
-         |    A [6..7) => [¶]
+         |
          |)"""
+    )
+  }
+
+  test("leading vs trailing 1") {
+    check(
+      """|class A {
+         |  val a = /*L*/ b /*T*/
+         |}""",
+
+      """|AssociatedTrivias(
+         |  Leading =
+         |    b [26..27) => [/*L*/]
+         |  Trailing =
+         |    b [26..27) => [/*T*/,¶]
+         |)""".stripMargin
+    )
+  }
+
+  test("leading vs trailing 2") {
+    check(
+      """|class A {
+         |  val a = // T
+         |    1
+         |}""",
+
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    = [18..19) => [//∙T,¶]
+         |)""".stripMargin
     )
   }
 }

@@ -44,7 +44,6 @@ final case class AssociatedTrivias(
         val firstToken = tokens.head
         val lastToken = tokens.last
 
-
         val l = leadings(firstToken)
         val t = trailings(lastToken)
 
@@ -247,31 +246,47 @@ object AssociatedTrivias {
 
     var leadingStart: Option[Token] = None
     var lastToken: Option[Token] = None
-    val lastLF: Option[Token] = None
-    var isLeading = true
 
     def setTrivia(t: Token): Unit = {
-      if (isLeading && leadingStart.isEmpty) {
+      if (leadingStart.isEmpty) {
         leadingStart = Some(t)
       }
     }
 
-    def doTrailing(currentToken: Token, isEOF: Boolean = false): Unit = {
+    def trim(tokens: Tokens): Tokens = {
+      var start = 0
+      val size = tokens.length
+
+      while (start < size && tokens(start).is[Token.Space]) {
+        start += 1
+      }
+
+      var end = size - 1
+      while (end > 0 && tokens(end).is[Token.Space]) {
+        end -= 1
+      }
+
+      tokens.slice(start, end + 1)
+    }
+
+    def doTrailing(currentToken: Token): Unit = {
       lastToken.foreach { last =>
         val start = last
         val end = currentToken
         val includingEnd = end.is[LF]
 
-        val slice = tokens.slice2(
+        val slice = trim(tokens.slice2(
           from = start,
           to = end,
           includeFrom = false,
           includeTo = includingEnd
-        )
+        ))
 
-        if (slice.nonEmpty) {
+        if (slice.nonEmpty && slice.exists(_.is[Comment])) {
           allTrailings += last -> slice
         }
+
+        leadingStart = None
       }
       lastToken = None
     }
@@ -279,18 +294,17 @@ object AssociatedTrivias {
     def doLeading(currentToken: Token): Unit = {
       leadingStart.foreach { start =>
         val end = currentToken
-        val slice = tokens.slice2(
+        val slice = trim(tokens.slice2(
           from = start,
           to = end
-        )
+        ))
 
-        if (slice.nonEmpty) {
+        if (slice.nonEmpty && slice.exists(_.is[Comment])) {
           allLeadings += currentToken -> slice
         }
       }
       leadingStart = None
       lastToken = Some(currentToken)
-      isLeading = false
     }
 
     tokens.foreach {
@@ -301,19 +315,16 @@ object AssociatedTrivias {
         ()
 
       case t: Token.EOF =>
-        doTrailing(t, true)
+        doTrailing(t)
         doLeading(t)
 
       case t @ Token.LF() =>
-        setTrivia(t)
         doTrailing(t)
-        isLeading = true
 
       case t @ Trivia() =>
         setTrivia(t)
 
       case currentToken =>
-        doTrailing(currentToken)
         doLeading(currentToken)
     }
     AssociatedTrivias(allLeadings.result(), allTrailings.result())
