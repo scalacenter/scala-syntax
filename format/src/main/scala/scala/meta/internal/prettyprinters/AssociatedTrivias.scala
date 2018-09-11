@@ -343,12 +343,21 @@ object AssociatedTrivias {
         setTrivia(t)
 
       case currentToken =>
-        if (!currentToken
-            .is[Token.Ident] && lastToken.exists(_.is[Token.Ident])) {
+        // lastToken.map(t => !t.is[Delim] && currentToken.is[Delim]).getOrElse(false)
+
+        // f/* C */(a)
+        val startIsIdent = lastToken.exists(_.is[Token.Ident])
+
+        // f(1 /* C */, 2)
+        val currentDelim =
+          lastToken.exists(t => !t.is[Delim] && currentToken.is[Delim])
+
+        if (startIsIdent || currentDelim) {
           doTrailing(currentToken)
         } else {
           doLeading(currentToken)
         }
+
         lastToken = Some(currentToken)
     }
     AssociatedTrivias(allLeadings.result(), allTrailings.result())

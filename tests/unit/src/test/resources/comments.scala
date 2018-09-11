@@ -1,62 +1,53 @@
 object A {
   f(
-    a, // T
+    a, // T comma apply
     b
   )
 
   def f(
-      a: Int, // T a
+      a: Int, // T comma params
       b: Int
   )(
-      c: Int, // T c
+      c: Int, // T comma params 2
       d: Int
   ) = 1
 
   def f = 
-    // L1
-    { // T1
-      // L2
-    } // T2
+    // L outer block
+    { // T inner block
+      // L inner block
+    } // T outer block
 
   m match {
-    case a => // T
+    case a => // T match
   }
 
   f(
-    // L
+    // L inner apply
   )
 
-  new { // T
+  new { // T inner new
 
   }
 
-  f() { // T f
+  f() { // T inner apply
 
   }
 }
 
 class B(
-    a: Int, // T a
+    a: Int, // T comma class param
     b: Int
 )(
-    c: Int, // T c
+    c: Int, // T comma class param 2
     d: Int
 )
 
 object A {
-  // T
+  // L inner class
 }
 
 object A {
   1
-  // T
-}
-
-package object A {
-  // T
-}
-
-package object A {
-  1
-  // T
+  // L inner class stats
 }

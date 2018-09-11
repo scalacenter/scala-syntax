@@ -285,12 +285,6 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
     assertNoDiff(printTree(tree), expected)
   }
 
-  def resource(path: String): Input =
-    Input.Stream(
-      this.getClass.getClassLoader.getResourceAsStream(path),
-      StandardCharsets.UTF_8
-    )
-
   private val nl = "\n"
   def extractComments(tree: Tree): String = {
 
@@ -339,7 +333,7 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
         // println("----")
         // println(input.text)
         // println("----")
-        // println(formatted)
+        println(formatted)
         // assert(false)
         assertNoDiff(originalComments, formattedComments)
       }
