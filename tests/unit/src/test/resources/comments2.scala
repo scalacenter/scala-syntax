@@ -6,3 +6,7 @@ package object A {
   1
   // L inner package object stats
 }
+
+object O {
+  f(x => /* T */ ())
+}
