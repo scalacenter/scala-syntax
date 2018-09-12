@@ -20,14 +20,19 @@ object SyntaxTokens {
       _.map(token => trivia.wrap(tree, token, S.`,`, isSeparator = true))
     )
 
-  // implicit class XtensionTermApplySyntax(private val tree: Term.Apply) extends AnyVal {
+  implicit class XtensionTermIfSyntax(private val tree: Term.If)
+      extends AnyVal {
+    def tokenElse: Option[KwElse] = tree.findBetween[KwElse](_.thenp, _.elsep)
+    def `else`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.wrapOpt(tree, tokenElse, S.`else`)
+  }
 
   implicit class XtensionTermSelectSyntax(private val tree: Term.Select)
       extends AnyVal {
     def tokenDot: Dot =
       tree.findBetween[Dot](_.qual, _.name).get
     def `.`(implicit trivia: AssociatedTrivias): Doc =
-      trivia.wrap(tree, tokenDot, S.`.`, isSeparator = true)
+      trivia.wrap(tree, tokenDot, S.`.`)
   }
 
   implicit class XtensionTermApplySyntax(private val tree: Term.Apply)

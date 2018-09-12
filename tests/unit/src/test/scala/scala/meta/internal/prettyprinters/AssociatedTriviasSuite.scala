@@ -208,6 +208,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    } [542..543) => [//∙L∙inner∙class,¶]
          |    } [585..586) => [//∙L∙inner∙class∙stats,¶]
          |    f [712..713) => [/*∙C∙f∙*/]
+         |    else [774..778) => [//∙else∙T,¶]
          |  Trailing =
          |    , [21..22) => [//∙T∙comma∙apply,¶]
          |    , [72..73) => [//∙T∙comma∙params,¶]
@@ -222,6 +223,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    ] [626..627) => [/*∙T∙match∙strong∙binding∙*/]
          |    override [667..675) => [/*∙C∙*/]
          |    . [722..723) => [//∙T∙select∙chain,¶]
+         |    => [801..803) => [/*∙match∙arrow∙*/]
          |)"""
     )
   }

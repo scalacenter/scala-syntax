@@ -76,6 +76,16 @@ final case class AssociatedTrivias(
     } else doc
   }
 
+  def wrapOpt(
+      tree: Tree,
+      token: => Option[Token],
+      doc: Doc
+  ): Doc = {
+    if (tree.hasTokens) {
+      token.map(t => wrap(tree, t, doc)).getOrElse(doc)
+    } else doc
+  }
+
   def addLeadingOpt(tree: Tree, token: => Option[Token], doc: Doc): Doc = {
     if (tree.hasTokens)
       token.map(t => addLeading(leadings(t), doc, t)).getOrElse(doc)
@@ -343,9 +353,10 @@ object AssociatedTrivias {
         setTrivia(t)
 
       case currentToken =>
-        val startIsStrongBinding = lastToken.exists(isStrongBinding)
+        val startIsStrongBinding = lastToken.exists(isStrongTrailingBinding)
+        val endIsStrongBinding = isStrongLeadingBinding(currentToken)
 
-        if (startIsStrongBinding) {
+        if (startIsStrongBinding && !endIsStrongBinding) {
           doTrailing(currentToken)
         } else {
           doLeading(currentToken)
@@ -356,17 +367,33 @@ object AssociatedTrivias {
     AssociatedTrivias(allLeadings.result(), allTrailings.result())
   }
 
-  def isStrongBinding(token: Token): Boolean = {
+  def isStrongTrailingBinding(token: Token): Boolean = {
     token match {
-      case _: RightBracket | _: RightBrace | _: RightParen | _: Ident => true
+      case _: Ident | _: Dot => true
+      case _: RightArrow | _: RightBracket | _: RightBrace | _: RightParen =>
+        true
+      case Mods() => true
+      case Literal() => true
+      case _ => false
+    }
+  }
 
-      // scala.meta.Mod
+  object Mods {
+    def unapply(token: Token): Boolean = token match {
       case _: KwPrivate | _: KwProtected | _: KwImplicit | _: KwFinal |
-          _: KwSealed | _: KwOverride | _: KwCase | _: KwAbstract |
-          // idents: Covariant Contravariant
-          _: KwLazy | _: KwVal | _: KwVar =>
+          _: KwSealed | _: KwOverride | _: KwCase | _: KwAbstract | _: KwLazy |
+          _: KwVal | _: KwVar =>
         true
 
+      // idents: Covariant Contravariant
+      case i: Ident if i.syntax == "+" || i.syntax == "-" => true
+      case _ => false
+    }
+  }
+
+  def isStrongLeadingBinding(token: Token): Boolean = {
+    token match {
+      case _: Ident => true
       case Literal() => true
       case _ => false
     }

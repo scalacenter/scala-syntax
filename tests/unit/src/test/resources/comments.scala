@@ -64,4 +64,10 @@ object A {
 
   a. // T select chain
     b
+
+  if (p) t
+  // else T
+  else f
+
+  m match { case _ => /* match arrow */ }
 }

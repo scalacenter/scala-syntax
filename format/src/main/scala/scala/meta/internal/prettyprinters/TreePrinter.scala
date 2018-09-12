@@ -197,7 +197,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             val delse =
               if (t.elsep.tokens.isEmpty) empty
               else
-                line + `else` + body(t.elsep)
+                line + t.`else` + body(t.elsep)
             (`if` + space + `(` + print(t.cond) + `)` +
               body(t.thenp) +
               delse).grouped
