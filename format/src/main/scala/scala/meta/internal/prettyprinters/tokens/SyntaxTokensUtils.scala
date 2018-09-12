@@ -93,13 +93,14 @@ object SyntaxTokensUtils {
     }
   }
 
-  private[tokens] def blockStartBrace(tree: Tree): LeftBrace =
-    tree.find[LeftBrace].get
+  private[tokens] def blockStartBrace(tree: Tree): Option[LeftBrace] =
+    tree.find[LeftBrace]
+
   private[tokens] def blockEndBrace[T <: Tree](
       tree: T
-  )(childs: T => List[Tree]): RightBrace = {
+  )(childs: T => List[Tree]): Option[RightBrace] = {
     val stats = childs(tree)
-    if (stats.isEmpty) tree.find[RightBrace].get
-    else tree.findAfter[RightBrace](_ => stats.last).get
+    if (stats.isEmpty) tree.find[RightBrace]
+    else tree.findAfter[RightBrace](_ => stats.last)
   }
 }

@@ -161,19 +161,20 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       case _ => {
         val printedParams =
           paramss.map { params =>
-            val dimplicit =
-              if (params.exists(_.mods.exists(_.is[Mod.Implicit])))
-                `implicit` + line
-              else empty
+            if (params.nonEmpty) {
+              val dimplicit =
+                if (params.exists(_.mods.exists(_.is[Mod.Implicit])))
+                  `implicit` + line
+                else empty
 
-            val dparams =
-              params.map { param =>
-                print(
-                  param.copy(mods = param.mods.filterNot(_.is[Mod.Implicit]))
-                )
-              }
-
-            (dimplicit + dparams.head) :: dparams.tail
+              val dparams =
+                params.map { param =>
+                  print(
+                    param.copy(mods = param.mods.filterNot(_.is[Mod.Implicit]))
+                  )
+                }
+              (dimplicit + dparams.head) :: dparams.tail
+            } else Nil
           }
 
         joined(printedParams, `,`)
@@ -185,7 +186,12 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
 
     cat(docss.zip(sepss).map {
       case (docs, seps) =>
-        assert(docs.size == seps.size + 1)
+        if (docs.nonEmpty) {
+          assert(
+            docs.size == seps.size + 1 ||
+            docs.size == seps.size
+          )
+        }
         docs
           .zipAll(seps, empty, empty)
           .foldLeft(empty) {

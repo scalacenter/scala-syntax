@@ -22,7 +22,11 @@ object TokensOps {
       case (_: EOF, _) => GT
       case (_, _: EOF) => LT
       case _ =>
-        sys.error(s"undefined token partial order: ${a.syntax} ??? ${b.syntax}")
+        sys.error(
+          s"""|undefined token partial order: ${a.syntax} ??? ${b.syntax}
+              |${a.getClass} ${a.structure}
+              |${b.getClass} ${b.structure}"""
+        )
     }
   }
 

@@ -11,6 +11,8 @@ import org.scalameta.logger
 
 import scala.meta._
 import scala.meta.testkit.Corpus
+import scala.meta.parsers.ParseException
+import scala.meta.tokenizers.TokenizeException
 
 import scala.collection.concurrent.TrieMap
 import scala.util.control.NonFatal
@@ -31,10 +33,15 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
   private val prefix = "target/repos/"
 
   private val coverageFile = Paths.get(s"coverage-${name}.txt")
+  private val regressionFile = Paths.get(s"regressions-${name}.txt")
   private val todoFile = Paths.get(s"todo-${name}.diff")
 
   if (Files.exists(todoFile)) {
     Files.delete(todoFile)
+  }
+
+  if (Files.exists(regressionFile)) {
+    Files.delete(regressionFile)
   }
 
   private val previouslyFailed: Set[File] =
@@ -82,16 +89,22 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
             val failures = failureCount.incrementAndGet()
             failed += jFile -> true
 
-            // if (failures < 100) {
-            //   logger.elem(explanation)
-            // }
-
             if (!previouslyFailed.contains(file.jFile)) {
               if (!ignoreRegressions) {
                 regressions += file.jFile -> true
+
+                val regressionFilepath = file.jFile.toString.stripPrefix(prefix)
+
+                Files.write(
+                  regressionFile,
+                  (regressionFilepath + nl).getBytes("utf-8"),
+                  StandardOpenOption.CREATE,
+                  StandardOpenOption.APPEND
+                )
+
                 print(Console.RED)
                 println("*************************")
-                println("Regression: " + file.jFile)
+                println("Regression: " + regressionFilepath)
                 println("*************************")
                 print(Console.RESET)
               }
@@ -106,7 +119,12 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
           }
         }
       } catch {
-        case NonFatal(_) => ()
+        case e: ParseException => ()
+        case e: TokenizeException => ()
+
+        case NonFatal(e) => 
+          println(e.getClass)
+          e.printStackTrace()
       }
 
       progress.synchronized {
