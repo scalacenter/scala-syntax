@@ -70,4 +70,6 @@ object A {
   else f
 
   m match { case _ => /* match arrow */ }
+
+  f(_ => /* T lambda */ a)
 }

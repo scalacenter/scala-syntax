@@ -209,6 +209,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    } [585..586) => [//∙L∙inner∙class∙stats,¶]
          |    f [712..713) => [/*∙C∙f∙*/]
          |    else [774..778) => [//∙else∙T,¶]
+         |    a [849..850) => [/*∙T∙lambda∙*/]
          |  Trailing =
          |    , [21..22) => [//∙T∙comma∙apply,¶]
          |    , [72..73) => [//∙T∙comma∙params,¶]
