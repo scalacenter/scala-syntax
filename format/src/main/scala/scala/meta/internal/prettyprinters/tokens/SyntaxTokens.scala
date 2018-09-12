@@ -22,6 +22,14 @@ object SyntaxTokens {
 
   // implicit class XtensionTermApplySyntax(private val tree: Term.Apply) extends AnyVal {
 
+  implicit class XtensionTermSelectSyntax(private val tree: Term.Select)
+      extends AnyVal {
+    def tokenDot: Dot =
+      tree.findBetween[Dot](_.qual, _.name).get
+    def `.`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.wrap(tree, tokenDot, S.`.`, isSeparator = true)
+  }
+
   implicit class XtensionTermApplySyntax(private val tree: Term.Apply)
       extends AnyVal {
     def tokensComma: List[Comma] = commaSeparated(tree)(_.args)

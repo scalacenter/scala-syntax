@@ -343,16 +343,9 @@ object AssociatedTrivias {
         setTrivia(t)
 
       case currentToken =>
-        // lastToken.map(t => !t.is[Delim] && currentToken.is[Delim]).getOrElse(false)
+        val startIsStrongBinding = lastToken.exists(isStrongBinding)
 
-        // f/* C */(a)
-        val startIsIdent = lastToken.exists(_.is[Token.Ident])
-
-        // f(1 /* C */, 2)
-        val currentDelim =
-          lastToken.exists(t => !t.is[Delim] && currentToken.is[Delim])
-
-        if (startIsIdent || currentDelim) {
+        if (startIsStrongBinding) {
           doTrailing(currentToken)
         } else {
           doLeading(currentToken)
@@ -361,5 +354,21 @@ object AssociatedTrivias {
         lastToken = Some(currentToken)
     }
     AssociatedTrivias(allLeadings.result(), allTrailings.result())
+  }
+
+  def isStrongBinding(token: Token): Boolean = {
+    token match {
+      case _: RightBracket | _: RightBrace | _: RightParen | _: Ident => true
+
+      // scala.meta.Mod
+      case _: KwPrivate | _: KwProtected | _: KwImplicit | _: KwFinal |
+          _: KwSealed | _: KwOverride | _: KwCase | _: KwAbstract |
+          // idents: Covariant Contravariant
+          _: KwLazy | _: KwVal | _: KwVar =>
+        true
+
+      case Literal() => true
+      case _ => false
+    }
   }
 }

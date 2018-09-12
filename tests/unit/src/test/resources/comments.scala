@@ -51,3 +51,17 @@ object A {
   1
   // L inner class stats
 }
+
+object A {
+  m match {
+    case a: T[_] /* T match strong binding */ =>
+  }
+
+  override /* C */ def f = 1
+
+
+  def /* C f */ f = 1
+
+  a. // T select chain
+    b
+}

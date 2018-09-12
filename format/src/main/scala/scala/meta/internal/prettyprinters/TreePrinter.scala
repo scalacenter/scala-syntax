@@ -171,7 +171,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             }
             dthisp + dsuperp
           case t: Term.Select =>
-            SimpleExpr.wrap(t.qual) + `.` + print(t.name)
+            SimpleExpr.wrap(t.qual) + t.`.` + print(t.name)
           case t: Term.Interpolate =>
             dInterpolate(t.prefix, t.parts, t.args)
           case t: Term.Xml =>
