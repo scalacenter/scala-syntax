@@ -20,8 +20,29 @@ object SyntaxTokens {
       _.map(token => trivia.wrap(tree, token, S.`,`, isSeparator = true))
     )
 
+  implicit class XtensionTermTupleSyntax(private val tree: Term.Tuple) extends AnyVal {
+    
+    def tokensComma: List[Comma] = commaSeparated(tree)(_.args)
+    def tokenLeftParen: LeftParen = tree.find[LeftParen].get
+    def tokenRightParen: RightParen = tree.findAfter[RightParen](_.args.last).get
+
+    def `,`(implicit trivia: AssociatedTrivias): List[Doc] = {
+      tokensComma.map(
+        token => trivia.wrap(tree, token, S.`,`, isSeparator = true)
+      )
+    }
+
+    def `(`(implicit trivia: AssociatedTrivias): Doc = 
+      trivia.wrap(tree, tokenLeftParen, S.`(`)
+    def `)`(implicit trivia: AssociatedTrivias): Doc = 
+      trivia.wrap(tree, tokenRightParen, S.`)`)
+
+  }
+
   implicit class XtensionTermFunctionSyntax(private val tree: Term.Function) extends AnyVal {
-    def tokenRigthArrow: RightArrow = tree.findBetween[RightArrow](_.params.last, _.body).get
+    def tokenRigthArrow: RightArrow = 
+      if (tree.params.nonEmpty) tree.findBetween[RightArrow](_.params.last, _.body).get
+      else tree.find[RightArrow].get
     def `=>`(implicit trivia: AssociatedTrivias): Doc = 
       trivia.wrap(tree, tokenRigthArrow, S.`=>`)
   }

@@ -104,17 +104,31 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
     test(markedSource.toString) {
       val tree = source.parse[S].get.asInstanceOf[T]
       val tokens = f(tree)
-      tokens.zip(markers).foreach {
-        case (t, (s, e)) => {
-          assertPos(t.pos.start, s)
-          assertPos(t.pos.end, e)
-        }
-      }
 
-      assert(
-        tokens.size == markers.size,
-        s"incorrect number of tokens, expected: ${markers.size}, obtained: ${tokens.size}"
-      )
+      val positionMatch = 
+        tokens.zip(markers).forall {
+          case (t, (s, e)) => {
+            t.pos.start == s &&
+            t.pos.end == e
+          }
+        }
+
+      if (!positionMatch) {
+        
+        val obtained = 
+          tokens.foldLeft(fansi.Str(source)) {
+            case (acc, token) => acc.overlay(fansi.Color.Red, token.start, token.end)
+          }
+
+        println(
+          s"""|position mismatch
+              |
+              |obtained:
+              |  $obtained
+              |expected:""".stripMargin
+        )
+        assert(false)
+      }
     }
   }
 }

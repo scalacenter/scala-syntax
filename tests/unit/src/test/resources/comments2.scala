@@ -8,5 +8,5 @@ package object A {
 }
 
 object O {
-  f(x => /* T */ ())
+  f(x => /* Term.Function T */ ())
 }

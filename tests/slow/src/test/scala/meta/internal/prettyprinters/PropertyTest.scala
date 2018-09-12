@@ -82,9 +82,9 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
             val failures = failureCount.incrementAndGet()
             failed += jFile -> true
 
-            if (failures < 100) {
-              logger.elem(explanation)
-            }
+            // if (failures < 100) {
+            //   logger.elem(explanation)
+            // }
 
             if (!previouslyFailed.contains(file.jFile)) {
               if (!ignoreRegressions) {

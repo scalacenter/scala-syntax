@@ -72,4 +72,11 @@ object A {
   m match { case _ => /* match arrow */ }
 
   f(_ => /* T lambda */ a)
+
+  ( // Term.Tuple T (
+    a, // Term.Tuple T 1 ,
+    b, // Term.Tuple T 2 ,
+    c
+    // Term.Tuple L )
+  )
 }
