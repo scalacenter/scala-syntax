@@ -122,13 +122,14 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       } catch {
         case e: ParseException => ()
         case e: TokenizeException => ()
+        case XmlSpliceEndNotFound => ()
 
         case NonFatal(e) =>
           println("****")
           println(regressionFilepath)
           println(e.getClass)
+          e.printStackTrace()
           println("****")
-          // e.printStackTrace()
       }
 
       progress.synchronized {

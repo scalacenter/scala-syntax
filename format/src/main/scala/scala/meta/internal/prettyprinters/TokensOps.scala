@@ -8,6 +8,8 @@ import scala.meta.Token._
 import scala.collection.SeqView
 import scala.collection.immutable.IndexedSeq
 
+case object XmlSpliceEndNotFound extends Exception("cannot find xml splice end")
+
 object TokensOps {
   import TokenOps._
 
@@ -131,12 +133,16 @@ object TokensOps {
 
     private def get(token: Token): Int =
       binarySearch(token).getOrElse(
-        throw new NoSuchElementException(
-          s"""|token not found:
-              |  ${token}
-              |  ${token.structure}
-              |  ${token.getClass}""".stripMargin
-        )
+        if (token.is[Token.Xml.SpliceEnd]) {
+          throw XmlSpliceEndNotFound
+        } else {
+          throw new NoSuchElementException(
+            s"""|token not found:
+                |  ${token}
+                |  ${token.structure}
+                |  ${token.getClass}""".stripMargin
+          )
+        }
       )
   }
 }
