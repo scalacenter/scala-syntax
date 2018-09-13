@@ -17,4 +17,6 @@ object O {
     b
     // Term.Function L )
   ) => a
+
+  a match { case _ => { /* Pat Block T { */ } }
 }

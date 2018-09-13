@@ -93,8 +93,8 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           if (t.body.tokens.isEmpty) empty
           else {
             t.body match {
-              case Term.Block(stats) =>
-                line + dStats(stats)
+              case b @ Term.Block(stats) =>
+                line + b.`{` + dStats(stats) + b.`}`
               case _ =>
                 line + print(t.body)
             }
