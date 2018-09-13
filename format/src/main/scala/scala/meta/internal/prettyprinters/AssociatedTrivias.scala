@@ -67,10 +67,17 @@ final case class AssociatedTrivias(
       isSeparator: Boolean = false
   ): Doc = {
     if (tree.hasTokens) {
+
+      val l = leadings(token)
+      val t = trailings(token)
+
+      attachedLeading += token
+      attachedTrailings += token
+
       wrap(
-        leadings(token),
+        l,
         doc,
-        trailings(token),
+        t,
         isSeparator
       )
     } else doc

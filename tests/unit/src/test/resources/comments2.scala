@@ -9,4 +9,6 @@ package object A {
 
 object O {
   f(x => /* Term.Function T */ ())
+
+  a op { _ => /*T*/ }
 }
