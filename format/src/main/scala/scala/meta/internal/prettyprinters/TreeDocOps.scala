@@ -1,5 +1,7 @@
 package scala.meta.internal.prettyprinters
 
+import tokens.SyntaxTokens._
+
 import SyntacticGroup.Term._
 import SyntacticGroup.Type._
 import ScalaToken._
@@ -390,7 +392,7 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       }
       val dparamss = paramss.foldLeft(empty) {
         case (accum, params) =>
-          accum + line + dParams(`(`, params, Nil, `)`, forceParens = false) + space + `=>`
+          accum + line + dParams(f.`(`, params, f.`,`, f.`)`, forceParens = false) + space + f.`=>`
       }
 
       val function =
@@ -399,19 +401,23 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
             dbody
         ).nested(2).grouped
 
-      (`{` + function + line + `}`).grouped
+      (b.`{` + function + line + b.`}`).grouped
     }
 
-    def unapply(args: List[Tree]): Option[Doc] =
+    def unapply(args: List[Tree]): Option[Doc] = {
       args match {
         case (arg: Term.PartialFunction) :: Nil =>
           Some(print(arg))
+
         case (arg @ Term.Function(_, b @ Term.Block(_ :: _ :: _))) :: Nil =>
           Some(dFunction(b, arg))
+
         case (b @ Term.Block((f: Term.Function) :: Nil)) :: Nil =>
           Some(dFunction(b, f))
+
         case _ =>
           None
       }
+    }
   }
 }
