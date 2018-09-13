@@ -78,6 +78,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
     progress.start()
 
     SyntaxAnalysis.run[Unit](corpus) { file =>
+      val regressionFilepath = file.jFile.toString.stripPrefix(prefix)
       try {
         val jFile = file.jFile
         val input = Input.File(jFile, StandardCharsets.UTF_8)
@@ -93,7 +94,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
               if (!ignoreRegressions) {
                 regressions += file.jFile -> true
 
-                val regressionFilepath = file.jFile.toString.stripPrefix(prefix)
+                
 
                 Files.write(
                   regressionFile,
@@ -122,9 +123,12 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
         case e: ParseException => ()
         case e: TokenizeException => ()
 
-        case NonFatal(e) => 
+        case NonFatal(e) =>
+          println("****")
+          println(regressionFilepath)
           println(e.getClass)
-          e.printStackTrace()
+          println("****")
+          // e.printStackTrace()
       }
 
       progress.synchronized {
