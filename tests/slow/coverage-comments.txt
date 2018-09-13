@@ -1,4 +1,3 @@
-PredictionIO/data/src/main/scala/io/prediction/data/storage/PropertyMap.scala
 PredictionIO/data/src/main/scala/io/prediction/data/webhooks/segmentio/SegmentIOConnector.scala
 PredictionIO/examples/experimental/scala-parallel-recommendation-mongo-datasource/src/main/scala/DataSource.scala
 PredictionIO/examples/experimental/scala-parallel-similarproduct-localmodel/src/main/scala/ALSAlgorithm.scala
@@ -37,9 +36,7 @@ akka/akka-contrib/src/main/scala/akka/contrib/throttle/TimerBasedThrottler.scala
 akka/akka-docs/rst/additional/code/docs/faq/Faq.scala
 akka/akka-docs/rst/scala/code/docs/actor/ActorDocSpec.scala
 akka/akka-docs/rst/scala/code/docs/actor/UnnestedReceives.scala
-akka/akka-docs/rst/scala/code/docs/camel/Introduction.scala
 akka/akka-docs/rst/scala/code/docs/camel/Producers.scala
-akka/akka-docs/rst/scala/code/docs/event/LoggingDocSpec.scala
 akka/akka-docs/rst/scala/code/docs/future/FutureDocSpec.scala
 akka/akka-docs/rst/scala/code/docs/http/scaladsl/server/WebSocketExampleSpec.scala
 akka/akka-docs/rst/scala/code/docs/http/scaladsl/server/directives/BasicDirectivesExamplesSpec.scala
@@ -69,7 +66,6 @@ akka/akka-http/src/main/scala/akka/http/scaladsl/server/PathMatcher.scala
 akka/akka-http/src/main/scala/akka/http/scaladsl/server/directives/DebuggingDirectives.scala
 akka/akka-http/src/main/scala/akka/http/scaladsl/unmarshalling/Unmarshaller.scala
 akka/akka-multi-node-testkit/src/main/scala/akka/remote/testconductor/Player.scala
-akka/akka-parsing/src/main/scala/akka/parboiled2/support/OpTreeContext.scala
 akka/akka-persistence-shared/src/test/scala/akka/persistence/serialization/SerializerSpec.scala
 akka/akka-persistence/src/main/scala/akka/persistence/journal/AsyncWriteJournal.scala
 akka/akka-persistence/src/main/scala/akka/persistence/journal/EventAdapters.scala
@@ -195,7 +191,6 @@ intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/statements/ScTypeAli
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/typedef/ScMember.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/controlFlow/Instruction.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/impl/base/ScFieldIdImpl.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/impl/base/patterns/ScTypedPatternImpl.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/impl/base/types/ScParameterizedTypeElementImpl.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/impl/base/types/ScSimpleTypeElementImpl.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/impl/expr/ScReferenceExpressionImpl.scala
@@ -217,7 +212,6 @@ intellij-scala/test/org/jetbrains/plugins/scala/annotator/ParametersAnnotatorTes
 intellij-scala/test/org/jetbrains/plugins/scala/codeInsight/delegateMethod/ScalaDelegateMethodTest.scala
 intellij-scala/test/org/jetbrains/plugins/scala/codeInsight/delegateMethod/ScalaDelegateToJavaMethodTest.scala
 intellij-scala/test/org/jetbrains/plugins/scala/performance/DownloadingAndImportingTestCase.scala
-intellij-scala/testdata/extractMethod/input/CaseClauseInput.scala
 intellij-scala/testdata/extractMethod/input/InsideClojure.scala
 intellij-scala/testdata/keywordCompletion/generatedTests/autoTest_44.scala
 intellij-scala/testdata/keywordCompletion/generatedTests/autoTest_46.scala
@@ -250,8 +244,6 @@ kafka/core/src/main/scala/kafka/server/DelayedFetch.scala
 kafka/core/src/main/scala/kafka/server/KafkaApis.scala
 kafka/core/src/main/scala/kafka/server/KafkaServer.scala
 kafka/core/src/main/scala/kafka/utils/ZkUtils.scala
-kafka/core/src/test/scala/unit/kafka/api/ApiUtilsTest.scala
-kafka/core/src/test/scala/unit/kafka/security/auth/ZkAuthorizationTest.scala
 kafka/core/src/test/scala/unit/kafka/server/ServerStartupTest.scala
 lila/modules/common/src/main/Scheduler.scala
 lila/modules/push/src/main/ApplePush.scala
@@ -288,10 +280,6 @@ platform/mimir/src/main/scala/com/precog/mimir/Evaluator.scala
 platform/mimir/src/main/scala/com/precog/mimir/Memoizer.scala
 platform/muspelheim/src/test/scala/com/precog/muspelheim/BasicValidationSpecs.scala
 platform/quirrel/src/main/scala/com/precog/quirrel/emitter/GroupSolver.scala
-platform/quirrel/src/main/scala/com/precog/quirrel/parser/AST.scala
-platform/quirrel/src/main/scala/com/precog/quirrel/typer/Binder.scala
-platform/quirrel/src/main/scala/com/precog/quirrel/typer/ProvenanceChecker.scala
-platform/quirrel/src/test/scala/com/precog/quirrel/emitter/GroupSolverSpecs.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/jdbm3/RowFormat.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/table/Slice.scala
 platform/yggdrasil/src/test/scala/com/precog/yggdrasil/ArbitrarySValue.scala
@@ -309,7 +297,6 @@ playframework/documentation/manual/working/scalaGuide/main/forms/code/ScalaForms
 playframework/documentation/manual/working/scalaGuide/main/http/code/ScalaActions.scala
 playframework/documentation/manual/working/scalaGuide/main/http/code/ScalaErrorHandling.scala
 playframework/documentation/manual/working/scalaGuide/main/http/code/ScalaRouting.scala
-playframework/documentation/manual/working/scalaGuide/main/json/code/ScalaJsonCombinatorsSpec.scala
 playframework/documentation/manual/working/scalaGuide/main/tests/code/webservice/ScalaTestingWebServiceClients.scala
 playframework/framework/src/iteratees/src/main/scala/play/api/libs/iteratee/Iteratee.scala
 playframework/framework/src/play-ws/src/main/scala/play/api/libs/openid/OpenIdClient.scala
@@ -568,7 +555,6 @@ scalding/scalding-core/src/main/scala/com/twitter/scalding/macros/impl/TupleConv
 scalding/scalding-core/src/main/scala/com/twitter/scalding/typed/TypedPipe.scala
 scalding/scalding-core/src/test/scala/com/twitter/scalding/filecache/DistributedCacheFileSpec.scala
 scalding/scalding-date/src/main/scala/com/twitter/scalding/Globifier.scala
-scalding/scalding-db/src/main/scala/com/twitter/scalding/db/macros/impl/ColumnDefinitionProviderImpl.scala
 scalding/scalding-jdbc/src/main/scala/com/twitter/scalding/jdbc/JDBCDriver.scala
 scaloid/project/JavaConversionHelpers.scala
 shapeless/core/src/test/scala/shapeless/generic.scala
@@ -588,7 +574,6 @@ slick/slick/src/sphinx/code/SqlToSlick.scala
 spark/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
 spark/core/src/main/scala/org/apache/spark/deploy/rest/StandaloneRestServer.scala
 spark/core/src/main/scala/org/apache/spark/deploy/worker/Worker.scala
-spark/core/src/main/scala/org/apache/spark/deploy/worker/WorkerArguments.scala
 spark/core/src/main/scala/org/apache/spark/rpc/netty/Inbox.scala
 spark/core/src/main/scala/org/apache/spark/rpc/netty/Outbox.scala
 spark/core/src/main/scala/org/apache/spark/scheduler/DAGScheduler.scala
@@ -638,9 +623,7 @@ spark/sql/core/src/test/scala/org/apache/spark/sql/test/ProcessTestUtils.scala
 spark/sql/hive-thriftserver/src/main/scala/org/apache/spark/sql/hive/thriftserver/SparkSQLCLIDriver.scala
 spark/sql/hive/src/main/scala/org/apache/spark/sql/hive/HiveMetastoreCatalog.scala
 spark/sql/hive/src/main/scala/org/apache/spark/sql/hive/HiveQl.scala
-spark/streaming/src/main/scala/org/apache/spark/streaming/dstream/StateDStream.scala
 spark/streaming/src/main/scala/org/apache/spark/streaming/util/BatchedWriteAheadLog.scala
-spark/streaming/src/test/scala/org/apache/spark/streaming/BasicOperationsSuite.scala
 spark/tools/src/main/scala/org/apache/spark/tools/GenerateMIMAIgnore.scala
 spire/core/shared/src/main/scala/spire/math/Interval.scala
 spire/core/shared/src/main/scala/spire/math/interval/Bound.scala

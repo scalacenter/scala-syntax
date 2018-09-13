@@ -368,40 +368,24 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
   }
 
   object LambdaArg {
-    type Paramss = Vector[List[Term.Param]]
+    private def doParams(f: Term.Function): Doc = {
+      dParams(f.`(`, f.params, f.`,`, f.`)`, forceParens = false) + space + f.`=>`
+    }
 
-    @tailrec
-    private final def getParamss(
-        f: Term.Function,
-        accum: Paramss = Vector.empty
-    ): (Paramss, Term) =
-      f.body match {
-        case g: Term.Function =>
-          getParamss(g, accum :+ f.params)
-        case Term.Block((g: Term.Function) :: Nil) =>
-          getParamss(g, accum :+ f.params)
-        case _ =>
-          (accum :+ f.params, f.body)
+    private def dFunction(b: Term.Block, f: Term.Function): Doc = {
+      def loop(f0: Term.Function): Doc = {
+        val next =
+          f0.body match {
+            case f1: Term.Function => loop(f1)
+            case Term.Block((f1: Term.Function) :: Nil) => loop(f1)
+            case body @ Term.Block(stats) => dStats(stats)
+            case body => print(body)
+          }
+
+        (doParams(f0) + line + next).grouped
       }
-
-    def dFunction(b: Term.Block, f: Term.Function): Doc = {
-      val (paramss, body) = getParamss(f)
-      val dbody = body match {
-        case Term.Block(stats) => dStats(stats)
-        case _ => print(body)
-      }
-      val dparamss = paramss.foldLeft(empty) {
-        case (accum, params) =>
-          accum + line + dParams(f.`(`, params, f.`,`, f.`)`, forceParens = false) + space + f.`=>`
-      }
-
-      val function =
-        (
-          dparamss.nested(2).grouped + line +
-            dbody
-        ).nested(2).grouped
-
-      (b.`{` + function + line + b.`}`).grouped
+      
+      b.`{` + space + loop(f).nested(2) + line + b.`}`
     }
 
     def unapply(args: List[Tree]): Option[Doc] = {

@@ -9,7 +9,10 @@ trait TreePrinterUtils extends WithPrinter {
   implicit class XtensionTrees(private val trees: List[Tree]) {
     def mkDoc(separators: List[Doc]): Doc = {
       if (separators.nonEmpty) {
-        assert(trees.size == separators.size + 1)
+        assert(
+          trees.size == separators.size + 1 ||
+          trees.size == separators.size
+        )
       }
       var i = 0
       val t = trees.size - 1

@@ -176,12 +176,14 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       options: Options,
       structuralOnly: Boolean
   ): Unit = {
+
     val original = original2.stripMargin.replace("'''", "\"\"\"")
     val expected = expected2.stripMargin.replace("'''", "\"\"\"")
     val testName = logger.revealWhitespace(original)
     test(testName) {
       val originalTree = TreePrinter.getRoot(original, options)
       val formattedCode = printTree(originalTree, options)
+
       val formattedTree =
         try {
           TreePrinter.getRoot(formattedCode, options)
