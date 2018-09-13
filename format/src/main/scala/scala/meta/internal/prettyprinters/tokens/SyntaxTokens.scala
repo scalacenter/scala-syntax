@@ -41,13 +41,35 @@ object SyntaxTokens {
 
   implicit class XtensionTermFunctionSyntax(private val tree: Term.Function) extends AnyVal {
     def tokenRigthArrow: RightArrow = 
-      if (tree.params.nonEmpty && tree.body.tokens.nonEmpty) {
-        tree.findBetween[RightArrow](_.params.last, _.body).get
+      if (tree.params.nonEmpty) {
+        if (tree.body.tokens.nonEmpty) tree.findBetween[RightArrow](_.params.last, _.body).get
+        else tree.findAfter[RightArrow](_.params.last).get
       }
-      else if (tree.params.nonEmpty) tree.findAfter[RightArrow](_.params.last).get
       else tree.find[RightArrow].get
+
+    def tokenLeftParen: Option[LeftParen] =
+      if (tree.params.nonEmpty) tree.findBefore[LeftParen](_.params.head)
+      else None
+
+    def tokenRightParen: Option[RightParen] =
+      if (tree.params.nonEmpty) {
+        if (tree.body.tokens.nonEmpty) tree.findBetween[RightParen](_.params.last, _.body)
+        else tree.findAfter[RightParen](_.params.last)
+      }
+      else None
+
+    def tokensComma: List[Comma] = commaSeparated(tree)(_.params)
+
     def `=>`(implicit trivia: AssociatedTrivias): Doc = 
       trivia.wrap(tree, tokenRigthArrow, S.`=>`)
+    def `(`(implicit trivia: AssociatedTrivias): Doc = 
+      trivia.addTrailingOpt(tree, tokenLeftParen, S.`(`)
+    def `)`(implicit trivia: AssociatedTrivias): Doc = 
+      trivia.addLeadingOpt(tree, tokenRightParen, S.`)`)
+    def `,`(implicit trivia: AssociatedTrivias): List[Doc] =
+      tokensComma.map(
+        token => trivia.wrap(tree, token, S.`,`, isSeparator = true)
+      )
   }
 
   implicit class XtensionTermIfSyntax(private val tree: Term.If)

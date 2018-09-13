@@ -333,7 +333,9 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
         // println("----")
         // println(input.text)
         // println("----")
+        println()
         println(formatted)
+        println()
         // assert(false)
         assertNoDiff(originalComments, formattedComments)
       }

@@ -11,4 +11,10 @@ object O {
   f(x => /* Term.Function T */ ())
 
   a op { _ => /*T*/ }
+
+  ( // Term.Function T (
+    a, // Term.Function T ,
+    b
+    // Term.Function L )
+  ) => a
 }

@@ -27,7 +27,7 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       case Nil => `(` + `)`
       case param :: Nil if !param.is[Type.Tuple] =>
         AnyInfixTyp.wrap(param)
-      case params => dApplyParen(empty, params)
+      case params => dApplyParen(empty, `(`, params, Nil, `)`)
     }
     dparams + space + `=>` + space + Typ.wrap(res)
   }
@@ -50,27 +50,11 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
   def dTargs(targs: List[Tree]): Doc =
     dApplyBracket(empty, targs)
 
-  def dArgs(args: List[Tree]): Doc =
-    dArgs(`(`, args, `)`)
+  def dArgs(`(`: Doc, args: List[Tree], `,`: List[Doc], `)`: Doc): Doc =
+    dApplyParen(empty, `(`, args, `,`, `)`)
 
-  def dArgs(`(`: Doc, args: List[Tree], `)`: Doc): Doc =
-    dApplyParen(empty, `(`, args, `)`)
-
-  def dArgss(argss: List[List[Term]]): Doc =
-    joined(argss.map(dArgs))
-
-  def dApplyParen(fun: Doc, args: List[Tree]): Doc =
-    dApply(fun, args, `(`, `)`)
-
-  def dApplyParen(fun: Doc, `(`: Doc, args: List[Tree], `)`: Doc): Doc =
-    dApplyParen(fun, args, Nil)
-
-  def dApplyParen(
-      fun: Doc,
-      args: List[Tree],
-      commas: List[Doc]
-  ): Doc =
-    dApply(fun, args, commas)
+  def dApplyParen(fun: Doc, `(`: Doc, args: List[Tree], `,`: List[Doc], `)`: Doc): Doc =
+    dApply(fun, `(`, args, `,`, `)`)
 
   def dApplyBracket(fun: Doc, args: List[Tree]): Doc =
     if (args.isEmpty) fun
@@ -81,12 +65,13 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
     dargs.tightBracketBy(fun + left, right)
   }
 
-  def dApply(
-      fun: Doc,
-      args: List[Tree],
-      commas: List[Doc],
-  ): Doc = {
-    args.mkDoc(commas).tightBracketBy(fun + `(`, `)`)
+  def dApply(fun: Doc, 
+             `(`: Doc, 
+             args: List[Tree],
+             `,`: List[Doc], 
+             `)`: Doc): Doc = {
+
+    args.mkDoc(`,`).tightBracketBy(fun + `(`, `)`)
   }
 
   def dApplyParenPat(fun: Doc, args: List[Pat]): Doc = {
@@ -325,18 +310,24 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
     print(prefix) + dquote + dhead + sparts + dquote
   }
 
-  def dParams(params: List[Term.Param], forceParens: Boolean): Doc =
+  def dParams(`(`: Doc, 
+              params: List[Term.Param],
+              `,`: List[Doc],
+              `)`: Doc,
+              forceParens: Boolean): Doc = {
+
     params match {
       case param :: Nil =>
         val dparam = print(param)
         param.decltpe match {
           case Some(tpe) =>
-            if (forceParens) wrapParens(dparam)
+            if (forceParens) wrapParens(`(`, dparam, `)`)
             else SimpleExpr.wrap0(tpe, dparam)
           case _ => dparam
         }
-      case _ => dApplyParen(empty, params)
+      case _ => dApplyParen(empty, `(`, params, `,`, `)`)
     }
+  }
 
   def dPat(pat: Tree): Doc =
     print(mkPat(pat))
@@ -399,7 +390,7 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       }
       val dparamss = paramss.foldLeft(empty) {
         case (accum, params) =>
-          accum + line + dParams(params, forceParens = false) + space + `=>`
+          accum + line + dParams(`(`, params, Nil, `)`, forceParens = false) + space + `=>`
       }
 
       val function =

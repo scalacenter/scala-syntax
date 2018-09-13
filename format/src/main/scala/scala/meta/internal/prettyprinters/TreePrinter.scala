@@ -145,7 +145,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           case t: Type.Var => print(t.name)
           case t: Type.Function =>
             dTypeFunction(t.params, t.res)
-          case t: Type.Tuple => dApplyParen(empty, t.args)
+          case t: Type.Tuple => dArgs(`(`, t.args, Nil, `)`)
           case t: Type.Project => SimpleTyp.wrap(t.qual) + `#` + print(t.name)
           case t: Type.Singleton =>
             t.ref match {
@@ -216,7 +216,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             dBlock(`{`, t.cases, `}`)
           case t: Term.Function =>
             val dbody = (line + print(t.body)).nested(2).grouped
-            dParams(t.params, forceParens = true) + space + t.`=>` + dbody
+            dParams(t.`(`, t.params, t.`,`, t.`)`, forceParens = true) + space + t.`=>` + dbody
           case t: Term.Tuple =>
             t.args.mkDoc(t.`(`, t.`,`, t.`)`)
 
@@ -285,11 +285,11 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
               case Lit.Unit() :: Nil =>
                 `(` + `(` + `)` + `)`
               case (_: Term.Tuple) :: Nil =>
-                dArgs(t.args)
+                dArgs(`(`, t.args, Nil, `)`)
               case arg :: Nil =>
                 group.wrap(arg, Side.Right)
               case args =>
-                dArgs(args)
+                dArgs(`(`, args, Nil, `)`)
             }
             val dlhsHasNewline = dlhs.flatten.isEmpty
 
@@ -389,7 +389,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           case _ => AnnotTyp.wrap(t.tpe) + print(t.name)
         }
         val dinit = t.argss.foldLeft(dfun) {
-          case (accum, args) => dApplyParen(accum, args)
+          case (accum, args) => dApplyParen(accum, `(`, args, Nil, `)`)
         }
         dinit
       case t: Self =>
@@ -543,7 +543,8 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
       case m: Mod =>
         m match {
           case t: Mod.Annot =>
-            `@` + SimpleTyp.wrap(t.init.tpe) + dArgss(t.init.argss)
+            val dArgss = joined(t.init.argss.map(args => dArgs(`(`, args, Nil, `)`)))
+            `@` + SimpleTyp.wrap(t.init.tpe) + dArgss
           case t: Mod.Private => dWithin(`private`, t.within)
           case t: Mod.Protected => dWithin(`protected`, t.within)
           case _ => {
@@ -585,7 +586,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
                   Pattern3(operator).wrap(single, Side.Right)
                 }
                 case multiple => {
-                  dApplyParen(empty, multiple)
+                  dArgs(`(`, multiple, Nil, `)`)
                 }
               }
 
