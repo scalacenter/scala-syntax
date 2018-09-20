@@ -1,5 +1,4 @@
 PredictionIO/data/src/main/scala/io/prediction/data/webhooks/segmentio/SegmentIOConnector.scala
-PredictionIO/examples/experimental/scala-parallel-recommendation-mongo-datasource/src/main/scala/DataSource.scala
 PredictionIO/examples/experimental/scala-parallel-similarproduct-localmodel/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/experimental/scala-refactor-test/src/main/scala/Algorithm.scala
 PredictionIO/examples/scala-parallel-classification/add-algorithm/src/main/scala/Engine.scala
@@ -8,7 +7,6 @@ PredictionIO/examples/scala-parallel-classification/custom-attributes/src/main/s
 PredictionIO/examples/scala-parallel-ecommercerecommendation/train-with-rate-event/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-prepartor/src/main/scala/Preparator.scala
 PredictionIO/examples/scala-parallel-similarproduct/add-rateevent/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/scala-parallel-similarproduct/multi/src/main/scala/DataSource.scala
 PredictionIO/examples/scala-parallel-similarproduct/multi/src/main/scala/Engine.scala
 PredictionIO/examples/scala-parallel-similarproduct/multi/src/main/scala/LikeAlgorithm.scala
 akka/akka-actor-tests/src/test/scala/akka/actor/ActorDSLSpec.scala
@@ -46,7 +44,6 @@ akka/akka-docs/rst/scala/code/docs/pattern/SchedulerPatternSpec.scala
 akka/akka-docs/rst/scala/code/docs/persistence/PersistenceDocSpec.scala
 akka/akka-docs/rst/scala/code/docs/persistence/PersistenceSchemaEvolutionDocSpec.scala
 akka/akka-docs/rst/scala/code/docs/stream/cookbook/RecipeMultiGroupBy.scala
-akka/akka-http-core/src/main/scala/akka/http/impl/engine/client/PoolGateway.scala
 akka/akka-http-core/src/main/scala/akka/http/impl/engine/client/PoolInterfaceActor.scala
 akka/akka-http-core/src/main/scala/akka/http/impl/engine/parsing/HttpHeaderParser.scala
 akka/akka-http-core/src/main/scala/akka/http/impl/engine/rendering/HttpRequestRendererFactory.scala
@@ -106,7 +103,6 @@ breeze/math/src/test/scala/breeze/stats/distributions/WaldTest.scala
 breeze/viz/src/main/scala/breeze/plot/PaintScale.scala
 breeze/viz/src/main/scala/breeze/plot/Plot.scala
 ensime-server/core/src/it/scala/org/ensime/intg/BasicWorkflow.scala
-ensime-server/core/src/main/scala/org/ensime/indexer/DatabaseService.scala
 ensime-server/core/src/main/scala/org/ensime/indexer/SourceResolver.scala
 ensime-server/project/EnsimeBuild.scala
 fastparse/scalaparse/jvm/src/test/resources/scalaparse/GenJSCode.scala
@@ -189,7 +185,6 @@ intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/ScalaPsiUtil.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/InferUtil.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/statements/ScTypeAliasDefinition.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/api/toplevel/typedef/ScMember.scala
-intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/controlFlow/Instruction.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/impl/base/ScFieldIdImpl.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/impl/base/types/ScParameterizedTypeElementImpl.scala
 intellij-scala/src/org/jetbrains/plugins/scala/lang/psi/impl/base/types/ScSimpleTypeElementImpl.scala
@@ -213,11 +208,8 @@ intellij-scala/test/org/jetbrains/plugins/scala/codeInsight/delegateMethod/Scala
 intellij-scala/test/org/jetbrains/plugins/scala/codeInsight/delegateMethod/ScalaDelegateToJavaMethodTest.scala
 intellij-scala/test/org/jetbrains/plugins/scala/performance/DownloadingAndImportingTestCase.scala
 intellij-scala/testdata/extractMethod/input/InsideClojure.scala
-intellij-scala/testdata/keywordCompletion/generatedTests/autoTest_44.scala
 intellij-scala/testdata/keywordCompletion/generatedTests/autoTest_46.scala
-intellij-scala/testdata/keywordCompletion/generatedTests/autoTest_71.scala
 intellij-scala/testdata/keywordCompletion/generatedTests/autoTest_73.scala
-intellij-scala/testdata/keywordCompletion/modifiers/classParam.scala
 intellij-scala/testdata/keywordCompletion/modifiers/templateDef.scala
 intellij-scala/testdata/parameterInfo/functionParameterInfo/constructors/SelfInvocation.scala
 intellij-scala/testdata/parameterInfo/patternParameterInfo/unapply/SelfType.scala
@@ -333,12 +325,10 @@ scala-js/junit-plugin/src/main/scala/org/scalajs/junit/plugin/ScalaJSJUnitPlugin
 scala-js/library/src/main/scala/scala/scalajs/js/typedarray/TypedArrayBufferOps.scala
 scala-js/library/src/main/scala/scala/scalajs/js/typedarray/package.scala
 scala-js/library/src/main/scala/scala/scalajs/niocharset/ISO_8859_1.scala
-scala-js/library/src/main/scala/scala/scalajs/niocharset/ISO_8859_1_And_US_ASCII_Common.scala
 scala-js/library/src/main/scala/scala/scalajs/niocharset/US_ASCII.scala
 scala-js/library/src/main/scala/scala/scalajs/niocharset/UTF_16.scala
 scala-js/library/src/main/scala/scala/scalajs/niocharset/UTF_16BE.scala
 scala-js/library/src/main/scala/scala/scalajs/niocharset/UTF_16LE.scala
-scala-js/library/src/main/scala/scala/scalajs/niocharset/UTF_16_Common.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/EnvironmentInfo.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/RuntimeLong.scala
 scala-js/scalalib/overrides-2.10/scala/reflect/Manifest.scala
@@ -464,7 +454,6 @@ scala/test/files/pos/compile.scala
 scala/test/files/pos/compile1.scala
 scala/test/files/pos/depmet_implicit_norm_ret.scala
 scala/test/files/pos/depmet_implicit_oopsla_zipwith.scala
-scala/test/files/pos/exhaust_2.scala
 scala/test/files/pos/misc-unapply_pos.scala
 scala/test/files/pos/patmat-suppress.scala
 scala/test/files/pos/t0061.scala
@@ -524,7 +513,6 @@ scala/test/pending/pos/t5712.scala
 scala/test/pending/pos/t6161.scala
 scala/test/pending/shootout/meteor.scala-4.scala
 scala/test/pending/shootout/revcomp.scala-3.scala
-scala/test/scaladoc/resources/implicits-chaining-res.scala
 scalafx-ensemble/src/main/scala/scalafx/ensemble/example/charts/EnsembleBarChart.scala
 scalafx-ensemble/src/main/scala/scalafx/ensemble/example/controls/EnsembleColorPicker.scala
 scalafx-ensemble/src/main/scala/scalafx/ensemble/example/controls/EnsembleComboBox.scala
@@ -565,7 +553,6 @@ slick/slick/src/macro/scala/slick/util/MacroSupportInterpolationImpl.scala
 slick/slick/src/main/scala/slick/jdbc/JdbcModelBuilder.scala
 slick/slick/src/main/scala/slick/jdbc/JdbcProfile.scala
 slick/slick/src/main/scala/slick/jdbc/OracleProfile.scala
-slick/slick/src/main/scala/slick/lifted/Constraint.scala
 slick/slick/src/main/scala/slick/lifted/FunctionSymbolExtensionMethods.scala
 slick/slick/src/main/scala/slick/sql/SqlProfile.scala
 slick/slick/src/sphinx/code/LiftedEmbedding.scala
@@ -593,7 +580,6 @@ spark/mllib/src/main/scala/org/apache/spark/ml/classification/DecisionTreeClassi
 spark/mllib/src/main/scala/org/apache/spark/ml/classification/GBTClassifier.scala
 spark/mllib/src/main/scala/org/apache/spark/ml/classification/RandomForestClassifier.scala
 spark/mllib/src/main/scala/org/apache/spark/ml/param/params.scala
-spark/mllib/src/main/scala/org/apache/spark/ml/recommendation/ALS.scala
 spark/mllib/src/main/scala/org/apache/spark/ml/tree/impl/RandomForest.scala
 spark/mllib/src/main/scala/org/apache/spark/mllib/clustering/LDAModel.scala
 spark/mllib/src/main/scala/org/apache/spark/mllib/linalg/Vectors.scala

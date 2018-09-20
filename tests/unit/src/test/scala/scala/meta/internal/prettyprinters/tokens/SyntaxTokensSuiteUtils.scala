@@ -11,8 +11,6 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
   val dq = '"'
   val tq = s"${dq}${dq}${dq}"
 
-  def classCommas(cls: Defn.Class): List[Comma] = cls.ctor.tokensComma.flatten
-
   def checkNone[T <: Tree](f: T => Option[Token])(source: String): Unit = {
     val tree = source.parse[Stat].get.asInstanceOf[T]
     test(source) {

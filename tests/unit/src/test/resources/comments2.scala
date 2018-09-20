@@ -20,3 +20,25 @@ object O {
 
   a match { case _ => { /* Pat Block T { */ } }
 }
+
+class X
+class X(/*Defn.Class T ( 1 */)
+class X(/*Defn.Class T ( 2 */a: A
+  /*Defn.Class L ) 1 */
+)
+class X(/*Defn.Class T ( 3 */a: A, b: B
+  /*Defn.Class L ) 2 */
+)
+class X(/*Defn.Class T ( 4 */a: A)(
+  /*Defn.Class L ) 3 */
+)
+
+class X ( // Defn.Class T ( 5
+  a: A, // T , 1
+  b: B
+  /*Defn.Class L ) 4 */
+)(
+  c: C, // T, 2
+  d: D
+  /*Defn.Class L ) 5 */
+)

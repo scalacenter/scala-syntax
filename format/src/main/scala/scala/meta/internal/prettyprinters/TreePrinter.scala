@@ -451,7 +451,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           print(t.name),
           t.tparams,
           t.paramss,
-          t.`,`,
+          t.paramsSeparator,
           Some(t.decltpe)
         )
       case t: Defn.Macro =>
@@ -461,7 +461,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           print(t.name),
           t.tparams,
           t.paramss,
-          t.`,`,
+          t.paramsSeparator,
           t.decltpe,
           `=` + space + `macro` + space + print(t.body)
         )
@@ -472,7 +472,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           print(t.name),
           t.tparams,
           t.paramss,
-          t.`,`,
+          t.paramsSeparator,
           t.decltpe,
           dBody(t.body)
         )
@@ -505,7 +505,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val dsignature =
           dApplyBracket(print(t.name), t.tparams) +
             dctormods +
-            dParamss(t.ctor.paramss, t.ctor.`,`)
+            dParamss(t.ctor.paramss, t.ctor.paramsSeparator)
         spaceSeparated(
           dMods(t.mods) ::
             `class` ::
@@ -539,7 +539,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val dbody =
           if (t.stats.isEmpty) dBody(t.init)
           else `=` + space + dBlock(t.init :: t.stats)
-        dDef(t.mods, `def`, `this`, Nil, t.paramss, t.`,`, None, dbody)
+        dDef(t.mods, `def`, `this`, Nil, t.paramss, t.paramsSeparator, None, dbody)
       case m: Mod =>
         m match {
           case t: Mod.Annot =>
