@@ -56,7 +56,13 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
   def dArgs(`(`: Doc, args: List[Tree], `,`: List[Doc], `)`: Doc): Doc =
     dApplyParen(empty, `(`, args, `,`, `)`)
 
-  def dApplyParen(fun: Doc, `(`: Doc, args: List[Tree], `,`: List[Doc], `)`: Doc): Doc =
+  def dApplyParen(
+      fun: Doc,
+      `(`: Doc,
+      args: List[Tree],
+      `,`: List[Doc],
+      `)`: Doc
+  ): Doc =
     dApply(fun, `(`, args, `,`, `)`)
 
   def dApplyBracket(fun: Doc, args: List[Tree]): Doc =
@@ -68,11 +74,13 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
     dargs.tightBracketBy(fun + left, right)
   }
 
-  def dApply(fun: Doc, 
-             `(`: Doc, 
-             args: List[Tree],
-             `,`: List[Doc], 
-             `)`: Doc): Doc = {
+  def dApply(
+      fun: Doc,
+      `(`: Doc,
+      args: List[Tree],
+      `,`: List[Doc],
+      `)`: Doc
+  ): Doc = {
 
     args.mkDoc(`,`).tightBracketBy(fun + `(`, `)`)
   }
@@ -142,7 +150,10 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
   def dMods(mods: List[Mod]): Doc =
     intercalate(space, mods.map(print))
 
-  def dParamss(paramss: List[List[Term.Param]], separators: List[tokens.ParamSeparator]): Doc =
+  def dParamss(
+      paramss: List[List[Term.Param]],
+      separators: List[tokens.ParamSeparator]
+  ): Doc =
     paramss match {
       case Nil => empty
       case List(Nil) => {
@@ -171,11 +182,14 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       }
     }
 
-  def joined(docss: List[List[Doc]], separators: List[tokens.ParamSeparator]): Doc = {
+  def joined(
+      docss: List[List[Doc]],
+      separators: List[tokens.ParamSeparator]
+  ): Doc = {
     val separators0 =
       if (separators.isEmpty) {
-        docss.map(docs =>
-          ParamSeparator(`(`, docs.map(_ => `,` + space).drop(1), `)`)
+        docss.map(
+          docs => ParamSeparator(`(`, docs.map(_ => `,` + space).drop(1), `)`)
         )
       } else separators
 
@@ -185,7 +199,7 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
         if (docs.nonEmpty) {
           assert(
             docs.size == separator.`,`.size + 1 ||
-            docs.size == separator.`,`.size
+              docs.size == separator.`,`.size
           )
         }
 
@@ -322,11 +336,13 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
     print(prefix) + dquote + dhead + sparts + dquote
   }
 
-  def dParams(`(`: Doc, 
-              params: List[Term.Param],
-              `,`: List[Doc],
-              `)`: Doc,
-              forceParens: Boolean): Doc = {
+  def dParams(
+      `(`: Doc,
+      params: List[Term.Param],
+      `,`: List[Doc],
+      `)`: Doc,
+      forceParens: Boolean
+  ): Doc = {
 
     params match {
       case param :: Nil =>
@@ -394,7 +410,7 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
 
         (doParams(f0) + line + next).grouped
       }
-      
+
       b.`{` + space + loop(f).nested(2) + line + b.`}`
     }
 

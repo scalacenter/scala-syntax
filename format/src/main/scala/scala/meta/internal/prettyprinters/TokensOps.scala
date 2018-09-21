@@ -31,8 +31,8 @@ object TokensOps {
       case _ =>
         sys.error(
           s"""|undefined token partial order: ${a.syntax} ??? ${b.syntax}
-              |${a.getClass} ${a.structure}
-              |${b.getClass} ${b.structure}"""
+           |${a.getClass} ${a.structure}
+           |${b.getClass} ${b.structure}"""
         )
     }
   }

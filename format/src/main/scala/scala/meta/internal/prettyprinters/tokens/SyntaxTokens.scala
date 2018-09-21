@@ -11,20 +11,24 @@ import scala.meta.internal.paiges.Doc
 import scala.meta.internal.prettyprinters.{ScalaToken => S}
 
 case class ParamSeparator(
-  `(`: Doc,
-  `,`: List[Doc],
-  `)`: Doc
+    `(`: Doc,
+    `,`: List[Doc],
+    `)`: Doc
 )
 
 case class ParamSeparatorTokens(
-  tokenLeftParen: LeftParen,
-  tokensComma: List[Comma],
-  tokenRightParen: RightParen
+    tokenLeftParen: LeftParen,
+    tokensComma: List[Comma],
+    tokenRightParen: RightParen
 ) {
-  def toParamSeparator(tree: Tree)(implicit trivia: AssociatedTrivias): ParamSeparator = {
+  def toParamSeparator(
+      tree: Tree
+  )(implicit trivia: AssociatedTrivias): ParamSeparator = {
     ParamSeparator(
       trivia.addTrailing(tree, tokenLeftParen, S.`(`),
-      tokensComma.map(comma => trivia.wrap(tree, comma, S.`,`, isSeparator = true)),
+      tokensComma.map(
+        comma => trivia.wrap(tree, comma, S.`,`, isSeparator = true)
+      ),
       trivia.addLeading(tree, tokenRightParen, S.`)`)
     )
   }
@@ -43,11 +47,13 @@ object SyntaxTokens {
       _.map(token => trivia.wrap(tree, token, S.`,`, isSeparator = true))
     )
 
-  implicit class XtensionTermTupleSyntax(private val tree: Term.Tuple) extends AnyVal {
-    
+  implicit class XtensionTermTupleSyntax(private val tree: Term.Tuple)
+      extends AnyVal {
+
     def tokensComma: List[Comma] = commaSeparated(tree)(_.args)
     def tokenLeftParen: LeftParen = tree.find[LeftParen].get
-    def tokenRightParen: RightParen = tree.findAfter[RightParen](_.args.last).get
+    def tokenRightParen: RightParen =
+      tree.findAfter[RightParen](_.args.last).get
 
     def `,`(implicit trivia: AssociatedTrivias): List[Doc] = {
       tokensComma.map(
@@ -55,20 +61,21 @@ object SyntaxTokens {
       )
     }
 
-    def `(`(implicit trivia: AssociatedTrivias): Doc = 
+    def `(`(implicit trivia: AssociatedTrivias): Doc =
       trivia.addTrailing(tree, tokenLeftParen, S.`(`)
-    def `)`(implicit trivia: AssociatedTrivias): Doc = 
+    def `)`(implicit trivia: AssociatedTrivias): Doc =
       trivia.addLeading(tree, tokenRightParen, S.`)`)
 
   }
 
-  implicit class XtensionTermFunctionSyntax(private val tree: Term.Function) extends AnyVal {
-    def tokenRigthArrow: RightArrow = 
+  implicit class XtensionTermFunctionSyntax(private val tree: Term.Function)
+      extends AnyVal {
+    def tokenRigthArrow: RightArrow =
       if (tree.params.nonEmpty) {
-        if (tree.body.tokens.nonEmpty) tree.findBetween[RightArrow](_.params.last, _.body).get
+        if (tree.body.tokens.nonEmpty)
+          tree.findBetween[RightArrow](_.params.last, _.body).get
         else tree.findAfter[RightArrow](_.params.last).get
-      }
-      else tree.find[RightArrow].get
+      } else tree.find[RightArrow].get
 
     def tokenLeftParen: Option[LeftParen] =
       if (tree.params.nonEmpty) tree.findBefore[LeftParen](_.params.head)
@@ -76,18 +83,18 @@ object SyntaxTokens {
 
     def tokenRightParen: Option[RightParen] =
       if (tree.params.nonEmpty) {
-        if (tree.body.tokens.nonEmpty) tree.findBetween[RightParen](_.params.last, _.body)
+        if (tree.body.tokens.nonEmpty)
+          tree.findBetween[RightParen](_.params.last, _.body)
         else tree.findAfter[RightParen](_.params.last)
-      }
-      else None
+      } else None
 
     def tokensComma: List[Comma] = commaSeparated(tree)(_.params)
 
-    def `=>`(implicit trivia: AssociatedTrivias): Doc = 
+    def `=>`(implicit trivia: AssociatedTrivias): Doc =
       trivia.wrap(tree, tokenRigthArrow, S.`=>`)
-    def `(`(implicit trivia: AssociatedTrivias): Doc = 
+    def `(`(implicit trivia: AssociatedTrivias): Doc =
       trivia.addTrailingOpt(tree, tokenLeftParen, S.`(`)
-    def `)`(implicit trivia: AssociatedTrivias): Doc = 
+    def `)`(implicit trivia: AssociatedTrivias): Doc =
       trivia.addLeadingOpt(tree, tokenRightParen, S.`)`)
     def `,`(implicit trivia: AssociatedTrivias): List[Doc] =
       tokensComma.map(
@@ -207,22 +214,22 @@ object SyntaxTokens {
 
     def tokensExtends: Option[KwExtends] = {
       if (tree.hasTokens && (tree.inits.nonEmpty || tree.early.nonEmpty)) {
-        tree.parent.flatMap{p =>
+        tree.parent.flatMap { p =>
           val tokenList = TokenList(p.tokens)
-          tokenList.leading(tree.tokens.head).collectFirst{case x: KwExtends => x}
+          tokenList.leading(tree.tokens.head).collectFirst {
+            case x: KwExtends => x
+          }
         }
       } else None
     }
 
     def `extends`(implicit trivia: AssociatedTrivias): Doc = {
       val kw = S.`extends`
-      tree.parent.map(p =>
-        trivia.wrapOpt(p, tokensExtends, kw)
-      ).getOrElse(kw)
+      tree.parent.map(p => trivia.wrapOpt(p, tokensExtends, kw)).getOrElse(kw)
     }
 
     def tokensWith: List[KwWith] = {
-      separated(tree.tokens, tree.inits, {case x: KwWith => x})
+      separated(tree.tokens, tree.inits, { case x: KwWith => x })
     }
 
     def `with`(implicit trivia: AssociatedTrivias): List[Doc] = {
@@ -240,35 +247,37 @@ object SyntaxTokens {
     }
   }
 
-  def getTokensParamsSeparator(tokens: Tokens, paramss: List[List[Tree]]): List[ParamSeparatorTokens] = {
+  def getTokensParamsSeparator(
+      tokens: Tokens,
+      paramss: List[List[Tree]]
+  ): List[ParamSeparatorTokens] = {
     try {
       val parensBuilder = List.newBuilder[(LeftParen, RightParen)]
       val matching = MatchingParens(tokens)
       val tokenList = TokenList(tokens)
 
-      var left = tokens.collectFirst{ case x: LeftParen => x }
+      var left = tokens.collectFirst { case x: LeftParen => x }
       while (left.nonEmpty) {
         val right = matching.close(left.get).get
         parensBuilder += ((left.get, right))
-        left = tokenList.collectFirst(right){case x: LeftParen => x}
+        left = tokenList.collectFirst(right) { case x: LeftParen => x }
       }
       val parens = parensBuilder.result()
 
       assert(
         parens.size == paramss.filterNot(_.isEmpty).size ||
-        parens.size == paramss.size,
+          parens.size == paramss.size,
         s"$parens != $paramss"
       )
 
-      paramss.zip(parens).map { 
+      paramss.zip(parens).map {
         case (params, (left, right)) =>
           val commas = commaSeparated2(tokens, params)
           ParamSeparatorTokens(left, commas, right)
       }
     } catch {
-      case ex @ (_: java.util.NoSuchElementException 
-               | _: java.lang.AssertionError
-               | _: java.lang.AssertionError) => {
+      case ex @ (_: java.util.NoSuchElementException |
+          _: java.lang.AssertionError | _: java.lang.AssertionError) => {
         println()
         println()
         println(tokens)
@@ -279,42 +288,56 @@ object SyntaxTokens {
   }
 
   def slice(tokens: Tokens, start: Tree, end: Tree): Tokens = {
-    (tokens.binarySearch(start.tokens.last), tokens.binarySearch(end.tokens.head)) match {
+    (
+      tokens.binarySearch(start.tokens.last),
+      tokens.binarySearch(end.tokens.head)
+    ) match {
       case (Some(s), Some(e)) => tokens.slice(s + 1, e)
       case _ => tokens
     }
   }
 
   def commaSeparated2(tokens: Tokens, params: List[Tree]): List[Comma] = {
-    separated(tokens, params, {case x: Comma => x})
+    separated(tokens, params, { case x: Comma => x })
   }
 
-  def separated[T](tokens: Tokens, params: List[Tree], pf: PartialFunction[Token, T]): List[T] = {
+  def separated[T](
+      tokens: Tokens,
+      params: List[Tree],
+      pf: PartialFunction[Token, T]
+  ): List[T] = {
     params match {
       case Nil => Nil
       case _ :: Nil => Nil
       case _ =>
         params
           .sliding(2, 1)
-          .map { case List(l, r) => 
-            slice(tokens, l, r).collectFirst(pf).get
+          .map {
+            case List(l, r) =>
+              slice(tokens, l, r).collectFirst(pf).get
           }
           .toList
     }
   }
 
-  implicit class XtensionCtorPrimary(private val tree: Ctor.Primary) extends AnyVal {
-    def paramsSeparator(implicit trivia: AssociatedTrivias): List[ParamSeparator] =
+  implicit class XtensionCtorPrimary(private val tree: Ctor.Primary)
+      extends AnyVal {
+    def paramsSeparator(
+        implicit trivia: AssociatedTrivias
+    ): List[ParamSeparator] =
       tokensParamsSeparator.map(_.toParamSeparator(tree))
 
     def tokensParamsSeparator: List[ParamSeparatorTokens] = {
       if (tree.hasTokens && tree.tokens.nonEmpty) {
         val tokenList = TokenList(tree.tokens)
-        val start = 
+        val start =
           if (tree.mods.nonEmpty) {
-            tokenList.trailing(tree.mods.last.tokens.last).headOption.getOrElse(
-              tree.tokens.last
-            )
+            tokenList
+              .trailing(tree.mods.last.tokens.last)
+              .headOption
+              .getOrElse(
+                tree.tokens.last
+              )
           } else {
             tree.tokens.head
           }
@@ -327,8 +350,11 @@ object SyntaxTokens {
     }
   }
 
-  implicit class XtensionCtorSecondary(private val tree: Ctor.Secondary) extends AnyVal {
-    def paramsSeparator(implicit trivia: AssociatedTrivias): List[ParamSeparator] =
+  implicit class XtensionCtorSecondary(private val tree: Ctor.Secondary)
+      extends AnyVal {
+    def paramsSeparator(
+        implicit trivia: AssociatedTrivias
+    ): List[ParamSeparator] =
       tokensParamsSeparator.map(_.toParamSeparator(tree))
 
     def tokensParamsSeparator: List[ParamSeparatorTokens] = {
@@ -339,8 +365,11 @@ object SyntaxTokens {
     }
   }
 
-  implicit class XtensionDefnMacro(private val tree: Defn.Macro) extends AnyVal {
-    def paramsSeparator(implicit trivia: AssociatedTrivias): List[ParamSeparator] =
+  implicit class XtensionDefnMacro(private val tree: Defn.Macro)
+      extends AnyVal {
+    def paramsSeparator(
+        implicit trivia: AssociatedTrivias
+    ): List[ParamSeparator] =
       tokensParamsSeparator.map(_.toParamSeparator(tree))
 
     def tokensParamsSeparator: List[ParamSeparatorTokens] = {
@@ -352,7 +381,9 @@ object SyntaxTokens {
   }
 
   implicit class XtensionDefnDef(private val tree: Defn.Def) extends AnyVal {
-    def paramsSeparator(implicit trivia: AssociatedTrivias): List[ParamSeparator] =
+    def paramsSeparator(
+        implicit trivia: AssociatedTrivias
+    ): List[ParamSeparator] =
       tokensParamsSeparator.map(_.toParamSeparator(tree))
 
     def tokensParamsSeparator: List[ParamSeparatorTokens] = {
@@ -363,22 +394,23 @@ object SyntaxTokens {
     }
   }
 
-  def doDef(tokens: Tokens,
-            name: Tree,
-            tparams: List[Tree],
-            paramss: List[List[Tree]],
-            decltpe: Option[Tree],
-            body: Tree): List[ParamSeparatorTokens] = {
-    
+  def doDef(
+      tokens: Tokens,
+      name: Tree,
+      tparams: List[Tree],
+      paramss: List[List[Tree]],
+      decltpe: Option[Tree],
+      body: Tree
+  ): List[ParamSeparatorTokens] = {
+
     val tokenList = TokenList(tokens)
 
     val start = defStart(name, tparams, tokenList)
-    
+
     val end =
       if (decltpe.nonEmpty && decltpe.get.tokens.nonEmpty) {
         tokenList.leading(decltpe.get.tokens.head).find(_.is[Colon]).get
-      }
-      else {
+      } else {
         val bodyStart = body.tokens.head
         val beforeBody = tokenList.leading(bodyStart)
 
@@ -392,24 +424,32 @@ object SyntaxTokens {
   }
 
   def defStart(name: Tree, tparams: List[Tree], tokenList: TokenList): Token = {
-    if (tparams.nonEmpty)  {
-      val bracket = tokenList.trailing(tparams.last.tokens.last).find(_.is[RightBracket]).get
+    if (tparams.nonEmpty) {
+      val bracket = tokenList
+        .trailing(tparams.last.tokens.last)
+        .find(_.is[RightBracket])
+        .get
       val beforeBracket = tokenList.trailing(bracket)
-      beforeBracket.find(_.is[LeftParen]).getOrElse(
-        tokenList.next(bracket)
-      )
-    }
-    else  {
+      beforeBracket
+        .find(_.is[LeftParen])
+        .getOrElse(
+          tokenList.next(bracket)
+        )
+    } else {
       val nameToken = name.tokens.last
       val afterName = tokenList.trailing(nameToken)
-      afterName.find(_.is[LeftParen]).getOrElse(
-        tokenList.next(nameToken)
-      )
+      afterName
+        .find(_.is[LeftParen])
+        .getOrElse(
+          tokenList.next(nameToken)
+        )
     }
   }
 
   implicit class XtensionDeclDef(private val tree: Decl.Def) extends AnyVal {
-    def paramsSeparator(implicit trivia: AssociatedTrivias): List[ParamSeparator] =
+    def paramsSeparator(
+        implicit trivia: AssociatedTrivias
+    ): List[ParamSeparator] =
       tokensParamsSeparator.map(_.toParamSeparator(tree))
 
     def tokensParamsSeparator: List[ParamSeparatorTokens] = {
@@ -436,15 +476,20 @@ object SyntaxTokens {
   }
 
   implicit class XtensionInit(private val tree: Init) extends AnyVal {
-    def paramsSeparator(implicit trivia: AssociatedTrivias): List[ParamSeparator] =
+    def paramsSeparator(
+        implicit trivia: AssociatedTrivias
+    ): List[ParamSeparator] =
       tokensParamsSeparator.map(_.toParamSeparator(tree))
 
     def tokensParamsSeparator: List[ParamSeparatorTokens] = {
       if (tree.hasTokens && tree.tokens.nonEmpty) {
         val tokenList = TokenList(tree.tokens)
-        val start = tokenList.trailing(tree.tpe.tokens.last).headOption.getOrElse(
-          tree.tokens.last 
-        )
+        val start = tokenList
+          .trailing(tree.tpe.tokens.last)
+          .headOption
+          .getOrElse(
+            tree.tokens.last
+          )
         val end = tree.tokens.last
 
         if (start != end) {

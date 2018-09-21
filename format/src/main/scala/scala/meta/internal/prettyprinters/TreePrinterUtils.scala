@@ -11,7 +11,7 @@ trait TreePrinterUtils extends WithPrinter {
       if (separators.nonEmpty) {
         assert(
           trees.size == separators.size + 1 ||
-          trees.size == separators.size
+            trees.size == separators.size
         )
       }
       var i = 0

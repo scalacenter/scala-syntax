@@ -103,7 +103,7 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
       val tree = source.parse[S].get.asInstanceOf[T]
       val tokens = f(tree)
 
-      val positionMatch = 
+      val positionMatch =
         tokens.zip(markers).forall {
           case (t, (s, e)) => {
             t.pos.start == s &&
@@ -112,10 +112,11 @@ abstract class SyntaxTokensSuiteUtils extends FunSuite {
         }
 
       if (!positionMatch) {
-        
-        val obtained = 
+
+        val obtained =
           tokens.foldLeft(fansi.Str(source)) {
-            case (acc, token) => acc.overlay(fansi.Color.Red, token.start, token.end)
+            case (acc, token) =>
+              acc.overlay(fansi.Color.Red, token.start, token.end)
           }
 
         println(

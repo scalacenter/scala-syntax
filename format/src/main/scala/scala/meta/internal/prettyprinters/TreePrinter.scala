@@ -421,7 +421,6 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           case Nil if isTermNewAnon => space
           case Nil => empty
           case head :: tail =>
-
             val keyword =
               if (t.early.isEmpty) {
                 if (isTermNewAnon) empty
@@ -429,8 +428,9 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
               } else t.`with (early)` + space
             val dhead = keyword + print(head)
 
-            val dtail = tail.map(print).zipAll(t.`with`, empty, `with`).map{ case (init, withT) =>
-              withT + space + init
+            val dtail = tail.map(print).zipAll(t.`with`, empty, `with`).map {
+              case (init, withT) =>
+                withT + space + init
             }
             (line + intercalate(line, dhead :: dtail)).nested(2).grouped
         }
@@ -548,11 +548,22 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val dbody =
           if (t.stats.isEmpty) dBody(t.init)
           else `=` + space + dBlock(t.init :: t.stats)
-        dDef(t.mods, `def`, `this`, Nil, t.paramss, t.paramsSeparator, None, dbody)
+        dDef(
+          t.mods,
+          `def`,
+          `this`,
+          Nil,
+          t.paramss,
+          t.paramsSeparator,
+          None,
+          dbody
+        )
       case m: Mod =>
         m match {
           case t: Mod.Annot =>
-            val dArgss = joined(t.init.argss.map(args => dArgs(`(`, args, Nil, `)`)))
+            val dArgss = joined(
+              t.init.argss.map(args => dArgs(`(`, args, Nil, `)`))
+            )
             `@` + SimpleTyp.wrap(t.init.tpe) + dArgss
           case t: Mod.Private => dWithin(`private`, t.within)
           case t: Mod.Protected => dWithin(`protected`, t.within)

@@ -94,8 +94,6 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
               if (!ignoreRegressions) {
                 regressions += file.jFile -> true
 
-                
-
                 Files.write(
                   regressionFile,
                   (regressionFilepath + nl).getBytes("utf-8"),
