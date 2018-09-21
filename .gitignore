@@ -7,4 +7,5 @@ output/input.scala
 output/obtained.scala
 tests/slow/todo-comments.diff
 tests/slow/todo-idempotent-ast.diff
+tests/slow/regressions-comments.txt
 tests/unit/src/test/resources/playground.scala

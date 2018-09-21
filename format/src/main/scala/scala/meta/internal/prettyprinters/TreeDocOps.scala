@@ -1,6 +1,7 @@
 package scala.meta.internal.prettyprinters
 
 import tokens.SyntaxTokens._
+import tokens.ParamSeparator
 
 import SyntacticGroup.Term._
 import SyntacticGroup.Type._
@@ -171,8 +172,15 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
     }
 
   def joined(docss: List[List[Doc]], separators: List[tokens.ParamSeparator]): Doc = {
-    assert(docss.size == separators.size)
-    cat(docss.zip(separators).map {
+    val separators0 =
+      if (separators.isEmpty) {
+        docss.map(docs =>
+          ParamSeparator(`(`, docs.map(_ => `,` + space).drop(1), `)`)
+        )
+      } else separators
+
+    assert(docss.size == separators0.size)
+    cat(docss.zip(separators0).map {
       case (docs, separator) =>
         if (docs.nonEmpty) {
           assert(

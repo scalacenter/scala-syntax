@@ -388,10 +388,15 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           case Type.Singleton(Term.This(Name.Anonymous())) => `this`
           case _ => AnnotTyp.wrap(t.tpe) + print(t.name)
         }
-        val dinit = t.argss.foldLeft(dfun) {
-          case (accum, args) => dApplyParen(accum, `(`, args, Nil, `)`)
+
+        t.parent match {
+          case Some(ctor: Ctor.Secondary) =>
+            t.argss.foldLeft(dfun) {
+              case (accum, args) => dApplyParen(accum, `(`, args, Nil, `)`)
+            }
+          case _ => dfun + joined(t.argss.map(_.map(print)), t.paramsSeparator)
         }
-        dinit
+
       case t: Self =>
         val dname = t.name match {
           case Name.Anonymous() =>

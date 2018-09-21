@@ -396,4 +396,24 @@ object SyntaxTokens {
       } else Nil
     }
   }
+
+  implicit class XtensionInit(private val tree: Init) extends AnyVal {
+    def paramsSeparator(implicit trivia: AssociatedTrivias): List[ParamSeparator] =
+      tokensParamsSeparator.map(_.toParamSeparator(tree))
+
+    def tokensParamsSeparator: List[ParamSeparatorTokens] = {
+      if (tree.hasTokens && tree.tokens.nonEmpty) {
+        val tokenList = TokenList(tree.tokens)
+        val start = tokenList.trailing(tree.tpe.tokens.last).headOption.getOrElse(
+          tree.tokens.last 
+        )
+        val end = tree.tokens.last
+
+        if (start != end) {
+          val tokens = tree.tokens.slice2(start, end, includeTo = true)
+          getTokensParamsSeparator(tokens, tree.argss)
+        } else Nil
+      } else Nil
+    }
+  }
 }

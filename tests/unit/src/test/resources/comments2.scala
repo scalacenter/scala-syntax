@@ -42,3 +42,27 @@ class X ( // Defn.Class T ( 5
   d: D
   /*Defn.Class L ) 5 */
 )
+
+object A {
+  new A ( // Init T ( 1
+    a, // Init T , 2
+    b
+    // Init L ) 1
+  )( // Init T ( 2
+    // Init L ) 2
+  )
+
+  new B
+
+  new C ()
+
+  new Z {
+
+  }
+
+  new Z {
+    a()()
+  }
+
+
+}

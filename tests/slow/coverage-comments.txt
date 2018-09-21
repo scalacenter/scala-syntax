@@ -1,13 +1,11 @@
 PredictionIO/data/src/main/scala/io/prediction/data/webhooks/segmentio/SegmentIOConnector.scala
 PredictionIO/examples/experimental/scala-parallel-similarproduct-localmodel/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/experimental/scala-refactor-test/src/main/scala/Algorithm.scala
-PredictionIO/examples/scala-parallel-classification/add-algorithm/src/main/scala/Engine.scala
 PredictionIO/examples/scala-parallel-classification/add-algorithm/src/main/scala/RandomForestAlgorithm.scala
 PredictionIO/examples/scala-parallel-classification/custom-attributes/src/main/scala/RandomForestAlgorithm.scala
 PredictionIO/examples/scala-parallel-ecommercerecommendation/train-with-rate-event/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/scala-parallel-recommendation/custom-prepartor/src/main/scala/Preparator.scala
 PredictionIO/examples/scala-parallel-similarproduct/add-rateevent/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/scala-parallel-similarproduct/multi/src/main/scala/Engine.scala
 PredictionIO/examples/scala-parallel-similarproduct/multi/src/main/scala/LikeAlgorithm.scala
 akka/akka-actor-tests/src/test/scala/akka/actor/ActorDSLSpec.scala
 akka/akka-actor-tests/src/test/scala/akka/routing/RoutingSpec.scala
@@ -26,7 +24,6 @@ akka/akka-actor/src/main/scala/akka/serialization/Serialization.scala
 akka/akka-actor/src/main/scala/akka/util/Index.scala
 akka/akka-actor/src/main/scala/akka/util/LineNumbers.scala
 akka/akka-cluster-metrics/src/test/scala/akka/cluster/metrics/TestUtil.scala
-akka/akka-cluster-tools/src/main/scala/akka/cluster/singleton/ClusterSingletonManager.scala
 akka/akka-cluster-tools/src/multi-jvm/scala/akka/cluster/singleton/ClusterSingletonManagerSpec.scala
 akka/akka-cluster/src/main/scala/akka/cluster/ClusterEvent.scala
 akka/akka-cluster/src/multi-jvm/scala/akka/cluster/MultiNodeClusterSpec.scala
@@ -50,8 +47,6 @@ akka/akka-http-core/src/main/scala/akka/http/impl/engine/rendering/HttpRequestRe
 akka/akka-http-core/src/main/scala/akka/http/impl/engine/rendering/RenderSupport.scala
 akka/akka-http-core/src/main/scala/akka/http/impl/engine/server/HttpServerBluePrint.scala
 akka/akka-http-core/src/main/scala/akka/http/impl/engine/ws/Utf8Decoder.scala
-akka/akka-http-core/src/main/scala/akka/http/impl/settings/ClientConnectionSettingsImpl.scala
-akka/akka-http-core/src/main/scala/akka/http/impl/settings/ServerSettingsImpl.scala
 akka/akka-http-core/src/main/scala/akka/http/scaladsl/Http.scala
 akka/akka-http-core/src/main/scala/akka/http/scaladsl/model/DateTime.scala
 akka/akka-http-core/src/test/scala/akka/http/scaladsl/ClientServerSpec.scala
@@ -70,7 +65,6 @@ akka/akka-persistence/src/main/scala/akka/persistence/journal/PersistencePluginP
 akka/akka-persistence/src/main/scala/akka/persistence/journal/leveldb/SharedLeveldbStore.scala
 akka/akka-remote/src/main/scala/akka/remote/Remoting.scala
 akka/akka-remote/src/main/scala/akka/remote/transport/ThrottlerTransportAdapter.scala
-akka/akka-remote/src/main/scala/akka/remote/transport/netty/NettyTransport.scala
 akka/akka-samples/akka-sample-cluster-scala/src/main/scala/sample/cluster/stats/StatsSampleOneMaster.scala
 akka/akka-samples/akka-sample-distributed-data-scala/src/main/scala/sample/distributeddata/ShoppingCart.scala
 akka/akka-samples/akka-sample-remote-scala/src/main/scala/sample/remote/calculator/LookupActor.scala
@@ -120,7 +114,6 @@ finagle/finagle-memcached/src/test/scala/com/twitter/finagle/memcached/integrati
 finagle/finagle-memcached/src/test/scala/com/twitter/finagle/memcached/integration/ReplicationClientTest.scala
 finagle/finagle-mux/src/main/scala/com/twitter/finagle/mux/ClientSession.scala
 finagle/finagle-mux/src/main/scala/com/twitter/finagle/mux/transport/Message.scala
-finagle/finagle-native/src/test/scala/com/twitter/finagle/ssl/SslTest.scala
 finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/Protocols.scala
 finagle/finagle-thriftmux/src/test/scala/com/twitter/finagle/thriftmux/EndToEndTest.scala
 finagle/project/Build.scala
@@ -136,7 +129,6 @@ framework/persistence/mapper/src/main/scala/net/liftweb/mapper/MetaMapper.scala
 framework/persistence/mapper/src/main/scala/net/liftweb/mapper/OneToMany.scala
 framework/persistence/mongodb-record/src/main/scala/net/liftweb/mongodb/record/field/MongoPasswordField.scala
 framework/persistence/mongodb-record/src/test/scala/net/liftweb/mongodb/record/CustomSerializersSpec.scala
-framework/persistence/squeryl-record/src/main/scala/net/liftweb/squerylrecord/RecordMetaDataFactory.scala
 framework/web/webkit/src/main/scala/net/liftweb/http/LiftRules.scala
 framework/web/webkit/src/main/scala/net/liftweb/http/Paginator.scala
 framework/web/webkit/src/main/scala/net/liftweb/http/Wizard.scala
@@ -217,7 +209,6 @@ intellij-scala/testdata/rename3/valInTrait/before/tests/Baz.scala
 intellij-scala/testdata/typeInference/bugs5/SCL4740.scala
 intellij-scala/testdata/typeInference/bugs5/SCL6507.scala
 intellij-scala/testdata/typeInference/expected/placeholder/IfStatementComplex.scala
-intellij-scala/testdata/typeInference/statements/ThisStmt.scala
 kafka/core/src/main/scala/kafka/admin/AdminUtils.scala
 kafka/core/src/main/scala/kafka/client/ClientUtils.scala
 kafka/core/src/main/scala/kafka/consumer/ZookeeperConsumerConnector.scala
@@ -238,8 +229,6 @@ kafka/core/src/main/scala/kafka/server/KafkaServer.scala
 kafka/core/src/main/scala/kafka/utils/ZkUtils.scala
 kafka/core/src/test/scala/unit/kafka/server/ServerStartupTest.scala
 lila/modules/common/src/main/Scheduler.scala
-lila/modules/push/src/main/ApplePush.scala
-lila/modules/setup/src/main/HookConfig.scala
 marathon/src/main/scala/mesosphere/marathon/MarathonSchedulerService.scala
 marathon/src/main/scala/mesosphere/marathon/api/MarathonExceptionMapper.scala
 marathon/src/main/scala/mesosphere/marathon/api/v2/Validation.scala
@@ -324,11 +313,6 @@ scala-js/js-envs/src/main/scala/org/scalajs/jsenv/rhino/RhinoJSEnv.scala
 scala-js/junit-plugin/src/main/scala/org/scalajs/junit/plugin/ScalaJSJUnitPlugin.scala
 scala-js/library/src/main/scala/scala/scalajs/js/typedarray/TypedArrayBufferOps.scala
 scala-js/library/src/main/scala/scala/scalajs/js/typedarray/package.scala
-scala-js/library/src/main/scala/scala/scalajs/niocharset/ISO_8859_1.scala
-scala-js/library/src/main/scala/scala/scalajs/niocharset/US_ASCII.scala
-scala-js/library/src/main/scala/scala/scalajs/niocharset/UTF_16.scala
-scala-js/library/src/main/scala/scala/scalajs/niocharset/UTF_16BE.scala
-scala-js/library/src/main/scala/scala/scalajs/niocharset/UTF_16LE.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/EnvironmentInfo.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/RuntimeLong.scala
 scala-js/scalalib/overrides-2.10/scala/reflect/Manifest.scala
@@ -343,7 +327,6 @@ scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
 scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/jsinterop/ThisFunctionTest.scala
 scala-js/test-suite/shared/src/test/scala/org/scalajs/testsuite/javalib/util/regex/RegexMatcherTest.scala
 scala-js/test-suite/shared/src/test/scala/org/scalajs/testsuite/niobuffer/BaseBufferTest.scala
-scala-js/tools/shared/src/main/scala/org/scalajs/core/tools/io/VirtualFiles.scala
 scala-js/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/JSDesugaring.scala
 scala-js/tools/shared/src/main/scala/org/scalajs/core/tools/linker/frontend/optimizer/OptimizerCore.scala
 scala/src/compiler/scala/reflect/macros/contexts/Reifiers.scala
@@ -536,14 +519,12 @@ scalaz/core/src/main/scala/scalaz/LazyOption.scala
 scalaz/example/src/main/scala/scalaz/example/AdjunctUsage.scala
 scalaz/tests/src/test/scala/scalaz/ContravariantCoyonedaTest.scala
 scalding/scalding-core/src/main/scala/com/twitter/scalding/Execution.scala
-scalding/scalding-core/src/main/scala/com/twitter/scalding/GroupBuilder.scala
 scalding/scalding-core/src/main/scala/com/twitter/scalding/Mode.scala
 scalding/scalding-core/src/main/scala/com/twitter/scalding/Tool.scala
 scalding/scalding-core/src/main/scala/com/twitter/scalding/macros/impl/TupleConverterImpl.scala
 scalding/scalding-core/src/main/scala/com/twitter/scalding/typed/TypedPipe.scala
 scalding/scalding-core/src/test/scala/com/twitter/scalding/filecache/DistributedCacheFileSpec.scala
 scalding/scalding-date/src/main/scala/com/twitter/scalding/Globifier.scala
-scalding/scalding-jdbc/src/main/scala/com/twitter/scalding/jdbc/JDBCDriver.scala
 scaloid/project/JavaConversionHelpers.scala
 shapeless/core/src/test/scala/shapeless/generic.scala
 shapeless/examples/src/main/scala/shapeless/examples/enum.scala
@@ -559,7 +540,6 @@ slick/slick/src/sphinx/code/LiftedEmbedding.scala
 slick/slick/src/sphinx/code/OrmToSlick.scala
 slick/slick/src/sphinx/code/SqlToSlick.scala
 spark/core/src/main/scala/org/apache/spark/deploy/SparkSubmit.scala
-spark/core/src/main/scala/org/apache/spark/deploy/rest/StandaloneRestServer.scala
 spark/core/src/main/scala/org/apache/spark/deploy/worker/Worker.scala
 spark/core/src/main/scala/org/apache/spark/rpc/netty/Inbox.scala
 spark/core/src/main/scala/org/apache/spark/rpc/netty/Outbox.scala
@@ -570,11 +550,9 @@ spark/core/src/main/scala/org/apache/spark/shuffle/ShuffleBlockResolver.scala
 spark/core/src/main/scala/org/apache/spark/storage/BlockManager.scala
 spark/core/src/main/scala/org/apache/spark/ui/exec/ExecutorThreadDumpPage.scala
 spark/core/src/main/scala/org/apache/spark/ui/jobs/JobProgressListener.scala
-spark/core/src/main/scala/org/apache/spark/util/ThreadUtils.scala
 spark/core/src/test/scala/org/apache/spark/DistributedSuite.scala
 spark/core/src/test/scala/org/apache/spark/UnpersistSuite.scala
 spark/core/src/test/scala/org/apache/spark/rdd/JdbcRDDSuite.scala
-spark/core/src/test/scala/org/apache/spark/shuffle/sort/BypassMergeSortShuffleWriterSuite.scala
 spark/graphx/src/main/scala/org/apache/spark/graphx/impl/GraphImpl.scala
 spark/mllib/src/main/scala/org/apache/spark/ml/classification/DecisionTreeClassifier.scala
 spark/mllib/src/main/scala/org/apache/spark/ml/classification/GBTClassifier.scala
@@ -592,13 +570,10 @@ spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/analysis/Analyze
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/analysis/DecimalPrecision.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/AttributeSet.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/mathExpressions.scala
-spark/sql/core/src/main/scala/org/apache/spark/sql/execution/aggregate/TungstenAggregate.scala
-spark/sql/core/src/main/scala/org/apache/spark/sql/execution/aggregate/TungstenAggregationIterator.scala
 spark/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/jdbc/JDBCRDD.scala
 spark/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/parquet/ParquetFilters.scala
 spark/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/parquet/ParquetRelation.scala
 spark/sql/core/src/main/scala/org/apache/spark/sql/execution/exchange/ShuffleExchange.scala
-spark/sql/core/src/main/scala/org/apache/spark/sql/execution/joins/HashedRelation.scala
 spark/sql/core/src/main/scala/org/apache/spark/sql/execution/streaming/CompositeOffset.scala
 spark/sql/core/src/main/scala/org/apache/spark/sql/execution/ui/SQLListener.scala
 spark/sql/core/src/main/scala/org/apache/spark/sql/functions.scala
