@@ -105,3 +105,10 @@ class A
   // Templ L with
   with // Templ T with
   C
+
+object A {
+  f { // Term.PartialFunction T {
+    case e => ()
+    // Term.PartialFunction L }
+  }
+}

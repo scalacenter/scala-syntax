@@ -160,6 +160,24 @@ object SyntaxTokens {
       trivia.addLeadingOpt(tree, tokensRightBrace, S.`}`)
   }
 
+  implicit class XtensionTermPartialFunctionSyntax(private val tree: Term.PartialFunction)
+      extends AnyVal {
+
+    def tokensLeftBrace: Option[LeftBrace] = tree.find[LeftBrace]
+
+    def `{`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.addTrailingOpt(tree, tokensLeftBrace, S.`{`)
+
+    def tokensRightBrace: Option[RightBrace] = {
+      tree.tokens.reverse.collectFirst{
+        case x: RightBrace => x
+      }
+    }
+
+    def `}`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.addLeadingOpt(tree, tokensRightBrace, S.`}`)
+  }
+
   // early
   // inits
   // {

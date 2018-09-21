@@ -213,7 +213,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
               case _ => dBlock(t.`{`, t.stats, t.`}`)
             }
           case t: Term.PartialFunction =>
-            dBlock(`{`, t.cases, `}`)
+            dBlock(t.`{`, t.cases, t.`}`)
           case t: Term.Function =>
             val dbody = (line + print(t.body)).nested(2).grouped
             dParams(t.`(`, t.params, t.`,`, t.`)`, forceParens = true) + space + t.`=>` + dbody
