@@ -137,13 +137,14 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
         val currentFailures = failureCount.get
         val currentSuccess = successCount.get
+        val total = currentFailures + currentSuccess
 
         val progressMessage =
           if (currentFailures > 100) {
-            val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
-            f"Success: ${rate}%.2f%%"
+            val rate = (currentSuccess.toDouble / total.toDouble) * 100.0
+            f"${rate}%.2f%%($currentSuccess/$total)"
           } else {
-            s"Failures: $currentFailures"
+            s"$currentFailures"
           }
 
         progress.setExtraMessage(progressMessage)

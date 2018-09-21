@@ -1,6 +1,4 @@
 PredictionIO/data/src/main/scala/io/prediction/data/webhooks/segmentio/SegmentIOConnector.scala
-PredictionIO/examples/experimental/scala-parallel-similarproduct-localmodel/src/main/scala/ALSAlgorithm.scala
-PredictionIO/examples/experimental/scala-refactor-test/src/main/scala/Algorithm.scala
 PredictionIO/examples/scala-parallel-classification/add-algorithm/src/main/scala/RandomForestAlgorithm.scala
 PredictionIO/examples/scala-parallel-classification/custom-attributes/src/main/scala/RandomForestAlgorithm.scala
 PredictionIO/examples/scala-parallel-ecommercerecommendation/train-with-rate-event/src/main/scala/ALSAlgorithm.scala
@@ -113,7 +111,6 @@ finagle/finagle-memcached/src/test/scala/com/twitter/finagle/memcached/integrati
 finagle/finagle-memcached/src/test/scala/com/twitter/finagle/memcached/integration/MigrationClientTest.scala
 finagle/finagle-memcached/src/test/scala/com/twitter/finagle/memcached/integration/ReplicationClientTest.scala
 finagle/finagle-mux/src/main/scala/com/twitter/finagle/mux/ClientSession.scala
-finagle/finagle-mux/src/main/scala/com/twitter/finagle/mux/transport/Message.scala
 finagle/finagle-thrift/src/main/scala/com/twitter/finagle/thrift/Protocols.scala
 finagle/finagle-thriftmux/src/test/scala/com/twitter/finagle/thriftmux/EndToEndTest.scala
 finagle/project/Build.scala
@@ -264,7 +261,6 @@ platform/quirrel/src/main/scala/com/precog/quirrel/emitter/GroupSolver.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/jdbm3/RowFormat.scala
 platform/yggdrasil/src/main/scala/com/precog/yggdrasil/table/Slice.scala
 platform/yggdrasil/src/test/scala/com/precog/yggdrasil/ArbitrarySValue.scala
-platform/yggdrasil/src/test/scala/com/precog/yggdrasil/table/ColumnarTableModuleSpec.scala
 playframework/documentation/manual/releases/release24/migration24/code24/MyComponent.scala
 playframework/documentation/manual/releases/release24/migration24/code24/MyModule.scala
 playframework/documentation/manual/working/scalaGuide/main/akka/code/ScalaAkka.scala
@@ -382,22 +378,12 @@ scala/src/library/scala/collection/Iterator.scala
 scala/src/library/scala/collection/SeqViewLike.scala
 scala/src/library/scala/collection/TraversableOnce.scala
 scala/src/library/scala/collection/concurrent/TrieMap.scala
-scala/src/library/scala/collection/immutable/Iterable.scala
-scala/src/library/scala/collection/immutable/Map.scala
 scala/src/library/scala/collection/immutable/Range.scala
-scala/src/library/scala/collection/immutable/Seq.scala
-scala/src/library/scala/collection/immutable/Set.scala
 scala/src/library/scala/collection/immutable/Stream.scala
-scala/src/library/scala/collection/immutable/Traversable.scala
 scala/src/library/scala/collection/immutable/Vector.scala
-scala/src/library/scala/collection/mutable/Iterable.scala
 scala/src/library/scala/collection/mutable/ListBuffer.scala
-scala/src/library/scala/collection/mutable/Map.scala
 scala/src/library/scala/collection/mutable/MapLike.scala
-scala/src/library/scala/collection/mutable/Seq.scala
-scala/src/library/scala/collection/mutable/Set.scala
 scala/src/library/scala/collection/mutable/SetLike.scala
-scala/src/library/scala/collection/mutable/Traversable.scala
 scala/src/library/scala/concurrent/SyncVar.scala
 scala/src/library/scala/concurrent/package.scala
 scala/src/library/scala/reflect/Manifest.scala
@@ -532,10 +518,8 @@ slick/slick-codegen/src/main/scala/slick/codegen/AbstractGenerator.scala
 slick/slick-testkit/src/main/scala/com/typesafe/slick/testkit/tests/RelationalMiscTest.scala
 slick/slick/src/macro/scala/slick/util/MacroSupportInterpolationImpl.scala
 slick/slick/src/main/scala/slick/jdbc/JdbcModelBuilder.scala
-slick/slick/src/main/scala/slick/jdbc/JdbcProfile.scala
 slick/slick/src/main/scala/slick/jdbc/OracleProfile.scala
 slick/slick/src/main/scala/slick/lifted/FunctionSymbolExtensionMethods.scala
-slick/slick/src/main/scala/slick/sql/SqlProfile.scala
 slick/slick/src/sphinx/code/LiftedEmbedding.scala
 slick/slick/src/sphinx/code/OrmToSlick.scala
 slick/slick/src/sphinx/code/SqlToSlick.scala
@@ -595,7 +579,6 @@ spire/extras/src/main/scala/spire/math/extras/interval/Tree.scala
 summingbird/summingbird-builder/src/main/scala/com/twitter/summingbird/scalding/VersionedState.scala
 summingbird/summingbird-core/src/main/scala/com/twitter/summingbird/memory/MemoryStatProvider.scala
 summingbird/summingbird-online/src/main/scala/com/twitter/summingbird/planner/StripNamedNodes.scala
-util/util-core/src/main/scala/com/twitter/concurrent/ConcurrentMultiMap.scala
 util/util-core/src/main/scala/com/twitter/util/Duration.scala
 util/util-core/src/main/scala/com/twitter/util/NetUtil.scala
 util/util-jvm/src/main/scala/com/twitter/jvm/Hotspot.scala

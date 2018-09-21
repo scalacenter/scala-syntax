@@ -63,6 +63,45 @@ object A {
   new Z {
     a()()
   }
-
-
 }
+
+class A
+  // Templ L extends
+  extends // Templ T extends
+  B
+  // Templ L with
+  with // Templ T with
+  C
+
+class A
+  // Templ L extends
+  extends // Templ T extends
+  B
+  // Templ L with 1
+  with // Templ T with 1
+  C
+  // Templ L with 2
+  with // Templ T with 2
+  D
+
+
+object A {
+  new B
+    // Templ L with 3
+    with // Templ T with 3
+    C
+    // Templ L with 4
+    with // Templ T with 4
+    D
+}
+
+class A 
+  // Templ L extends early
+  extends // Templ T extends early
+  { val a = 1 }
+  // Templ L with early
+  with // Templ T with early
+  B
+  // Templ L with
+  with // Templ T with
+  C

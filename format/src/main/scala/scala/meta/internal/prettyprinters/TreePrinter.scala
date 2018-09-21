@@ -415,19 +415,23 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val dearly = {
           if (t.early.isEmpty) empty
           else if (isTermNewAnon) space + dBlock(t.early)
-          else space + `extends` + space + dBlock(t.early)
+          else space + t.`extends` + space + dBlock(t.early)
         }
         val dinits = t.inits match {
           case Nil if isTermNewAnon => space
           case Nil => empty
           case head :: tail =>
+
             val keyword =
               if (t.early.isEmpty) {
                 if (isTermNewAnon) empty
-                else `extends` + space
-              } else `with` + space
+                else t.`extends` + space
+              } else t.`with (early)` + space
             val dhead = keyword + print(head)
-            val dtail = tail.map(init => `with` + space + print(init))
+
+            val dtail = tail.map(print).zipAll(t.`with`, empty, `with`).map{ case (init, withT) =>
+              withT + space + init
+            }
             (line + intercalate(line, dhead :: dtail)).nested(2).grouped
         }
 

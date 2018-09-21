@@ -159,43 +159,43 @@ object SyntaxTokens {
   // self
   // stats
   // }
-  implicit class XtensionTemplateSyntax(private val templ: Template)
+  implicit class XtensionTemplateSyntax(private val tree: Template)
       extends AnyVal {
     def tokensLeftBrace: Option[LeftBrace] =
-      if (templ.inits.nonEmpty) {
-        templ.findAfter[LeftBrace](_.inits.last)
-      } else if (templ.early.nonEmpty) {
-        templ.findAfter[LeftBrace](_.early.last)
-      } else if (templ.self.tokens.nonEmpty) {
-        templ.findAfter[LeftBrace](_.self)
-      } else if (templ.stats.nonEmpty) {
-        templ.findBefore[LeftBrace](_.stats.head)
+      if (tree.inits.nonEmpty) {
+        tree.findAfter[LeftBrace](_.inits.last)
+      } else if (tree.early.nonEmpty) {
+        tree.findAfter[LeftBrace](_.early.last)
+      } else if (tree.self.tokens.nonEmpty) {
+        tree.findAfter[LeftBrace](_.self)
+      } else if (tree.stats.nonEmpty) {
+        tree.findBefore[LeftBrace](_.stats.head)
       } else {
-        templ.find[LeftBrace]
+        tree.find[LeftBrace]
       }
 
     def `{`(implicit trivia: AssociatedTrivias): Doc =
-      trivia.addTrailingOpt(templ, tokensLeftBrace, S.`{`)
+      trivia.addTrailingOpt(tree, tokensLeftBrace, S.`{`)
 
     def tokensRightBrace: Option[RightBrace] =
-      if (templ.stats.nonEmpty) {
-        templ.findAfter[RightBrace](_.stats.last)
-      } else if (templ.self.tokens.nonEmpty) {
-        templ.findAfter[RightBrace](_.self)
-      } else if (templ.inits.nonEmpty) {
-        templ.findAfter[RightBrace](_.inits.last)
-      } else if (templ.early.nonEmpty) {
-        templ.findAfter[RightBrace](_.early.last)
+      if (tree.stats.nonEmpty) {
+        tree.findAfter[RightBrace](_.stats.last)
+      } else if (tree.self.tokens.nonEmpty) {
+        tree.findAfter[RightBrace](_.self)
+      } else if (tree.inits.nonEmpty) {
+        tree.findAfter[RightBrace](_.inits.last)
+      } else if (tree.early.nonEmpty) {
+        tree.findAfter[RightBrace](_.early.last)
       } else {
-        templ.find[RightBrace]
+        tree.find[RightBrace]
       }
 
     def `}`(implicit trivia: AssociatedTrivias): Doc =
-      trivia.addLeadingOpt(templ, tokensRightBrace, S.`}`)
+      trivia.addLeadingOpt(tree, tokensRightBrace, S.`}`)
 
     def `{ }`(implicit trivia: AssociatedTrivias): Doc = {
-      def left(l: LeftBrace): Doc = trivia.addTrailing(templ, l, S.`{`)
-      def right(r: RightBrace): Doc = trivia.addLeading(templ, r, S.`}`)
+      def left(l: LeftBrace): Doc = trivia.addTrailing(tree, l, S.`{`)
+      def right(r: RightBrace): Doc = trivia.addLeading(tree, r, S.`}`)
 
       (tokensLeftBrace, tokensRightBrace) match {
         case (Some(l), Some(r)) => left(l) + right(r)
@@ -203,6 +203,40 @@ object SyntaxTokens {
         case (Some(l), None) => left(l) + S.`}`
         case (None, None) => Doc.empty
       }
+    }
+
+    def tokensExtends: Option[KwExtends] = {
+      if (tree.hasTokens && (tree.inits.nonEmpty || tree.early.nonEmpty)) {
+        tree.parent.flatMap{p =>
+          val tokenList = TokenList(p.tokens)
+          tokenList.leading(tree.tokens.head).collectFirst{case x: KwExtends => x}
+        }
+      } else None
+    }
+
+    def `extends`(implicit trivia: AssociatedTrivias): Doc = {
+      val kw = S.`extends`
+      tree.parent.map(p =>
+        trivia.wrapOpt(p, tokensExtends, kw)
+      ).getOrElse(kw)
+    }
+
+    def tokensWith: List[KwWith] = {
+      separated(tree.tokens, tree.inits, {case x: KwWith => x})
+    }
+
+    def `with`(implicit trivia: AssociatedTrivias): List[Doc] = {
+      tokensWith.map(t => trivia.wrap(tree, t, S.`with`))
+    }
+
+    def tokensWithEarly: Option[KwWith] = {
+      if (tree.early.nonEmpty && tree.inits.nonEmpty) {
+        tree.findBetween[KwWith](_.early.last, _.inits.head)
+      } else None
+    }
+
+    def `with (early)`(implicit trivia: AssociatedTrivias): Doc = {
+      trivia.wrapOpt(tree, tokensWithEarly, S.`with`)
     }
   }
 
@@ -252,6 +286,10 @@ object SyntaxTokens {
   }
 
   def commaSeparated2(tokens: Tokens, params: List[Tree]): List[Comma] = {
+    separated(tokens, params, {case x: Comma => x})
+  }
+
+  def separated[T](tokens: Tokens, params: List[Tree], pf: PartialFunction[Token, T]): List[T] = {
     params match {
       case Nil => Nil
       case _ :: Nil => Nil
@@ -259,7 +297,7 @@ object SyntaxTokens {
         params
           .sliding(2, 1)
           .map { case List(l, r) => 
-            slice(tokens, l, r).collectFirst{ case x: Comma => x}.get
+            slice(tokens, l, r).collectFirst(pf).get
           }
           .toList
     }
