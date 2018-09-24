@@ -129,3 +129,10 @@ class A extends C[ // Type.Apply T [
   T3
   // Type.Apply L ]
 ]
+
+object A {
+  { 
+    case _ => // Case T =>
+      ()
+  }
+}

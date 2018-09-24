@@ -106,7 +106,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             space + `if` + space + PostfixExpr.wrap(c)
           }
 
-        `case` + space + pat + cond + space + `=>` + body.nested(2)
+        `case` + space + pat + cond + space + t.`=>` + body.nested(2)
 
       case _: Type =>
         tree match {

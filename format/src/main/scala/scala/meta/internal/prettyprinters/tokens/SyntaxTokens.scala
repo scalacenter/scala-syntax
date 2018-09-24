@@ -608,4 +608,22 @@ object SyntaxTokens {
       } else None
     }
   }
+
+  implicit class XtensionCase(private val tree: Case) extends AnyVal {
+    def tokenRigthArrow: RightArrow = {
+      
+      val start =
+        if (tree.cond.nonEmpty) tree.cond.get.tokens.last
+        else tree.pat.tokens.last
+
+      val end = 
+        if (tree.body.tokens.nonEmpty) tree.body.tokens.head
+        else tree.tokens.last
+
+      tree.tokens.slice2(start, end, includeTo = true).collectFirst{ case x: RightArrow => x }.get
+    }
+
+    def `=>`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.wrap(tree, tokenRigthArrow, S.`=>`)
+  }
 }
