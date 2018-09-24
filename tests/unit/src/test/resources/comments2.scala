@@ -140,4 +140,12 @@ object A {
     // Defn.Val L =
     = // Defn.Val T =
     1
+
+
+  m match { // Term.Match T {
+      case _ => 
+      // Term.Match L }
+    }
+  }
+
 }

@@ -221,7 +221,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             t.args.mkDoc(t.`(`, t.`,`, t.`)`)
 
           case t: Term.Match =>
-            PostfixExpr.wrap(t.expr) + space + `match` + space + dBlock(t.cases)
+            PostfixExpr.wrap(t.expr) + space + `match` + space + dBlock(t.`{`, t.cases, t.`}`)
           case t: Term.Try =>
             val dtry = `try` + space + print(t.expr)
             val dcatch =
