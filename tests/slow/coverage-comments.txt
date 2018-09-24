@@ -265,7 +265,6 @@ scala-js/javalib/src/main/scala/java/math/Division.scala
 scala-js/javalib/src/main/scala/java/math/Elementary.scala
 scala-js/javalib/src/main/scala/java/net/URI.scala
 scala-js/js-envs/src/main/scala/org/scalajs/jsenv/rhino/RhinoJSEnv.scala
-scala-js/library/src/main/scala/scala/scalajs/js/typedarray/TypedArrayBufferOps.scala
 scala-js/library/src/main/scala/scala/scalajs/js/typedarray/package.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/EnvironmentInfo.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/RuntimeLong.scala

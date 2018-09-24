@@ -11,9 +11,9 @@ import scala.meta.internal.paiges.Doc
 import scala.meta.internal.prettyprinters.{ScalaToken => S}
 
 case class ParamSeparator(
-    `(`: Doc,
-    `,`: List[Doc],
-    `)`: Doc
+  `(`: Doc,
+  `,`: List[Doc],
+  `)`: Doc
 )
 
 case class ParamSeparatorTokens(
@@ -38,6 +38,35 @@ case class ParamSeparatorTokens(
         comma => trivia.wrap(tree, comma, S.`,`, isSeparator = true)
       ),
       leftParen
+    )
+  }
+}
+
+
+object TParamSeparator {
+  def empty: TParamSeparator = TParamSeparator(S.`[`, Nil, S.`]`)
+}
+
+case class TParamSeparator(
+  `[`: Doc,
+  `,`: List[Doc],
+  `]`: Doc
+)
+
+case class TParamSeparatorTokens(
+  tokenLeftBrace: LeftBracket,
+  tokensComma: List[Comma],
+  tokenRightBrace: RightBracket
+) {
+  def toTParamSeparator(
+      tree: Tree
+  )(implicit trivia: AssociatedTrivias): TParamSeparator = {
+    TParamSeparator(
+      trivia.addTrailing(tree, tokenLeftBrace, S.`[`),
+      tokensComma.map(
+        comma => trivia.wrap(tree, comma, S.`,`, isSeparator = true)
+      ),
+      trivia.addLeading(tree, tokenRightBrace, S.`]`)
     )
   }
 }
@@ -535,6 +564,31 @@ object SyntaxTokens {
           getTokensParamsSeparator(tokens, tree.argss)
         } else Nil
       } else Nil
+    }
+  }
+
+  implicit class XtensionDefnClass(private val tree: Defn.Class) extends AnyVal {
+    def tparamsSeparator(implicit trivia: AssociatedTrivias): TParamSeparator =
+      tokensParamSeparator.map(_.toTParamSeparator(tree)).getOrElse(TParamSeparator.empty)
+
+    def tokensParamSeparator: Option[TParamSeparatorTokens] = {
+      if (tree.hasTokens && tree.tokens.nonEmpty && tree.tparams.nonEmpty) {
+        val right = 
+          if (tree.ctor.tokens.nonEmpty) 
+            tree.findBetween[RightBracket](_.tparams.last, _.ctor).get
+          else if (tree.templ.tokens.nonEmpty)
+            tree.findBetween[RightBracket](_.tparams.last, _.templ).get
+          else
+            tree.findAfter[RightBracket](_.tparams.last).get
+
+        Some(
+          TParamSeparatorTokens(
+            tree.findBetween[LeftBracket](_.name, _.tparams.head).get,
+            commaSeparated2(tree.tokens, tree.tparams),
+            right
+          )
+        )
+      } else None
     }
   }
 }

@@ -115,3 +115,10 @@ object A {
 
 class A() // Ctor.Primary withTrailingRightParen T 
   extends B
+
+class C[ // Defn.Class tparams T [
+  T1, // Defn.Class tparams T , 1
+  T2, // Defn.Class tparams T , 2
+  T3
+  // Defn.Class tparams L ]
+]

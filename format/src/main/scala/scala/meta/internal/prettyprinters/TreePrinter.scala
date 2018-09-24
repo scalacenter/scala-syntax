@@ -512,7 +512,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
         val dctormods =
           if (t.ctor.mods.isEmpty) empty else space + dMods(t.ctor.mods) + space
         val dsignature =
-          dApplyBracket(print(t.name), t.tparams) +
+          dApplyBracket(print(t.name), t.tparams, t.tparamsSeparator) +
             dctormods +
             dParamss(t.ctor.paramss, t.ctor.paramsSeparator)
         spaceSeparated(

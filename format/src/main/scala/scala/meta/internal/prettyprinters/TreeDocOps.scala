@@ -69,6 +69,13 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
     if (args.isEmpty) fun
     else dApply(fun, args, `[`, `]`)
 
+  def dApplyBracket(fun: Doc, args: List[Tree], tparamSeparator: tokens.TParamSeparator): Doc =
+    if (args.isEmpty) fun
+    else {
+      import tparamSeparator._
+      dApply(fun, `[`, args, `,`, `]`)    
+    }
+
   def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc): Doc = {
     val dargs = intercalate(comma + line, args.map(print))
     dargs.tightBracketBy(fun + left, right)
@@ -81,7 +88,6 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       `,`: List[Doc],
       `)`: Doc
   ): Doc = {
-
     args.mkDoc(`,`).tightBracketBy(fun + `(`, `)`)
   }
 
@@ -231,12 +237,12 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       pats: List[Pat],
       tparams: List[Type.Param],
       paramss: List[List[Term.Param]],
-      separators: List[tokens.ParamSeparator],
+      paramssSeparators: List[tokens.ParamSeparator],
       decltpe: Option[Type],
       body: Doc
   ): Doc = {
     val dname = commaSeparated(pats.map(print))
-    dDef(mods, keyword, dname, tparams, paramss, separators, decltpe, body)
+    dDef(mods, keyword, dname, tparams, paramss, paramssSeparators, decltpe, body)
   }
 
   def dDef(
@@ -245,12 +251,12 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       name: Doc,
       tparams: List[Type.Param],
       paramss: List[List[Term.Param]],
-      separators: List[tokens.ParamSeparator],
+      paramssSeparators: List[tokens.ParamSeparator],
       decltpe: Option[Type] = None,
       dbody: Doc = empty
   ): Doc = {
     val dname = dApplyBracket(name, tparams)
-    val dparamss = dParamss(paramss, separators)
+    val dparamss = dParamss(paramss, paramssSeparators)
     val ddecltpe =
       decltpe.fold(empty)(tpe => typedColon(name) + space + print(tpe))
     spaceSeparated(
