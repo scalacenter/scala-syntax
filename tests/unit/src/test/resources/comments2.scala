@@ -151,4 +151,7 @@ object A {
     case e => ()
     // Term.Try L } catch
   }
+
+  if (p) // Term.If T (
+    t
 }

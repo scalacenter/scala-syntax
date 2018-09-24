@@ -198,7 +198,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
               if (t.elsep.tokens.isEmpty) empty
               else
                 line + t.`else` + body(t.elsep)
-            (`if` + space + `(` + print(t.cond) + `)` +
+            (`if` + space + t.`(` + print(t.cond) + t.`)` +
               body(t.thenp) +
               delse).grouped
           case t: Term.For =>

@@ -143,6 +143,16 @@ object SyntaxTokens {
     def tokenElse: Option[KwElse] = tree.findBetween[KwElse](_.thenp, _.elsep)
     def `else`(implicit trivia: AssociatedTrivias): Doc =
       trivia.wrapOpt(tree, tokenElse, S.`else`)
+
+    def tokenLeftParen: LeftParen = tree.find[LeftParen].get
+    def tokenRightParen: RightParen =
+      tree.findAfter[RightParen](_.cond).get
+
+    def `(`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.wrap(tree, tokenLeftParen, S.`(`)
+    def `)`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.wrap(tree, tokenRightParen, S.`)`)
+
   }
 
   implicit class XtensionTermSelectSyntax(private val tree: Term.Select)
