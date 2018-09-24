@@ -497,7 +497,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           dBody(t.body)
         )
       case t: Defn.Val =>
-        dDefPats(t.mods, `val`, t.pats, Nil, Nil, Nil, t.decltpe, dBody(t.rhs))
+        dDefPats(t.mods, `val`, t.pats, Nil, Nil, Nil, t.decltpe, dBody(t.rhs, t.`=`))
       case t: Defn.Var =>
         val drhs = Some(t.rhs.fold(Term.Placeholder(): Term)(identity))
         dDefPats(t.mods, `var`, t.pats, Nil, Nil, Nil, t.decltpe, dBodyO(drhs))

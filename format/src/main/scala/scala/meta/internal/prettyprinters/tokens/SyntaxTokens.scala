@@ -626,4 +626,14 @@ object SyntaxTokens {
     def `=>`(implicit trivia: AssociatedTrivias): Doc =
       trivia.wrap(tree, tokenRigthArrow, S.`=>`)
   }
+
+  implicit class XtensionDefnVal(private val tree: Defn.Val) extends AnyVal {
+    def tokenEquals: Equals = {
+      if (tree.decltpe.nonEmpty) tree.findBetween[Equals](_.decltpe.get, _.rhs).get
+      else tree.findBetween[Equals](_.pats.head, _.rhs).get
+    }
+
+    def `=`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.wrap(tree, tokenEquals, S.`=`)
+  }
 }

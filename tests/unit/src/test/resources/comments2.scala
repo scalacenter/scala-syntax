@@ -135,4 +135,9 @@ object A {
     case _ => // Case T =>
       ()
   }
+
+  val a 
+    // Defn.Val L =
+    = // Defn.Val T =
+    1
 }

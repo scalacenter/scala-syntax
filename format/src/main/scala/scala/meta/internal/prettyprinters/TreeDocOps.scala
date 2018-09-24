@@ -9,6 +9,8 @@ import ScalaToken._
 import TokenOps._
 import CustomTrees._
 
+import scala.meta.internal.prettyprinters.{ScalaToken => S}
+
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._
 
@@ -220,10 +222,10 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
     })
   }
 
-  def dBody(body: Tree): Doc =
-    dBodyO(Some(body))
+  def dBody(body: Tree, `=`: Doc = S.`=`): Doc =
+    dBodyO(Some(body), `=`)
 
-  def dBodyO(body: Option[Tree]): Doc =
+  def dBodyO(body: Option[Tree], `=`: Doc = S.`=`): Doc =
     body.fold(empty) {
       case t @ (_: Term.Block | _: Term.PartialFunction | _: Term.Match) =>
         `=` + space + print(t)
