@@ -1,8 +1,12 @@
 package scala.meta.internal.prettyprinters
 package tokens
 
+import TokensOps._
+import Comments._
+
 import scala.meta._
 import scala.meta.Token._
+import scala.meta.contrib.Trivia
 import scala.meta.classifiers.Classifier
 
 import scala.collection.SeqView
@@ -93,8 +97,13 @@ object SyntaxTokensUtils {
     }
   }
 
-  private[tokens] def blockStartBrace(tree: Tree): Option[LeftBrace] =
-    tree.find[LeftBrace]
+  private[tokens] def blockStartBrace(tree: Tree): Option[LeftBrace] = {
+    if (tree.hasTokens) {
+      tree.tokens.dropWhile(_.is[Trivia]).headOption.collect {
+        case t: LeftBrace => t
+      }
+    } else None
+  }
 
   private[tokens] def blockEndBrace[T <: Tree](
       tree: T

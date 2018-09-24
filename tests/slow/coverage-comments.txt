@@ -1,7 +1,5 @@
 PredictionIO/data/src/main/scala/io/prediction/data/webhooks/segmentio/SegmentIOConnector.scala
 akka/akka-actor/src/main/scala/akka/actor/Actor.scala
-akka/akka-docs/rst/scala/code/docs/actor/UnnestedReceives.scala
-akka/akka-http-core/src/main/scala/akka/http/impl/engine/parsing/HttpHeaderParser.scala
 akka/akka-http-core/src/main/scala/akka/http/impl/engine/server/HttpServerBluePrint.scala
 akka/akka-http-core/src/main/scala/akka/http/scaladsl/model/DateTime.scala
 akka/akka-http/src/main/scala/akka/http/scaladsl/server/directives/DebuggingDirectives.scala
