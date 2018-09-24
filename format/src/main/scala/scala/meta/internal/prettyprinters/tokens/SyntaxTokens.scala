@@ -591,4 +591,21 @@ object SyntaxTokens {
       } else None
     }
   }
+
+  implicit class XtensionTypeApply(private val tree: Type.Apply) extends AnyVal {
+    def tparamsSeparator(implicit trivia: AssociatedTrivias): TParamSeparator =
+      tokensParamSeparator.map(_.toTParamSeparator(tree)).getOrElse(TParamSeparator.empty)
+
+    def tokensParamSeparator: Option[TParamSeparatorTokens] = {
+      if (tree.hasTokens && tree.tokens.nonEmpty) {
+        Some(
+          TParamSeparatorTokens(
+            tree.findBetween[LeftBracket](_.tpe, _.args.head).get,
+            commaSeparated2(tree.tokens, tree.args),
+            tree.findAfter[RightBracket](_.args.last).get
+          )
+        )
+      } else None
+    }
+  }
 }

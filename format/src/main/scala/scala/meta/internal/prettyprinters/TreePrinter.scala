@@ -115,7 +115,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           case t: Type.Select =>
             print(t.qual) + `.` + print(t.name)
           case t: Type.Apply =>
-            dApplyBracket(print(t.tpe), t.args)
+            dApplyBracket(print(t.tpe), t.args, t.tparamsSeparator)
           case t: Type.ApplyInfix =>
             dInfixType(t.lhs, print(t.op), t.rhs)
           case t: Type.ImplicitFunction =>

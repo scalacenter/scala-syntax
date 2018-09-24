@@ -1,6 +1,4 @@
 PredictionIO/data/src/main/scala/io/prediction/data/webhooks/segmentio/SegmentIOConnector.scala
-PredictionIO/examples/scala-parallel-classification/add-algorithm/src/main/scala/RandomForestAlgorithm.scala
-PredictionIO/examples/scala-parallel-classification/custom-attributes/src/main/scala/RandomForestAlgorithm.scala
 PredictionIO/examples/scala-parallel-ecommercerecommendation/train-with-rate-event/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/scala-parallel-similarproduct/add-rateevent/src/main/scala/ALSAlgorithm.scala
 PredictionIO/examples/scala-parallel-similarproduct/multi/src/main/scala/LikeAlgorithm.scala
@@ -266,7 +264,6 @@ scala-js/javalib/src/main/scala/java/math/Elementary.scala
 scala-js/javalib/src/main/scala/java/net/URI.scala
 scala-js/js-envs/src/main/scala/org/scalajs/jsenv/rhino/RhinoJSEnv.scala
 scala-js/library/src/main/scala/scala/scalajs/js/typedarray/package.scala
-scala-js/library/src/main/scala/scala/scalajs/runtime/EnvironmentInfo.scala
 scala-js/library/src/main/scala/scala/scalajs/runtime/RuntimeLong.scala
 scala-js/scalalib/overrides-2.10/scala/reflect/Manifest.scala
 scala-js/scalalib/overrides-2.10/scala/reflect/NameTransformer.scala
@@ -277,7 +274,6 @@ scala-js/scalalib/overrides-2.12/scala/collection/immutable/Range.scala
 scala-js/scalalib/overrides-2.12/scala/reflect/NameTransformer.scala
 scala-js/scalalib/overrides/scala/reflect/Manifest.scala
 scala-js/test-suite/js/src/test/resources/SourceMapTestTemplate.scala
-scala-js/test-suite/js/src/test/scala/org/scalajs/testsuite/jsinterop/ThisFunctionTest.scala
 scala-js/test-suite/shared/src/test/scala/org/scalajs/testsuite/javalib/util/regex/RegexMatcherTest.scala
 scala-js/test-suite/shared/src/test/scala/org/scalajs/testsuite/niobuffer/BaseBufferTest.scala
 scala-js/tools/shared/src/main/scala/org/scalajs/core/tools/linker/backend/emitter/JSDesugaring.scala
@@ -394,7 +390,6 @@ scala/test/files/pos/t5099.scala
 scala/test/files/pos/t516.scala
 scala/test/files/pos/t530.scala
 scala/test/files/pos/t5968.scala
-scala/test/files/pos/t6169/skinnable.scala
 scala/test/files/pos/t6925.scala
 scala/test/files/pos/t6925b.scala
 scala/test/files/pos/t703.scala
@@ -453,7 +448,6 @@ scalatra/core/src/main/scala/org/scalatra/package.scala
 scalaz/concurrent/src/main/scala/scalaz/concurrent/Future.scala
 scalaz/concurrent/src/main/scala/scalaz/concurrent/Task.scala
 scalaz/core/src/main/scala/scalaz/LazyOption.scala
-scalaz/example/src/main/scala/scalaz/example/AdjunctUsage.scala
 scalding/scalding-core/src/main/scala/com/twitter/scalding/Execution.scala
 scalding/scalding-core/src/main/scala/com/twitter/scalding/Mode.scala
 scalding/scalding-core/src/main/scala/com/twitter/scalding/Tool.scala

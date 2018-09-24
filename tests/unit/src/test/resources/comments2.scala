@@ -122,3 +122,10 @@ class C[ // Defn.Class tparams T [
   T3
   // Defn.Class tparams L ]
 ]
+
+class A extends C[ // Type.Apply T [
+  T1, // Type.Apply T , 1
+  T2, // Type.Apply T , 2
+  T3
+  // Type.Apply L ]
+]
