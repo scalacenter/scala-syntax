@@ -59,12 +59,21 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       .sorted
       .mkString("", sep, sep)
 
+  val corpusExclude = Set(
+    "target/repos/shapeless/core/src/test/scala/shapeless/hlist.scala" // fail to parse
+  )
+
+  val corpusFiles =
+    Corpus.fastparse.copy(filter = file =>
+      Corpus.fastparse.filter(file) && !corpusExclude.contains(file)
+    )
+
   test(name) {
     val failureCount = new AtomicInteger(0)
     val successCount = new AtomicInteger(0)
 
     val corpus = Corpus
-      .files(Corpus.fastparse)
+      .files(corpusFiles)
       .toBuffer
       .par
 
