@@ -221,13 +221,17 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             t.args.mkDoc(t.`(`, t.`,`, t.`)`)
 
           case t: Term.Match =>
-            PostfixExpr.wrap(t.expr) + space + `match` + space + dBlock(t.`{`, t.cases, t.`}`)
+            PostfixExpr.wrap(t.expr) + space + `match` + space + dBlock(
+              t.`{`,
+              t.cases,
+              t.`}`
+            )
           case t: Term.Try =>
             val dtry = `try` + space + print(t.expr)
             val dcatch =
               if (t.catchp.isEmpty) empty
               else {
-                line + `catch` + space + dBlock(t.catchp)
+                line + `catch` + space + dBlock(t.`{`, t.catchp, t.`}`)
               }
             val dfinally =
               t.finallyp.fold(empty)(f => line + `finally` + space + print(f))

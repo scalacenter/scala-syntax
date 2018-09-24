@@ -65,8 +65,8 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
   val corpusFiles =
     Corpus.fastparse.copy(
-      filter = file =>
-        Corpus.fastparse.filter(file) && !corpusExclude.contains(file)
+      filter =
+        file => Corpus.fastparse.filter(file) && !corpusExclude.contains(file)
     )
 
   test(name) {

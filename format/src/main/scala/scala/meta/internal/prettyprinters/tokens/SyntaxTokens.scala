@@ -234,6 +234,25 @@ object SyntaxTokens {
       trivia.addLeadingOpt(tree, tokensRightBrace, S.`}`)
   }
 
+  implicit class XtensionTermTrySyntax(
+      private val tree: Term.Try
+  ) extends AnyVal {
+
+    def tokensLeftBrace: Option[LeftBrace] = tree.findAfter[LeftBrace](_.expr)
+
+    def `{`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.addTrailingOpt(tree, tokensLeftBrace, S.`{`)
+
+    def tokensRightBrace: Option[RightBrace] = {
+      tree.tokens.reverse.collectFirst {
+        case x: RightBrace => x
+      }
+    }
+
+    def `}`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.addLeadingOpt(tree, tokensRightBrace, S.`}`)
+  }
+
   // early
   // inits
   // {

@@ -143,9 +143,12 @@ object A {
 
 
   m match { // Term.Match T {
-      case _ => 
-      // Term.Match L }
-    }
+    case _ => 
+    // Term.Match L }
   }
 
+  try {f} catch { // Term.Try T {
+    case e => ()
+    // Term.Try L } catch
+  }
 }
