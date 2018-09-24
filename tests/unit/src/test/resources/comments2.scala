@@ -112,3 +112,6 @@ object A {
     // Term.PartialFunction L }
   }
 }
+
+class A() // Ctor.Primary withTrailingRightParen T 
+  extends B

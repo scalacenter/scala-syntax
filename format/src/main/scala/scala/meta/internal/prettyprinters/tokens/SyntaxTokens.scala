@@ -22,14 +22,22 @@ case class ParamSeparatorTokens(
     tokenRightParen: RightParen
 ) {
   def toParamSeparator(
-      tree: Tree
+      tree: Tree,
+      withTrailingRightParen: Boolean = false
   )(implicit trivia: AssociatedTrivias): ParamSeparator = {
+    val leftParen =
+      if (withTrailingRightParen) {
+        trivia.wrap(tree, tokenRightParen, S.`)`)
+      } else {
+        trivia.addLeading(tree, tokenRightParen, S.`)`)
+      }
+
     ParamSeparator(
       trivia.addTrailing(tree, tokenLeftParen, S.`(`),
       tokensComma.map(
         comma => trivia.wrap(tree, comma, S.`,`, isSeparator = true)
       ),
-      trivia.addLeading(tree, tokenRightParen, S.`)`)
+      leftParen
     )
   }
 }
@@ -160,8 +168,9 @@ object SyntaxTokens {
       trivia.addLeadingOpt(tree, tokensRightBrace, S.`}`)
   }
 
-  implicit class XtensionTermPartialFunctionSyntax(private val tree: Term.PartialFunction)
-      extends AnyVal {
+  implicit class XtensionTermPartialFunctionSyntax(
+      private val tree: Term.PartialFunction
+  ) extends AnyVal {
 
     def tokensLeftBrace: Option[LeftBrace] = tree.find[LeftBrace]
 
@@ -169,7 +178,7 @@ object SyntaxTokens {
       trivia.addTrailingOpt(tree, tokensLeftBrace, S.`{`)
 
     def tokensRightBrace: Option[RightBrace] = {
-      tree.tokens.reverse.collectFirst{
+      tree.tokens.reverse.collectFirst {
         case x: RightBrace => x
       }
     }
@@ -342,8 +351,19 @@ object SyntaxTokens {
       extends AnyVal {
     def paramsSeparator(
         implicit trivia: AssociatedTrivias
-    ): List[ParamSeparator] =
-      tokensParamsSeparator.map(_.toParamSeparator(tree))
+    ): List[ParamSeparator] = {
+      val withTrailingRightParen =
+        tree.parent
+          .map {
+            case t: Defn.Trait => t.templ.tokens.nonEmpty
+            case c: Defn.Class => c.templ.tokens.nonEmpty
+          }
+          .getOrElse(false)
+
+      tokensParamsSeparator.map(
+        _.toParamSeparator(tree, withTrailingRightParen)
+      )
+    }
 
     def tokensParamsSeparator: List[ParamSeparatorTokens] = {
       if (tree.hasTokens && tree.tokens.nonEmpty) {
