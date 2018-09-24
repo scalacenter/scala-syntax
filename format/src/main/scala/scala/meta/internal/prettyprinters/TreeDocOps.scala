@@ -71,11 +71,15 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
     if (args.isEmpty) fun
     else dApply(fun, args, `[`, `]`)
 
-  def dApplyBracket(fun: Doc, args: List[Tree], tparamSeparator: tokens.TParamSeparator): Doc =
+  def dApplyBracket(
+      fun: Doc,
+      args: List[Tree],
+      tparamSeparator: tokens.TParamSeparator
+  ): Doc =
     if (args.isEmpty) fun
     else {
       import tparamSeparator._
-      dApply(fun, `[`, args, `,`, `]`)    
+      dApply(fun, `[`, args, `,`, `]`)
     }
 
   def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc): Doc = {
@@ -244,7 +248,8 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
       body: Doc
   ): Doc = {
     val dname = commaSeparated(pats.map(print))
-    dDef(mods, keyword, dname, tparams, paramss, paramssSeparators, decltpe, body)
+    dDef(mods, keyword, dname, tparams, paramss, paramssSeparators, decltpe,
+      body)
   }
 
   def dDef(

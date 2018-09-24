@@ -11,9 +11,9 @@ import scala.meta.internal.paiges.Doc
 import scala.meta.internal.prettyprinters.{ScalaToken => S}
 
 case class ParamSeparator(
-  `(`: Doc,
-  `,`: List[Doc],
-  `)`: Doc
+    `(`: Doc,
+    `,`: List[Doc],
+    `)`: Doc
 )
 
 case class ParamSeparatorTokens(
@@ -42,21 +42,20 @@ case class ParamSeparatorTokens(
   }
 }
 
-
 object TParamSeparator {
   def empty: TParamSeparator = TParamSeparator(S.`[`, Nil, S.`]`)
 }
 
 case class TParamSeparator(
-  `[`: Doc,
-  `,`: List[Doc],
-  `]`: Doc
+    `[`: Doc,
+    `,`: List[Doc],
+    `]`: Doc
 )
 
 case class TParamSeparatorTokens(
-  tokenLeftBrace: LeftBracket,
-  tokensComma: List[Comma],
-  tokenRightBrace: RightBracket
+    tokenLeftBrace: LeftBracket,
+    tokensComma: List[Comma],
+    tokenRightBrace: RightBracket
 ) {
   def toTParamSeparator(
       tree: Tree
@@ -567,14 +566,17 @@ object SyntaxTokens {
     }
   }
 
-  implicit class XtensionDefnClass(private val tree: Defn.Class) extends AnyVal {
+  implicit class XtensionDefnClass(private val tree: Defn.Class)
+      extends AnyVal {
     def tparamsSeparator(implicit trivia: AssociatedTrivias): TParamSeparator =
-      tokensParamSeparator.map(_.toTParamSeparator(tree)).getOrElse(TParamSeparator.empty)
+      tokensParamSeparator
+        .map(_.toTParamSeparator(tree))
+        .getOrElse(TParamSeparator.empty)
 
     def tokensParamSeparator: Option[TParamSeparatorTokens] = {
       if (tree.hasTokens && tree.tokens.nonEmpty && tree.tparams.nonEmpty) {
-        val right = 
-          if (tree.ctor.tokens.nonEmpty) 
+        val right =
+          if (tree.ctor.tokens.nonEmpty)
             tree.findBetween[RightBracket](_.tparams.last, _.ctor).get
           else if (tree.templ.tokens.nonEmpty)
             tree.findBetween[RightBracket](_.tparams.last, _.templ).get
@@ -592,9 +594,12 @@ object SyntaxTokens {
     }
   }
 
-  implicit class XtensionTypeApply(private val tree: Type.Apply) extends AnyVal {
+  implicit class XtensionTypeApply(private val tree: Type.Apply)
+      extends AnyVal {
     def tparamsSeparator(implicit trivia: AssociatedTrivias): TParamSeparator =
-      tokensParamSeparator.map(_.toTParamSeparator(tree)).getOrElse(TParamSeparator.empty)
+      tokensParamSeparator
+        .map(_.toTParamSeparator(tree))
+        .getOrElse(TParamSeparator.empty)
 
     def tokensParamSeparator: Option[TParamSeparatorTokens] = {
       if (tree.hasTokens && tree.tokens.nonEmpty) {
@@ -611,16 +616,19 @@ object SyntaxTokens {
 
   implicit class XtensionCase(private val tree: Case) extends AnyVal {
     def tokenRigthArrow: RightArrow = {
-      
+
       val start =
         if (tree.cond.nonEmpty) tree.cond.get.tokens.last
         else tree.pat.tokens.last
 
-      val end = 
+      val end =
         if (tree.body.tokens.nonEmpty) tree.body.tokens.head
         else tree.tokens.last
 
-      tree.tokens.slice2(start, end, includeTo = true).collectFirst{ case x: RightArrow => x }.get
+      tree.tokens
+        .slice2(start, end, includeTo = true)
+        .collectFirst { case x: RightArrow => x }
+        .get
     }
 
     def `=>`(implicit trivia: AssociatedTrivias): Doc =
@@ -629,7 +637,8 @@ object SyntaxTokens {
 
   implicit class XtensionDefnVal(private val tree: Defn.Val) extends AnyVal {
     def tokenEquals: Equals = {
-      if (tree.decltpe.nonEmpty) tree.findBetween[Equals](_.decltpe.get, _.rhs).get
+      if (tree.decltpe.nonEmpty)
+        tree.findBetween[Equals](_.decltpe.get, _.rhs).get
       else tree.findBetween[Equals](_.pats.head, _.rhs).get
     }
 
