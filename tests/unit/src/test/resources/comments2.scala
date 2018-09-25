@@ -154,4 +154,12 @@ object A {
 
   if (p) // Term.If T (
     t
+
+  def f = // Defn.Def T =
+    ()
+
+  def f() // Defn.Def T = (empty)
+  {
+
+  } 
 }

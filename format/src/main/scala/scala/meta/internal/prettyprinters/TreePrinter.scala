@@ -487,7 +487,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
           t.paramss,
           t.paramsSeparator,
           t.decltpe,
-          dBody(t.body)
+          dBody(t.body, t.`=`)
         )
       case t: Defn.Type =>
         dDef(

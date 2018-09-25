@@ -506,6 +506,20 @@ object SyntaxTokens {
         doDef(tokens, name, tparams, paramss, decltpe, body)
       } else Nil
     }
+
+    def tokenEquals: Option[Equals] = {
+      val start: Tree =
+        if (tree.decltpe.nonEmpty) tree.decltpe.get
+        else if (tree.paramss.nonEmpty && tree.paramss.last.nonEmpty)
+          tree.paramss.last.last
+        else if (tree.tparams.nonEmpty) tree.tparams.last
+        else tree.name
+
+      tree.findBetween[Equals](_ => start, _.body)
+    }
+
+    def `=`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.wrapOpt(tree, tokenEquals, S.`=`)
   }
 
   def doDef(

@@ -1,9 +1,6 @@
 PredictionIO/data/src/main/scala/io/prediction/data/webhooks/segmentio/SegmentIOConnector.scala
 akka/akka-actor/src/main/scala/akka/actor/Actor.scala
-akka/akka-http-core/src/main/scala/akka/http/impl/engine/server/HttpServerBluePrint.scala
 akka/akka-http-core/src/main/scala/akka/http/scaladsl/model/DateTime.scala
-akka/akka-http/src/main/scala/akka/http/scaladsl/server/directives/DebuggingDirectives.scala
-akka/akka-http/src/main/scala/akka/http/scaladsl/unmarshalling/Unmarshaller.scala
 akka/akka-samples/akka-sample-cluster-scala/src/main/scala/sample/cluster/stats/StatsSampleOneMaster.scala
 akka/akka-stream/src/main/scala/akka/stream/impl/FanoutProcessor.scala
 akka/project/SigarLoader.scala
@@ -29,7 +26,6 @@ finagle/finagle-memcached/src/main/scala/com/twitter/finagle/memcached/Client.sc
 finagle/finagle-memcached/src/main/scala/com/twitter/finagle/memcached/protocol/text/server/DecodingToCommand.scala
 finagle/finagle-thriftmux/src/test/scala/com/twitter/finagle/thriftmux/EndToEndTest.scala
 finagle/project/Build.scala
-framework/core/markdown/src/main/scala/net/liftweb/markdown/InlineParsers.scala
 framework/core/util/src/main/scala/net/liftweb/util/BasicTypesHelpers.scala
 framework/persistence/mapper/src/main/scala/net/liftweb/mapper/ManyToMany.scala
 framework/persistence/mapper/src/main/scala/net/liftweb/mapper/MappedInt.scala
@@ -73,13 +69,11 @@ scala-js/compiler/src/main/scala/org/scalajs/core/compiler/PrepJSExports.scala
 scala-js/compiler/src/main/scala/org/scalajs/core/compiler/ScalaJSPlugin.scala
 scala-js/javalib/src/main/scala/java/net/URI.scala
 scala-js/library/src/main/scala/scala/scalajs/js/typedarray/package.scala
-scala-js/library/src/main/scala/scala/scalajs/runtime/RuntimeLong.scala
 scala-js/scalalib/overrides-2.10/scala/reflect/Manifest.scala
 scala-js/scalalib/overrides-2.11.8/scala/reflect/Manifest.scala
 scala-js/scalalib/overrides-2.11/scala/collection/immutable/Range.scala
 scala-js/scalalib/overrides-2.12/scala/collection/immutable/Range.scala
 scala-js/scalalib/overrides/scala/reflect/Manifest.scala
-scala/src/compiler/scala/tools/ant/sabbus/Compiler.scala
 scala/src/compiler/scala/tools/nsc/ast/parser/Scanners.scala
 scala/src/compiler/scala/tools/nsc/backend/jvm/BCodeHelpers.scala
 scala/src/compiler/scala/tools/nsc/transform/Erasure.scala
@@ -87,9 +81,7 @@ scala/src/compiler/scala/tools/nsc/transform/LambdaLift.scala
 scala/src/compiler/scala/tools/nsc/transform/Mixin.scala
 scala/src/compiler/scala/tools/nsc/transform/SampleTransform.scala
 scala/src/compiler/scala/tools/nsc/transform/patmat/MatchCodeGen.scala
-scala/src/compiler/scala/tools/nsc/transform/patmat/MatchOptimization.scala
 scala/src/compiler/scala/tools/nsc/transform/patmat/MatchTranslation.scala
-scala/src/compiler/scala/tools/nsc/transform/patmat/MatchTreeMaking.scala
 scala/src/compiler/scala/tools/nsc/typechecker/Checkable.scala
 scala/src/compiler/scala/tools/nsc/typechecker/Contexts.scala
 scala/src/compiler/scala/tools/nsc/typechecker/Duplicators.scala
@@ -110,7 +102,6 @@ scala/src/library/scala/concurrent/SyncVar.scala
 scala/src/library/scala/concurrent/package.scala
 scala/src/library/scala/reflect/Manifest.scala
 scala/src/library/scala/util/MurmurHash.scala
-scala/src/reflect/scala/reflect/internal/ExistentialsAndSkolems.scala
 scala/src/reflect/scala/reflect/internal/Flags.scala
 scala/src/reflect/scala/reflect/internal/StdNames.scala
 scala/src/reflect/scala/reflect/internal/Symbols.scala
@@ -133,7 +124,6 @@ scala/test/files/pos/builders.scala
 scala/test/files/pos/compile.scala
 scala/test/files/pos/compile1.scala
 scala/test/files/pos/depmet_implicit_norm_ret.scala
-scala/test/files/pos/depmet_implicit_oopsla_zipwith.scala
 scala/test/files/pos/t0061.scala
 scala/test/files/pos/t0066.scala
 scala/test/files/pos/t0091.scala
@@ -159,7 +149,6 @@ scala/test/files/run/arrays.scala
 scala/test/files/run/misc.scala
 scala/test/files/run/patmatnew.scala
 scala/test/files/run/t6900.scala
-scala/test/files/run/t7200.scala
 scala/test/files/run/t7507.scala
 scala/test/files/run/try.scala
 scala/test/files/run/unapplyArray.scala
@@ -186,7 +175,6 @@ scalafx-ensemble/src/main/scala/scalafx/ensemble/example/layout/EnsembleGridPane
 scalafx-ensemble/src/main/scala/scalafx/ensemble/example/layout/EnsembleStackPane.scala
 scalafx-ensemble/src/main/scala/scalafx/ensemble/example/layout/EnsembleTilePane.scala
 scalafx-ensemble/src/main/scala/scalafx/ensemble/example/text/EnsembleAdvancedLabel.scala
-scalatra/core/src/main/scala/org/scalatra/CORSSupport.scala
 scalatra/core/src/main/scala/org/scalatra/package.scala
 scalaz/concurrent/src/main/scala/scalaz/concurrent/Future.scala
 scalaz/core/src/main/scala/scalaz/LazyOption.scala
@@ -205,7 +193,6 @@ spark/project/SparkBuild.scala
 spark/repl/scala-2.10/src/main/scala/org/apache/spark/repl/SparkCommandLine.scala
 spark/repl/scala-2.10/src/main/scala/org/apache/spark/repl/SparkIMain.scala
 spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/analysis/Analyzer.scala
-spark/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/AttributeSet.scala
 spark/sql/core/src/main/scala/org/apache/spark/sql/functions.scala
 spark/sql/core/src/test/scala/org/apache/spark/sql/execution/UnsafeFixedWidthAggregationMapSuite.scala
 spark/sql/core/src/test/scala/org/apache/spark/sql/execution/streaming/HDFSMetadataLogSuite.scala
