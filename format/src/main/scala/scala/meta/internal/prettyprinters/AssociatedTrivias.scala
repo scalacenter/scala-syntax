@@ -145,7 +145,7 @@ final case class AssociatedTrivias(
 
           val result = cat(ts2.map {
             case _: LF =>
-              lineNoFlatNoIndent
+              lineNoFlat
 
             case _: Space =>
               space

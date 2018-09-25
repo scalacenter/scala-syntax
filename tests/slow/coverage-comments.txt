@@ -1,10 +1,8 @@
 PredictionIO/data/src/main/scala/io/prediction/data/webhooks/segmentio/SegmentIOConnector.scala
 akka/akka-actor/src/main/scala/akka/actor/Actor.scala
-akka/akka-http-core/src/main/scala/akka/http/scaladsl/model/DateTime.scala
 akka/akka-samples/akka-sample-cluster-scala/src/main/scala/sample/cluster/stats/StatsSampleOneMaster.scala
 akka/akka-stream/src/main/scala/akka/stream/impl/FanoutProcessor.scala
 akka/project/SigarLoader.scala
-breeze/math/src/main/scala/breeze/linalg/operators/CSCMatrixOps.scala
 breeze/math/src/main/scala/breeze/linalg/operators/MatrixOps.scala
 breeze/math/src/main/scala/breeze/util/Index.scala
 breeze/math/src/main/scala/breeze/util/package.scala
@@ -75,7 +73,6 @@ scala-js/scalalib/overrides-2.11/scala/collection/immutable/Range.scala
 scala-js/scalalib/overrides-2.12/scala/collection/immutable/Range.scala
 scala-js/scalalib/overrides/scala/reflect/Manifest.scala
 scala/src/compiler/scala/tools/nsc/ast/parser/Scanners.scala
-scala/src/compiler/scala/tools/nsc/backend/jvm/BCodeHelpers.scala
 scala/src/compiler/scala/tools/nsc/transform/Erasure.scala
 scala/src/compiler/scala/tools/nsc/transform/LambdaLift.scala
 scala/src/compiler/scala/tools/nsc/transform/Mixin.scala
@@ -176,10 +173,8 @@ scalafx-ensemble/src/main/scala/scalafx/ensemble/example/layout/EnsembleStackPan
 scalafx-ensemble/src/main/scala/scalafx/ensemble/example/layout/EnsembleTilePane.scala
 scalafx-ensemble/src/main/scala/scalafx/ensemble/example/text/EnsembleAdvancedLabel.scala
 scalatra/core/src/main/scala/org/scalatra/package.scala
-scalaz/concurrent/src/main/scala/scalaz/concurrent/Future.scala
 scalaz/core/src/main/scala/scalaz/LazyOption.scala
 scalding/scalding-core/src/test/scala/com/twitter/scalding/filecache/DistributedCacheFileSpec.scala
-scalding/scalding-date/src/main/scala/com/twitter/scalding/Globifier.scala
 shapeless/core/src/test/scala/shapeless/generic.scala
 slick/slick-codegen/src/main/scala/slick/codegen/AbstractGenerator.scala
 slick/slick/src/sphinx/code/OrmToSlick.scala

@@ -189,18 +189,25 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             PostfixExpr.wrap(t.expr) + `:` + space + wildcard + `*`
           case t: Term.If =>
             def body(expr: Term) = expr match {
-              case b: Term.Block => space + dBlock(b.`{`, b.stats, b.`}`)
-              case _: Term.If => space + print(expr)
-              case _ => (line + print(expr)).nested(2)
+              case b: Term.Block => {
+                space + dBlock(b.`{`, b.stats, b.`}`)
+              }
+              case _: Term.If =>
+                space + print(expr)
+              case _ =>
+                (line + print(expr)).nested(2)
             }
 
             val delse =
               if (t.elsep.tokens.isEmpty) empty
               else
                 line + t.`else` + body(t.elsep)
-            (`if` + space + t.`(` + print(t.cond) + t.`)` +
+            (
+              `if` + space + t.`(` + print(t.cond) + t.`)` +
               body(t.thenp) +
-              delse).grouped
+              delse
+            ).grouped
+
           case t: Term.For =>
             `for` + space + dBlock(t.enums) + space +
               print(t.body)

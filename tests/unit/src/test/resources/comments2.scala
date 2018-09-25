@@ -153,12 +153,22 @@ object A {
   }
 
   if (p) // Term.If T (
-    t
+    // L Term.If if {
+  { // T Term.If if {
+    t 
+    // L Term.If if }
+  } // T Term.If if }
+  else 
+    // L Term.If else {
+  { // T Term.If else {
+    f 
+    // L Term.If else }
+  } // T Term.If else }
 
   def f = // Defn.Def T =
     ()
 
-  def f() // Defn.Def T = (empty)
+  def f // Defn.Def T = (empty)
   {
 
   } 
