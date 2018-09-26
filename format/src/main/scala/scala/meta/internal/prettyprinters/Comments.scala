@@ -11,12 +11,11 @@ case class Comments(leading: List[String], trailing: List[String])
     extends InputStream {
   def join(ss: List[String]): Doc = Doc.intercalate(Doc.empty, ss.map(Doc.text))
   def wrap(doc: Doc): Doc = join(leading) + doc + join(trailing)
-  override def read(): Int = 1
+  override def read(): Int = throw new Exception("Cannot read comments stream")
 }
 
 object Comments {
   val default = Comments(Nil, Nil)
-  // def doc(tree: Tree, print: Doc): Doc = Comments(tree).wrap(print)
   def apply(tree: Tree, doc: Doc)(implicit trivia: AssociatedTrivias): Doc = {
     val comments =
       tree.origin match {
@@ -24,7 +23,6 @@ object Comments {
         case _ => default
       }
 
-    // doc
     trivia.wrap(tree, comments.wrap(doc))
   }
   implicit class XtensionTreeComments[T <: Tree](val tree: T) extends AnyVal {

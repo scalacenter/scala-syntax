@@ -1,8 +1,12 @@
 package scala.meta.internal.prettyprinters
 package tokens
 
+import TokensOps._
+import Comments._
+
 import scala.meta._
 import scala.meta.Token._
+import scala.meta.contrib.Trivia
 import scala.meta.classifiers.Classifier
 
 import scala.collection.SeqView
@@ -27,13 +31,6 @@ import scala.collection.immutable.IndexedSeq
 object SyntaxTokensUtils {
   import TokensOps._
 
-  private[tokens] implicit class XtensionUtil0(
-      private val tokensView: SeqView[Token, IndexedSeq[Token]]
-  ) extends AnyVal {
-    def find0[T <: Token](implicit ev: Classifier[Token, T]): Option[T] = {
-      tokensView.find(_.is[T]).map(_.asInstanceOf[T])
-    }
-  }
   private[tokens] implicit class XtensionUtil[A <: Tree](private val tree: A)
       extends AnyVal {
     def find[T <: Token](implicit ev: Classifier[Token, T]): Option[T] = {
@@ -44,19 +41,13 @@ object SyntaxTokensUtils {
     )(implicit ev: Classifier[Token, T]): Option[T] = {
       after(p, tree.tokens).flatMap(tokens => find[T](tokens)(ev))
     }
-    def findAfter(f: Token => Boolean, p: A => Tree): Option[Token] = {
-      after(p, tree.tokens).flatMap(tokens => tokens.find(f))
-    }
+
     def findBefore[T <: Token](
         p: A => Tree
     )(implicit ev: Classifier[Token, T]): Option[T] = {
       before(p, tree.tokens).flatMap(tokens => find[T](tokens)(ev))
     }
-    def findBefore2[T <: Token](
-        p: A => Tree
-    )(implicit ev: Classifier[Token, T]): T = {
-      tree.tokens.leadings(p(tree).tokens.head).find0[T].get
-    }
+
     def findBetween[T <: Token](
         afterP: A => Tree,
         beforeP: A => Tree
@@ -64,8 +55,9 @@ object SyntaxTokensUtils {
       between(afterP, beforeP).flatMap(tokens => find[T](tokens)(ev))
     }
     private def after(p: A => Tree, tokens: Tokens): Option[Tokens] = {
-      val end = p(tree).tokens.last
-      tokens.binarySearch(end).map(tokens.drop).map(_.drop(1))
+      p(tree).tokens.lastOption.flatMap(
+        end => tokens.binarySearch(end).map(tokens.drop).map(_.drop(1))
+      )
     }
     private def before(p: A => Tree, tokens: Tokens): Option[Tokens] = {
       val end = p(tree).tokens.head
@@ -105,17 +97,19 @@ object SyntaxTokensUtils {
     }
   }
 
-  private[tokens] def blockStartBrace(tree: Tree): LeftBrace =
-    tree.find[LeftBrace].get
+  private[tokens] def blockStartBrace(tree: Tree): Option[LeftBrace] = {
+    if (tree.hasTokens) {
+      tree.tokens.dropWhile(_.is[Trivia]).headOption.collect {
+        case t: LeftBrace => t
+      }
+    } else None
+  }
+
   private[tokens] def blockEndBrace[T <: Tree](
       tree: T
-  )(childs: T => List[Tree]): RightBrace = {
+  )(childs: T => List[Tree]): Option[RightBrace] = {
     val stats = childs(tree)
-    if (stats.isEmpty) tree.find[RightBrace].get
-    else tree.findAfter[RightBrace](_ => stats.last).get
-  }
-  private[tokens] def isAsterisk(token: Token): Boolean = token match {
-    case Ident(value) => value == "*"
-    case _ => false
+    if (stats.isEmpty) tree.find[RightBrace]
+    else tree.findAfter[RightBrace](_ => stats.last)
   }
 }

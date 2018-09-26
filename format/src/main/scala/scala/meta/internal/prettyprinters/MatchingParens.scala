@@ -1,27 +1,35 @@
 package scala.meta.internal.prettyprinters
 
-import TokenOps._
+import scala.meta._
+import scala.meta.tokens.Token._
 
-import scala.meta.{Token, Tokens}
-import scala.meta.Token._
-
-sealed abstract class MatchingParens(map: Map[TokenHash, Token]) {
-  private def lookup(token: Token) = map.get(hash(token))
-  def close(open: LeftParen): Option[RightParen] =
-    lookup(open).collect { case x: RightParen => x }
-  def close(open: LeftBracket): Option[RightBracket] =
-    lookup(open).collect { case x: RightBracket => x }
-  def close(open: LeftBrace): Option[RightBrace] =
-    lookup(open).collect { case x: RightBrace => x }
-  def open(close: RightParen): Option[LeftParen] =
-    lookup(close).collect { case x: LeftParen => x }
-  def open(close: RightBracket): Option[LeftBracket] =
-    lookup(close).collect { case x: LeftBracket => x }
-  def open(close: RightBrace): Option[LeftBrace] =
-    lookup(close).collect { case x: LeftBrace => x }
+sealed abstract class MatchingParens(
+    map: Map[MatchingParens.TokenHash, Token]
+) {
+  private def lookup(token: Token) = map.get(MatchingParens.hash(token))
+  def close(open: Token.LeftParen): Option[Token.RightParen] =
+    lookup(open).collect { case x: Token.RightParen => x }
+  def close(open: Token.LeftBracket): Option[Token.RightBracket] =
+    lookup(open).collect { case x: Token.RightBracket => x }
+  def close(open: Token.LeftBrace): Option[Token.RightBrace] =
+    lookup(open).collect { case x: Token.RightBrace => x }
+  def open(close: Token.RightParen): Option[Token.LeftParen] =
+    lookup(close).collect { case x: Token.LeftParen => x }
+  def open(close: Token.RightBracket): Option[Token.LeftBracket] =
+    lookup(close).collect { case x: Token.LeftBracket => x }
+  def open(close: Token.RightBrace): Option[Token.LeftBrace] =
+    lookup(close).collect { case x: Token.LeftBrace => x }
 }
 
 object MatchingParens {
+  type TokenHash = Long
+  def hash(token: Token): TokenHash = {
+    val longHash: Long =
+      (token.productPrefix.hashCode.toLong << (62 - 8)) |
+        (token.start.toLong << (62 - (8 + 28))) | token.end
+    longHash
+  }
+
   private def assertValidParens(open: Token, close: Token): Unit = {
     (open, close) match {
       case (Interpolation.Start(), Interpolation.End()) =>

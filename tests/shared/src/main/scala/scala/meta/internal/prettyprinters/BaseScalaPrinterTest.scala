@@ -8,6 +8,9 @@ import scala.meta.testkit.StructurallyEqual
 import scala.meta.transversers.Transformer
 import org.scalameta.logger
 
+import java.nio.charset.StandardCharsets
+import java.nio.file._
+
 import scalafix.diff.DiffUtils
 
 import scala.util.control.NonFatal
@@ -173,12 +176,14 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
       options: Options,
       structuralOnly: Boolean
   ): Unit = {
+
     val original = original2.stripMargin.replace("'''", "\"\"\"")
     val expected = expected2.stripMargin.replace("'''", "\"\"\"")
     val testName = logger.revealWhitespace(original)
     test(testName) {
       val originalTree = TreePrinter.getRoot(original, options)
       val formattedCode = printTree(originalTree, options)
+
       val formattedTree =
         try {
           TreePrinter.getRoot(formattedCode, options)
@@ -280,5 +285,62 @@ abstract class BaseScalaPrinterTest extends DiffSuite {
 
   def check(tree: Tree, expected: String): Unit = {
     assertNoDiff(printTree(tree), expected)
+  }
+
+  private val nl = "\n"
+  def extractComments(tree: Tree): String = {
+
+    def trimIndent(in: String): String =
+      in.lines.map(_.trim).mkString(nl)
+
+    val sep = "--------------------------------------"
+    val comments =
+      tree.tokens.collect {
+        case Token.Comment(content) => trimIndent(content)
+      }
+    comments.mkString("", nl + sep + nl, nl)
+  }
+
+  def checkComments(
+      testName: String,
+      input: Input,
+      save: Boolean = false
+  ): Unit = {
+    test(testName) {
+      val originalTree = input.parse[Source].get
+      val originalComments = extractComments(originalTree)
+
+      val formatted = prettyPrint(originalTree)
+      val formattedTree = formatted.parse[Source] match {
+        case Parsed.Success(t) => t
+        case e: Parsed.Error =>
+          throw new Exception(
+            s"""|
+                |${formatted}
+                |---------------
+                |${e.toString}""".stripMargin
+          )
+      }
+      val formattedComments = extractComments(formattedTree)
+
+      if (save) {
+        val obtained = TreePrinter.printInput(input, Options.default).render(80)
+        val dest = Paths.get("output")
+        Files.write(dest.resolve("input.scala"), input.text.getBytes)
+        Files.write(dest.resolve("obtained.scala"), obtained.getBytes)
+      }
+
+      if (originalComments != formattedComments) {
+
+        // println("----")
+        // println(input.text)
+        // println("----")
+        println()
+        println(formatted)
+        println()
+        // assert(false)
+        assertNoDiff(originalComments, formattedComments)
+      }
+    }
   }
 }

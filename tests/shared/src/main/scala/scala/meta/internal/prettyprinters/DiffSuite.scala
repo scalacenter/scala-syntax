@@ -74,7 +74,6 @@ trait DiffSuite extends FunSuite {
           1
         )
         .asScala
-        .drop(3)
         .mkString("\n")
   }
 }

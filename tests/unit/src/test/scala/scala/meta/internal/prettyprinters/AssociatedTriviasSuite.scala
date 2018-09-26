@@ -2,12 +2,31 @@ package scala.meta.internal.prettyprinters
 
 import scala.meta._
 
+import scala.meta.dialects.Sbt
+import scala.meta.parsers.Parse
+
 object AssociatedTriviasSuite extends DiffSuite {
 
   def check(source: String, expected: String): Unit = {
-    val trivias = AssociatedTrivias(source.stripMargin.parse[Stat].get)
+    val in = source.stripMargin
+    check(in.parse[Stat].get, expected)
+  }
+
+  def checkSource(input: Input, expected: String): Unit = {
+    check(input.parse[Source].get, expected)
+  }
+
+  def check(tree: Tree, expected: String): Unit = {
+    val trivias = AssociatedTrivias(tree)
     val obtained = trivias.toString
-    assertNoDiff(obtained, expected.stripMargin)
+    val expected0 = expected.stripMargin
+
+    if (obtained != expected0) {
+      println()
+      println(tree.syntax)
+      println()
+    }
+    assertNoDiff(obtained, expected0)
   }
 
   test("ok") {
@@ -17,24 +36,19 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    * L
          |    */
          |  def foo: Int
-         |}""".stripMargin,
+         |}""",
       """|AssociatedTrivias(
          |  Leading =
-         |    def [33..36) => [∙,∙,/**¶∙∙∙∙*∙L¶∙∙∙∙*/,¶,∙,∙]
+         |    def [33..36) => [/**¶∙∙∙∙*∙L¶∙∙∙∙*/,¶]
          |  Trailing =
-         |    trait [0..5) => [∙]
-         |    A [6..7) => [∙]
-         |    { [8..9) => [¶]
-         |    def [33..36) => [∙]
-         |    : [40..41) => [∙]
-         |    Int [42..45) => [¶]
+         |
          |)""".stripMargin
     )
   }
 
   test("basic") {
     check(
-      """|{
+      """|object O {
          |  /* java
          |   * doc
          |   */
@@ -43,16 +57,9 @@ object AssociatedTriviasSuite extends DiffSuite {
          |}""",
       """|AssociatedTrivias(
          |  Leading =
-         |    val [29..32) => [∙,∙,/*∙java¶∙∙∙*∙doc¶∙∙∙*/,¶,∙,∙]
-         |    class [41..46) => [∙,∙]
+         |    val [38..41) => [/*∙java¶∙∙∙*∙doc¶∙∙∙*/,¶]
          |  Trailing =
-         |    { [0..1) => [¶]
-         |    val [29..32) => [∙]
-         |    a [33..34) => [∙]
-         |    = [35..36) => [∙]
-         |    1 [37..38) => [¶]
-         |    class [41..46) => [∙]
-         |    A [47..48) => [∙,∙,∙,//∙trailing,¶]
+         |    A [56..57) => [//∙trailing,¶]
          |)"""
     )
   }
@@ -66,7 +73,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |  Leading =
          |    class [9..14) => [//∙test,¶,¶]
          |  Trailing =
-         |    class [9..14) => [∙]
+         |
          |)""",
     )
   }
@@ -80,7 +87,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |  Leading =
          |    class [12..17) => [//∙c1,¶,//∙c2,¶]
          |  Trailing =
-         |    class [12..17) => [∙]
+         |
          |)""",
     )
   }
@@ -92,22 +99,139 @@ object AssociatedTriviasSuite extends DiffSuite {
          |  Leading =
          |
          |  Trailing =
-         |    class [0..5) => [∙]
-         |    A [6..7) => [∙,//∙trailing]
+         |    A [6..7) => [//∙trailing]
          |)"""
     )
   }
   test("trailing NL EOF") {
     check(
       """|class A // trailing
-         |""".stripMargin,
+         |""",
       """|AssociatedTrivias(
          |  Leading =
          |
          |  Trailing =
-         |    class [0..5) => [∙]
-         |    A [6..7) => [∙,//∙trailing,¶]
+         |    A [6..7) => [//∙trailing,¶]
          |)"""
     )
   }
+
+  test("leading EOF") {
+    check(
+      """|class A
+         |// L
+         |""",
+      """|AssociatedTrivias(
+         |  Leading =
+         |    EOF [13..13) => [//∙L,¶]
+         |  Trailing =
+         |
+         |)"""
+    )
+  }
+
+  test("leading vs trailing 1") {
+    check(
+      """|class A {
+         |  val a = /*L*/ b /*T*/
+         |}""",
+      """|AssociatedTrivias(
+         |  Leading =
+         |    b [26..27) => [/*L*/]
+         |  Trailing =
+         |    b [26..27) => [/*T*/,¶]
+         |)""".stripMargin
+    )
+  }
+
+  test("leading vs trailing 2") {
+    check(
+      """|class A {
+         |  val a = // T
+         |    1
+         |}""",
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    = [18..19) => [//∙T,¶]
+         |)""".stripMargin
+    )
+  }
+
+  test("leading vs trailing 3") {
+    check(
+      "class A /* T */ extends B",
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    A [6..7) => [/*∙T∙*/]
+         |)"""
+    )
+  }
+
+  test("leading vs trailing 4") {
+    check(
+      "class A { new B(1 /* C */, 2) }",
+      """|AssociatedTrivias(
+         |  Leading =
+         |
+         |  Trailing =
+         |    1 [16..17) => [/*∙C∙*/]
+         |)"""
+    )
+  }
+
+  test("leading simple") {
+    check(
+      """|def f =
+         |  // L
+         |  {}""",
+      """|AssociatedTrivias(
+         |  Leading =
+         |    { [17..18) => [//∙L,¶]
+         |  Trailing =
+         |
+         |)"""
+    )
+  }
+
+  test("full") {
+    checkSource(
+      resource("comments.scala"),
+      """|AssociatedTrivias(
+         |  Leading =
+         |    { [202..203) => [//∙L∙outer∙block,¶]
+         |    } [248..249) => [//∙L∙inner∙block,¶]
+         |    ) [338..339) => [//∙L∙inner∙apply,¶]
+         |    } [542..543) => [//∙L∙inner∙class,¶]
+         |    } [585..586) => [//∙L∙inner∙class∙stats,¶]
+         |    f [712..713) => [/*∙C∙f∙*/]
+         |    else [774..778) => [//∙else∙T,¶]
+         |    a [849..850) => [/*∙T∙lambda∙*/]
+         |    ) [959..960) => [//∙Term.Tuple∙L∙),¶]
+         |  Trailing =
+         |    , [21..22) => [//∙T∙comma∙apply,¶]
+         |    , [72..73) => [//∙T∙comma∙params,¶]
+         |    , [122..123) => [//∙T∙comma∙params∙2,¶]
+         |    { [202..203) => [//∙T∙inner∙block,¶]
+         |    } [248..249) => [//∙T∙outer∙block,¶]
+         |    => [291..293) => [//∙T∙match,¶]
+         |    { [347..348) => [//∙T∙inner∙new,¶]
+         |    { [376..377) => [//∙T∙inner∙apply,¶]
+         |    , [422..423) => [//∙T∙comma∙class∙param,¶]
+         |    , [471..472) => [//∙T∙comma∙class∙param∙2,¶]
+         |    ] [626..627) => [/*∙T∙match∙strong∙binding∙*/]
+         |    override [667..675) => [/*∙C∙*/]
+         |    . [722..723) => [//∙T∙select∙chain,¶]
+         |    => [801..803) => [/*∙match∙arrow∙*/]
+         |    ( [855..856) => [//∙Term.Tuple∙T∙(,¶]
+         |    , [880..881) => [//∙Term.Tuple∙T∙1∙,,¶]
+         |    , [907..908) => [//∙Term.Tuple∙T∙2∙,,¶]
+         |)"""
+    )
+  }
+
+  // m match { case _ => /* match arrow */ }
 }

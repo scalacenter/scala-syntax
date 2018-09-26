@@ -20,14 +20,15 @@ final case class AssociatedTrivias(
     allTrailings: Map[Token, Tokens]
 ) {
 
-  val attached = mutable.Set[Token]()
+  val attachedLeading = mutable.Set[Token]()
+  val attachedTrailings = mutable.Set[Token]()
 
   def leadings(token: Token): Option[Tokens] =
-    if (attached.contains(token)) None
+    if (attachedLeading.contains(token)) None
     else allLeadings.get(token)
 
   def trailings(token: Token): Option[Tokens] =
-    if (attached.contains(token)) None
+    if (attachedTrailings.contains(token)) None
     else allTrailings.get(token)
 
   def hasTrailingComment(tree: Tree): Boolean = {
@@ -46,8 +47,8 @@ final case class AssociatedTrivias(
         val l = leadings(firstToken)
         val t = trailings(lastToken)
 
-        attached += firstToken
-        attached += lastToken
+        attachedLeading += firstToken
+        attachedTrailings += lastToken
 
         wrap(
           l,
@@ -66,12 +67,59 @@ final case class AssociatedTrivias(
       isSeparator: Boolean = false
   ): Doc = {
     if (tree.hasTokens) {
+
+      val l = leadings(token)
+      val t = trailings(token)
+
+      attachedLeading += token
+      attachedTrailings += token
+
       wrap(
-        leadings(token),
+        l,
         doc,
-        trailings(token),
+        t,
         isSeparator
       )
+    } else doc
+  }
+
+  def wrapOpt(
+      tree: Tree,
+      token: => Option[Token],
+      doc: Doc
+  ): Doc = {
+    if (tree.hasTokens) {
+      token.map(t => wrap(tree, t, doc)).getOrElse(doc)
+    } else doc
+  }
+
+  def addLeadingOpt(tree: Tree, token: => Option[Token], doc: Doc): Doc = {
+    if (tree.hasTokens)
+      token.map(t => addLeading(leadings(t), doc, t)).getOrElse(doc)
+    else doc
+  }
+
+  def addTrailingOpt(tree: Tree, token: => Option[Token], doc: Doc): Doc = {
+    if (tree.hasTokens)
+      token.map(t => addTrailing(trailings(t), doc, t)).getOrElse(doc)
+    else doc
+  }
+
+  def addLeading(tree: Tree, token: => Token, doc: Doc): Doc = {
+    if (tree.hasTokens) addLeading(leadings(token), doc, token)
+    else doc
+  }
+
+  def addTrailing(tree: Tree, token: => Token, doc: Doc): Doc = {
+    if (tree.hasTokens) addTrailing(trailings(token), doc, token)
+    else doc
+  }
+
+  def lastToken(tree: Tree, doc: Doc): Doc = {
+    if (tree.hasTokens && tree.tokens.nonEmpty) {
+      val last = tree.tokens.last
+      val l = leadings(last)
+      addTrailing(l, doc, last)
     } else doc
   }
 
@@ -97,7 +145,7 @@ final case class AssociatedTrivias(
 
           val result = cat(ts2.map {
             case _: LF =>
-              lineNoFlatNoIndent
+              lineNoFlat
 
             case _: Space =>
               space
@@ -172,6 +220,24 @@ final case class AssociatedTrivias(
     leading + doc + trailing
   }
 
+  private def addLeading(
+      leadings: Option[Seq[Token]],
+      doc: Doc,
+      token: Token
+  ): Doc = {
+    attachedLeading += token
+    toDoc(leadings, isLeading = true) + doc
+  }
+
+  private def addTrailing(
+      trailing: Option[Seq[Token]],
+      doc: Doc,
+      token: Token
+  ): Doc = {
+    attachedTrailings += token
+    doc + toDoc(trailing, isLeading = false)
+  }
+
   def syntax: String = {
     def prettyToken(token: Token): String = {
       if (token.is[Token.BOF]) {
@@ -204,6 +270,35 @@ final case class AssociatedTrivias(
   }
   override def toString: String = syntax
 }
+
+/**
+ * AssociatedTrivias is a builder to associate leading and trailing trivias to a token
+ *
+ * a trivia is trailing if it's at the end of an expression, before the newline
+ *
+ * {{{
+ * e // T
+ * }}}
+ *
+ * a trivia is leading if it predece an an expression, it can be followed by newlines
+ *
+ * {{{
+ * // L
+ * e
+ * }}}
+ *
+ * if a trivia is in the middle of an expression, we compare the strenght of the binding
+ *   in most cases it will be a leading trivia.
+ *
+ * {{{
+ * // C1 is leading of `x`, since `x` is a strong leading binder
+ * class A( /* C1 */ x: Int)
+ *
+ * // C2 is trailing of `x`, since `x` is a strong trailing binder and
+ *                                 `)` is not a strong leading binder
+ * f(x /* C2 */)
+ * }}}
+ */
 object AssociatedTrivias {
   def apply(tree: Tree): AssociatedTrivias = apply(tree.tokens)
   def apply(tokens: Tokens): AssociatedTrivias = {
@@ -212,12 +307,27 @@ object AssociatedTrivias {
 
     var leadingStart: Option[Token] = None
     var lastToken: Option[Token] = None
-    var isLeading = true
 
     def setTrivia(t: Token): Unit = {
-      if (isLeading && leadingStart.isEmpty) {
+      if (leadingStart.isEmpty) {
         leadingStart = Some(t)
       }
+    }
+
+    def trim(tokens: Tokens): Tokens = {
+      var start = 0
+      val size = tokens.length
+
+      while (start < size && tokens(start).is[Token.Space]) {
+        start += 1
+      }
+
+      var end = size - 1
+      while (end > 0 && tokens(end).is[Token.Space]) {
+        end -= 1
+      }
+
+      tokens.slice(start, end + 1)
     }
 
     def doTrailing(currentToken: Token): Unit = {
@@ -226,18 +336,39 @@ object AssociatedTrivias {
         val end = currentToken
         val includingEnd = end.is[LF]
 
-        val slice = tokens.slice2(
-          from = start,
-          to = end,
-          includeFrom = false,
-          includeTo = includingEnd
+        val slice = trim(
+          tokens.slice2(
+            from = start,
+            to = end,
+            includeFrom = false,
+            includeTo = includingEnd
+          )
         )
 
-        if (slice.nonEmpty) {
+        if (slice.nonEmpty && slice.exists(_.is[Comment])) {
           allTrailings += last -> slice
         }
+
+        leadingStart = None
       }
       lastToken = None
+    }
+
+    def doLeading(currentToken: Token): Unit = {
+      leadingStart.foreach { start =>
+        val end = currentToken
+        val slice = trim(
+          tokens.slice2(
+            from = start,
+            to = end
+          )
+        )
+
+        if (slice.nonEmpty && slice.exists(_.is[Comment])) {
+          allLeadings += currentToken -> slice
+        }
+      }
+      leadingStart = None
     }
 
     tokens.foreach {
@@ -249,32 +380,58 @@ object AssociatedTrivias {
 
       case t: Token.EOF =>
         doTrailing(t)
+        doLeading(t)
 
       case t @ Token.LF() =>
-        setTrivia(t)
         doTrailing(t)
-        isLeading = true
 
       case t @ Trivia() =>
         setTrivia(t)
 
       case currentToken =>
-        doTrailing(currentToken)
-        leadingStart.foreach { start =>
-          val end = currentToken
-          val slice = tokens.slice2(
-            from = start,
-            to = end
-          )
+        val startIsStrongBinding = lastToken.exists(isStrongTrailingBinding)
+        val endIsStrongBinding = isStrongLeadingBinding(currentToken)
 
-          if (slice.nonEmpty) {
-            allLeadings += currentToken -> slice
-          }
+        if (startIsStrongBinding && !endIsStrongBinding) {
+          doTrailing(currentToken)
+        } else {
+          doLeading(currentToken)
         }
-        leadingStart = None
+
         lastToken = Some(currentToken)
-        isLeading = false
     }
     AssociatedTrivias(allLeadings.result(), allTrailings.result())
+  }
+
+  def isStrongTrailingBinding(token: Token): Boolean = {
+    token match {
+      case _: Ident | _: Dot => true
+      case _: RightArrow | _: RightBracket | _: RightBrace | _: RightParen =>
+        true
+      case Mods() => true
+      case Literal() => true
+      case _ => false
+    }
+  }
+
+  object Mods {
+    def unapply(token: Token): Boolean = token match {
+      case _: KwPrivate | _: KwProtected | _: KwImplicit | _: KwFinal |
+          _: KwSealed | _: KwOverride | _: KwCase | _: KwAbstract | _: KwLazy |
+          _: KwVal | _: KwVar =>
+        true
+
+      // idents: Covariant Contravariant
+      case i: Ident if i.syntax == "+" || i.syntax == "-" => true
+      case _ => false
+    }
+  }
+
+  def isStrongLeadingBinding(token: Token): Boolean = {
+    token match {
+      case _: Ident => true
+      case Literal() => true
+      case _ => false
+    }
   }
 }

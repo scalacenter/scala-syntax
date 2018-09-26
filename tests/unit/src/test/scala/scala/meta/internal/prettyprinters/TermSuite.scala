@@ -111,8 +111,7 @@ object TermSuite extends BaseScalaPrinterTest {
   check("""a("[\" \\u00e4\\u00e4li\\u00f6t\"]") """.stripMargin)
   check("""
           |a(
-          |  b,
-          |  { implicit c =>
+          |  b, { implicit c =>
           |    d
           |
           |    e

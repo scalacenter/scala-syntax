@@ -11,13 +11,6 @@ object CoverageSuite extends BaseScalaPrinterTest {
   val escapeChars = List('b', 't', 'n', 'f', 'r', '"', '\'', '\\')
   val allEscapeChars = escapeChars.mkString(" \\", " \\", "")
   
-  def resource(path: String): Input = 
-    Input.Stream(
-      this.getClass.getClassLoader.getResourceAsStream(path),
-      StandardCharsets.UTF_8
-    )
-
-
   // meta.Lit
   check("null")                    // Lit.Null
   check("true")                    // Lit.Boolean

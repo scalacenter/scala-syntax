@@ -11,6 +11,8 @@ import org.scalameta.logger
 
 import scala.meta._
 import scala.meta.testkit.Corpus
+import scala.meta.parsers.ParseException
+import scala.meta.tokenizers.TokenizeException
 
 import scala.collection.concurrent.TrieMap
 import scala.util.control.NonFatal
@@ -23,16 +25,23 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
   def check(file: Input.File, relativePath: String): PropertyResult
 
+  private val ignoreRegressions = false
+
   private val failed = TrieMap.empty[File, Boolean]
   private val regressions = TrieMap.empty[File, Boolean]
   private val nl = "\n"
   private val prefix = "target/repos/"
 
   private val coverageFile = Paths.get(s"coverage-${name}.txt")
+  private val regressionFile = Paths.get(s"regressions-${name}.txt")
   private val todoFile = Paths.get(s"todo-${name}.diff")
 
   if (Files.exists(todoFile)) {
     Files.delete(todoFile)
+  }
+
+  if (Files.exists(regressionFile)) {
+    Files.delete(regressionFile)
   }
 
   private val previouslyFailed: Set[File] =
@@ -50,12 +59,22 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       .sorted
       .mkString("", sep, sep)
 
+  val corpusExclude = Set(
+    "target/repos/shapeless/core/src/test/scala/shapeless/hlist.scala" // fail to parse
+  )
+
+  val corpusFiles =
+    Corpus.fastparse.copy(
+      filter =
+        file => Corpus.fastparse.filter(file) && !corpusExclude.contains(file)
+    )
+
   test(name) {
     val failureCount = new AtomicInteger(0)
     val successCount = new AtomicInteger(0)
 
     val corpus = Corpus
-      .files(Corpus.fastparse)
+      .files(corpusFiles)
       .toBuffer
       .par
 
@@ -69,6 +88,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
     progress.start()
 
     SyntaxAnalysis.run[Unit](corpus) { file =>
+      val regressionFilepath = file.jFile.toString.stripPrefix(prefix)
       try {
         val jFile = file.jFile
         val input = Input.File(jFile, StandardCharsets.UTF_8)
@@ -80,17 +100,23 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
             val failures = failureCount.incrementAndGet()
             failed += jFile -> true
 
-            if (failures < 100) {
-              logger.elem(explanation)
-            }
-
             if (!previouslyFailed.contains(file.jFile)) {
-              regressions += file.jFile -> true
-              print(Console.RED)
-              println("*************************")
-              println("Regression: " + file.jFile)
-              println("*************************")
-              print(Console.RESET)
+              if (!ignoreRegressions) {
+                regressions += file.jFile -> true
+
+                Files.write(
+                  regressionFile,
+                  (regressionFilepath + nl).getBytes("utf-8"),
+                  StandardOpenOption.CREATE,
+                  StandardOpenOption.APPEND
+                )
+
+                print(Console.RED)
+                println("*************************")
+                println("Regression: " + regressionFilepath)
+                println("*************************")
+                print(Console.RESET)
+              }
             } else {
               Files.write(
                 todoFile,
@@ -102,7 +128,16 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
           }
         }
       } catch {
-        case NonFatal(_) => ()
+        case e: ParseException => ()
+        case e: TokenizeException => ()
+        case XmlSpliceEndNotFound => ()
+
+        case NonFatal(e) =>
+          println("****")
+          println(regressionFilepath)
+          println(e.getClass)
+          e.printStackTrace()
+          println("****")
       }
 
       progress.synchronized {
@@ -110,13 +145,14 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
         val currentFailures = failureCount.get
         val currentSuccess = successCount.get
+        val total = currentFailures + currentSuccess
 
         val progressMessage =
           if (currentFailures > 100) {
-            val rate = (currentSuccess.toDouble / (currentFailures + currentSuccess).toDouble) * 100.0
-            f"Success: ${rate}%.2f%%"
+            val rate = (currentSuccess.toDouble / total.toDouble) * 100.0
+            f"${rate}%.2f%%($currentFailures)"
           } else {
-            s"Failures: $currentFailures"
+            s"$currentFailures"
           }
 
         progress.setExtraMessage(progressMessage)
@@ -125,7 +161,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
 
     progress.stop()
 
-    if (regressions.isEmpty) {
+    if (regressions.isEmpty || ignoreRegressions) {
       Files.write(
         coverageFile,
         fileList(failed, nl).getBytes("utf-8"),
@@ -134,7 +170,7 @@ abstract class PropertyTest(name: String) extends BaseScalaPrinterTest {
       )
     }
 
-    if (regressions.nonEmpty) {
+    if (regressions.nonEmpty && !ignoreRegressions) {
       val sep = nl + "  "
       val regressionList = fileList(regressions, sep)
       sys.error("Regressions:" + sep + regressionList)

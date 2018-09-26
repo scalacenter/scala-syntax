@@ -8,6 +8,8 @@ import scala.meta.Token._
 import scala.collection.SeqView
 import scala.collection.immutable.IndexedSeq
 
+case object XmlSpliceEndNotFound extends Exception("cannot find xml splice end")
+
 object TokensOps {
   import TokenOps._
 
@@ -17,12 +19,21 @@ object TokensOps {
       case (_: Interpolation.SpliceStart, _: Interpolation.Part) => GT
       case (_: Interpolation.SpliceEnd, _: Interpolation.Part) => LT
       case (_: Interpolation.Part, _: Interpolation.SpliceEnd) => GT
+      case (_: Xml.Part, _: Xml.SpliceStart) => LT
+      case (_: Xml.SpliceStart, _: Xml.Part) => GT
+      case (_: Xml.SpliceEnd, _: Xml.Part) => LT
+      case (_: Xml.Part, _: Xml.SpliceEnd) => GT
+      case (_: Xml.SpliceStart, _: Xml.SpliceEnd) => LT
       case (_: BOF, _) => LT
       case (_, _: BOF) => GT
       case (_: EOF, _) => GT
       case (_, _: EOF) => LT
       case _ =>
-        sys.error(s"undefined token partial order: ${a.show} ??? ${b.show}")
+        sys.error(
+          s"""|undefined token partial order: ${a.syntax} ??? ${b.syntax}
+           |${a.getClass} ${a.structure}
+           |${b.getClass} ${b.structure}"""
+        )
     }
   }
 
@@ -47,8 +58,6 @@ object TokensOps {
     }
 
   implicit class XtensionTokens(private val tokens: Tokens) extends AnyVal {
-    def show2: String = tokens.map(_.showClass).toList.mkString("[", ", ", "]")
-
     def binarySearch(token: Token): Option[Int] = {
       val res = Searching.search(tokens, token)
       if (res >= 0) Some(res)
@@ -124,7 +133,16 @@ object TokensOps {
 
     private def get(token: Token): Int =
       binarySearch(token).getOrElse(
-        throw new NoSuchElementException(s"token not found: $token")
+        if (token.is[Token.Xml.SpliceEnd]) {
+          throw XmlSpliceEndNotFound
+        } else {
+          throw new NoSuchElementException(
+            s"""|token not found:
+                |  ${token}
+                |  ${token.structure}
+                |  ${token.getClass}""".stripMargin
+          )
+        }
       )
   }
 }

@@ -1,10 +1,15 @@
 package scala.meta.internal.prettyprinters
 
+import tokens.SyntaxTokens._
+import tokens.ParamSeparator
+
 import SyntacticGroup.Term._
 import SyntacticGroup.Type._
 import ScalaToken._
 import TokenOps._
 import CustomTrees._
+
+import scala.meta.internal.prettyprinters.{ScalaToken => S}
 
 import scala.meta.internal.paiges.Doc
 import scala.meta.internal.paiges.Doc._
@@ -14,7 +19,7 @@ import scala.meta.internal.prettyprinters._
 
 import scala.annotation.tailrec
 
-trait TreeDocOps extends SyntacticGroupOps {
+trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
   def dInfixType(left: Tree, operator: Doc, right: Tree): Doc = {
     val op = operator.render(100)
     val leftWraped = InfixTyp(op).wrap(left)
@@ -27,7 +32,7 @@ trait TreeDocOps extends SyntacticGroupOps {
       case Nil => `(` + `)`
       case param :: Nil if !param.is[Type.Tuple] =>
         AnyInfixTyp.wrap(param)
-      case params => dApplyParen(empty, params)
+      case params => dApplyParen(empty, `(`, params, Nil, `)`)
     }
     dparams + space + `=>` + space + Typ.wrap(res)
   }
@@ -50,28 +55,46 @@ trait TreeDocOps extends SyntacticGroupOps {
   def dTargs(targs: List[Tree]): Doc =
     dApplyBracket(empty, targs)
 
-  def dArgs(args: List[Tree]): Doc =
-    dArgs(`(`, args, `)`)
+  def dArgs(`(`: Doc, args: List[Tree], `,`: List[Doc], `)`: Doc): Doc =
+    dApplyParen(empty, `(`, args, `,`, `)`)
 
-  def dArgs(`(`: Doc, args: List[Tree], `)`: Doc): Doc =
-    dApplyParen(empty, `(`, args, `)`)
-
-  def dArgss(argss: List[List[Term]]): Doc =
-    joined(argss.map(dArgs))
-
-  def dApplyParen(fun: Doc, args: List[Tree]): Doc =
-    dApply(fun, args, `(`, `)`)
-
-  def dApplyParen(fun: Doc, `(`: Doc, args: List[Tree], `)`: Doc): Doc =
-    dApply(fun, args, `(`, `)`)
+  def dApplyParen(
+      fun: Doc,
+      `(`: Doc,
+      args: List[Tree],
+      `,`: List[Doc],
+      `)`: Doc
+  ): Doc =
+    dApply(fun, `(`, args, `,`, `)`)
 
   def dApplyBracket(fun: Doc, args: List[Tree]): Doc =
     if (args.isEmpty) fun
     else dApply(fun, args, `[`, `]`)
 
+  def dApplyBracket(
+      fun: Doc,
+      args: List[Tree],
+      tparamSeparator: tokens.TParamSeparator
+  ): Doc =
+    if (args.isEmpty) fun
+    else {
+      import tparamSeparator._
+      dApply(fun, `[`, args, `,`, `]`)
+    }
+
   def dApply(fun: Doc, args: List[Tree], left: Doc, right: Doc): Doc = {
     val dargs = intercalate(comma + line, args.map(print))
     dargs.tightBracketBy(fun + left, right)
+  }
+
+  def dApply(
+      fun: Doc,
+      `(`: Doc,
+      args: List[Tree],
+      `,`: List[Doc],
+      `)`: Doc
+  ): Doc = {
+    args.mkDoc(`,`).tightBracketBy(fun + `(`, `)`)
   }
 
   def dApplyParenPat(fun: Doc, args: List[Pat]): Doc = {
@@ -139,37 +162,74 @@ trait TreeDocOps extends SyntacticGroupOps {
   def dMods(mods: List[Mod]): Doc =
     intercalate(space, mods.map(print))
 
-  def dParamss(paramss: List[List[Term.Param]]): Doc =
+  def dParamss(
+      paramss: List[List[Term.Param]],
+      separators: List[tokens.ParamSeparator]
+  ): Doc =
     paramss match {
       case Nil => empty
-      case List(Nil) => `(` + `)`
+      case List(Nil) => {
+        separators.headOption.map(sep => sep.`(` + sep.`)`).getOrElse(`(` + `)`)
+      }
       case _ => {
         val printedParams =
           paramss.map { params =>
-            val dimplicit =
-              if (params.exists(_.mods.exists(_.is[Mod.Implicit])))
-                `implicit` + line
-              else empty
+            if (params.nonEmpty) {
+              val dimplicit =
+                if (params.exists(_.mods.exists(_.is[Mod.Implicit])))
+                  `implicit` + line
+                else empty
 
-            val dparams =
-              params.map { param =>
-                print(
-                  param.copy(mods = param.mods.filterNot(_.is[Mod.Implicit]))
-                )
-              }
-
-            (dimplicit + intercalate(comma + line, dparams))
-              .tightBracketBy(`(`, `)`)
+              val dparams =
+                params.map { param =>
+                  print(
+                    param.copy(mods = param.mods.filterNot(_.is[Mod.Implicit]))
+                  )
+                }
+              (dimplicit + dparams.head) :: dparams.tail
+            } else Nil
           }
 
-        joined(printedParams)
+        joined(printedParams, separators)
       }
     }
 
-  def dBody(body: Tree): Doc =
-    dBodyO(Some(body))
+  def joined(
+      docss: List[List[Doc]],
+      separators: List[tokens.ParamSeparator]
+  ): Doc = {
+    val separators0 =
+      if (separators.isEmpty) {
+        docss.map(
+          docs => ParamSeparator(`(`, docs.map(_ => `,` + space).drop(1), `)`)
+        )
+      } else separators
 
-  def dBodyO(body: Option[Tree]): Doc =
+    assert(docss.size == separators0.size)
+    cat(docss.zip(separators0).map {
+      case (docs, separator) =>
+        if (docs.nonEmpty) {
+          assert(
+            docs.size == separator.`,`.size + 1 ||
+              docs.size == separator.`,`.size
+          )
+        }
+
+        docs
+          .zipAll(separator.`,`, empty, empty)
+          .foldLeft(empty) {
+            case (acc, (term, sep)) => {
+              acc + term + sep
+            }
+          }
+          .tightBracketBy(separator.`(`, separator.`)`)
+    })
+  }
+
+  def dBody(body: Tree, `=`: Doc = S.`=`): Doc =
+    dBodyO(Some(body), `=`)
+
+  def dBodyO(body: Option[Tree], `=`: Doc = S.`=`): Doc =
     body.fold(empty) {
       case t @ (_: Term.Block | _: Term.PartialFunction | _: Term.Match) =>
         `=` + space + print(t)
@@ -183,11 +243,13 @@ trait TreeDocOps extends SyntacticGroupOps {
       pats: List[Pat],
       tparams: List[Type.Param],
       paramss: List[List[Term.Param]],
+      paramssSeparators: List[tokens.ParamSeparator],
       decltpe: Option[Type],
       body: Doc
   ): Doc = {
     val dname = commaSeparated(pats.map(print))
-    dDef(mods, keyword, dname, tparams, paramss, decltpe, body)
+    dDef(mods, keyword, dname, tparams, paramss, paramssSeparators, decltpe,
+      body)
   }
 
   def dDef(
@@ -196,11 +258,12 @@ trait TreeDocOps extends SyntacticGroupOps {
       name: Doc,
       tparams: List[Type.Param],
       paramss: List[List[Term.Param]],
+      paramssSeparators: List[tokens.ParamSeparator],
       decltpe: Option[Type] = None,
       dbody: Doc = empty
   ): Doc = {
     val dname = dApplyBracket(name, tparams)
-    val dparamss = dParamss(paramss)
+    val dparamss = dParamss(paramss, paramssSeparators)
     val ddecltpe =
       decltpe.fold(empty)(tpe => typedColon(name) + space + print(tpe))
     spaceSeparated(
@@ -286,18 +349,26 @@ trait TreeDocOps extends SyntacticGroupOps {
     print(prefix) + dquote + dhead + sparts + dquote
   }
 
-  def dParams(params: List[Term.Param], forceParens: Boolean): Doc =
+  def dParams(
+      `(`: Doc,
+      params: List[Term.Param],
+      `,`: List[Doc],
+      `)`: Doc,
+      forceParens: Boolean
+  ): Doc = {
+
     params match {
       case param :: Nil =>
         val dparam = print(param)
         param.decltpe match {
           case Some(tpe) =>
-            if (forceParens) wrapParens(dparam)
+            if (forceParens) wrapParens(`(`, dparam, `)`)
             else SimpleExpr.wrap0(tpe, dparam)
           case _ => dparam
         }
-      case _ => dApplyParen(empty, params)
+      case _ => dApplyParen(empty, `(`, params, `,`, `)`)
     }
+  }
 
   def dPat(pat: Tree): Doc =
     print(mkPat(pat))
@@ -336,52 +407,40 @@ trait TreeDocOps extends SyntacticGroupOps {
   }
 
   object LambdaArg {
-    type Paramss = Vector[List[Term.Param]]
-
-    @tailrec
-    private final def getParamss(
-        f: Term.Function,
-        accum: Paramss = Vector.empty
-    ): (Paramss, Term) =
-      f.body match {
-        case g: Term.Function =>
-          getParamss(g, accum :+ f.params)
-        case Term.Block((g: Term.Function) :: Nil) =>
-          getParamss(g, accum :+ f.params)
-        case _ =>
-          (accum :+ f.params, f.body)
-      }
-
-    def dFunction(b: Term.Block, f: Term.Function): Doc = {
-      val (paramss, body) = getParamss(f)
-      val dbody = body match {
-        case Term.Block(stats) => dStats(stats)
-        case _ => print(body)
-      }
-      val dparamss = paramss.foldLeft(empty) {
-        case (accum, params) =>
-          accum + line + dParams(params, forceParens = false) + space + `=>`
-      }
-
-      val function =
-        (
-          dparamss.nested(2).grouped + line +
-            dbody
-        ).nested(2).grouped
-
-      (`{` + function + line + `}`).grouped
+    private def doParams(f: Term.Function): Doc = {
+      dParams(f.`(`, f.params, f.`,`, f.`)`, forceParens = false) + space + f.`=>`
     }
 
-    def unapply(args: List[Tree]): Option[Doc] =
+    private def dFunction(b: Term.Block, f: Term.Function): Doc = {
+      def loop(f0: Term.Function): Doc = {
+        val next =
+          f0.body match {
+            case f1: Term.Function => loop(f1)
+            case Term.Block((f1: Term.Function) :: Nil) => loop(f1)
+            case body @ Term.Block(stats) => dStats(stats)
+            case body => print(body)
+          }
+
+        (doParams(f0) + line + next).grouped
+      }
+
+      b.`{` + space + loop(f).nested(2) + line + b.`}`
+    }
+
+    def unapply(args: List[Tree]): Option[Doc] = {
       args match {
         case (arg: Term.PartialFunction) :: Nil =>
           Some(print(arg))
+
         case (arg @ Term.Function(_, b @ Term.Block(_ :: _ :: _))) :: Nil =>
           Some(dFunction(b, arg))
+
         case (b @ Term.Block((f: Term.Function) :: Nil)) :: Nil =>
           Some(dFunction(b, f))
+
         case _ =>
           None
       }
+    }
   }
 }
