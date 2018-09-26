@@ -200,12 +200,12 @@ object SyntaxTokens {
     def tokensLeftBrace: Option[LeftBrace] = blockStartBrace(tree)
     def `{`(implicit trivia: AssociatedTrivias): Doc =
       trivia.wrapOpt(tree, tokensLeftBrace, S.`{`)
-      // trivia.addTrailingOpt(tree, tokensLeftBrace, S.`{`)
+    // trivia.addTrailingOpt(tree, tokensLeftBrace, S.`{`)
 
     def tokensRightBrace: Option[RightBrace] = blockEndBrace(tree)(_.stats)
     def `}`(implicit trivia: AssociatedTrivias): Doc =
       trivia.wrapOpt(tree, tokensRightBrace, S.`}`)
-      // trivia.addLeadingOpt(tree, tokensRightBrace, S.`}`)
+    // trivia.addLeadingOpt(tree, tokensRightBrace, S.`}`)
   }
 
   implicit class XtensionTermPartialFunctionSyntax(

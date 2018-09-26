@@ -204,8 +204,8 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
                 line + t.`else` + body(t.elsep)
             (
               `if` + space + t.`(` + print(t.cond) + t.`)` +
-              body(t.thenp) +
-              delse
+                body(t.thenp) +
+                delse
             ).grouped
 
           case t: Term.For =>
