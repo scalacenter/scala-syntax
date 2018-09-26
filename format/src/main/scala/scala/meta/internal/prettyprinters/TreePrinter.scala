@@ -255,7 +255,7 @@ class TreePrinter private ()(implicit val trivia: AssociatedTrivias)
             else output
 
           case t: Term.Assign =>
-            print(t.lhs) + space + `=` + space + print(t.rhs)
+            print(t.lhs) + space + t.`=` + space + print(t.rhs)
           case t: Term.Placeholder =>
             `wildcard`
           case t: Term.While =>

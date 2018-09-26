@@ -172,4 +172,9 @@ object A {
   {
 
   } 
+
+  a 
+  // L Term.Assign =
+  = // T Term.Assign =
+  1
 }

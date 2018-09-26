@@ -162,6 +162,17 @@ object SyntaxTokens {
       trivia.wrapOpt(tree, tokenDot, S.`.`)
   }
 
+  implicit class XtensionTermAssignSyntax(private val tree: Term.Assign)
+      extends AnyVal {
+
+    def tokenEquals: Equals = {
+      tree.findBetween[Equals](_.lhs, _.rhs).get
+    }
+
+    def `=`(implicit trivia: AssociatedTrivias): Doc =
+      trivia.wrap(tree, tokenEquals, S.`=`)
+  }
+
   implicit class XtensionTermApplySyntax(private val tree: Term.Apply)
       extends AnyVal {
     def tokensComma: List[Comma] = commaSeparated(tree)(_.args)
