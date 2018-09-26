@@ -1,5 +1,4 @@
 target/
-PlaygroundSuite.scala
 repos.tar.gz*
 .coursier
 .scalafmt*
