@@ -15,11 +15,11 @@ object PlaygroundSuite extends BaseScalaPrinterTest {
   //   val lines = source.getLines
   //   lines.drop(4)
   //   val file = lines.next
-    
+
   //   source.close()
   //   val base = Paths.get("/home/gui/scala-syntax/tests/slow/target/repos")
   //   val input = Input.File(AbsolutePath(base.resolve(file)))
-  //   checkComments("playground slow", input, true)  
+  //   checkComments("playground slow", input, true)
   // } else {
   //   checkComments("playground resource", resource("playground.scala"))
   //   // checkSource(resource("playground.scala").text)
