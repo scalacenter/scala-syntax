@@ -270,6 +270,35 @@ final case class AssociatedTrivias(
   }
   override def toString: String = syntax
 }
+
+/**
+ * AssociatedTrivias is a builder to associate leading and trailing trivias to a token
+ *
+ * a trivia is trailing if it's at the end of an expression, before the newline
+ *
+ * {{{
+ * e // T
+ * }}}
+ *
+ * a trivia is leading if it predece an an expression, it can be followed by newlines
+ *
+ * {{{
+ * // L
+ * e
+ * }}}
+ *
+ * if a trivia is in the middle of an expression, we compare the strenght of the binding
+ *   in most cases it will be a leading trivia.
+ *
+ * {{{
+ * // C1 is leading of `x`, since `x` is a strong leading binder
+ * class A( /* C1 */ x: Int)
+ *
+ * // C2 is trailing of `x`, since `x` is a strong trailing binder and
+ *                                 `)` is not a strong leading binder
+ * f(x /* C2 */)
+ * }}}
+ */
 object AssociatedTrivias {
   def apply(tree: Tree): AssociatedTrivias = apply(tree.tokens)
   def apply(tokens: Tokens): AssociatedTrivias = {
