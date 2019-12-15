@@ -34,8 +34,8 @@ case class ParamSeparatorTokens(
 
     ParamSeparator(
       trivia.addTrailing(tree, tokenLeftParen, S.`(`),
-      tokensComma.map(
-        comma => trivia.wrap(tree, comma, S.`,`, isSeparator = true)
+      tokensComma.map(comma =>
+        trivia.wrap(tree, comma, S.`,`, isSeparator = true)
       ),
       leftParen
     )
@@ -62,8 +62,8 @@ case class TParamSeparatorTokens(
   )(implicit trivia: AssociatedTrivias): TParamSeparator = {
     TParamSeparator(
       trivia.addTrailing(tree, tokenLeftBrace, S.`[`),
-      tokensComma.map(
-        comma => trivia.wrap(tree, comma, S.`,`, isSeparator = true)
+      tokensComma.map(comma =>
+        trivia.wrap(tree, comma, S.`,`, isSeparator = true)
       ),
       trivia.addLeading(tree, tokenRightBrace, S.`]`)
     )
@@ -92,8 +92,8 @@ object SyntaxTokens {
       tree.findAfter[RightParen](_.args.last).get
 
     def `,`(implicit trivia: AssociatedTrivias): List[Doc] = {
-      tokensComma.map(
-        token => trivia.wrap(tree, token, S.`,`, isSeparator = true)
+      tokensComma.map(token =>
+        trivia.wrap(tree, token, S.`,`, isSeparator = true)
       )
     }
 
@@ -133,8 +133,8 @@ object SyntaxTokens {
     def `)`(implicit trivia: AssociatedTrivias): Doc =
       trivia.addLeadingOpt(tree, tokenRightParen, S.`)`)
     def `,`(implicit trivia: AssociatedTrivias): List[Doc] =
-      tokensComma.map(
-        token => trivia.wrap(tree, token, S.`,`, isSeparator = true)
+      tokensComma.map(token =>
+        trivia.wrap(tree, token, S.`,`, isSeparator = true)
       )
   }
 
@@ -177,8 +177,8 @@ object SyntaxTokens {
       extends AnyVal {
     def tokensComma: List[Comma] = commaSeparated(tree)(_.args)
     def `,`(implicit trivia: AssociatedTrivias): List[Doc] = {
-      tokensComma.map(
-        token => trivia.wrap(tree, token, S.`,`, isSeparator = true)
+      tokensComma.map(token =>
+        trivia.wrap(tree, token, S.`,`, isSeparator = true)
       )
     }
 

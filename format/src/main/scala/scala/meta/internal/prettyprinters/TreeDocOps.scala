@@ -200,8 +200,8 @@ trait TreeDocOps extends SyntacticGroupOps with TreePrinterUtils {
   ): Doc = {
     val separators0 =
       if (separators.isEmpty) {
-        docss.map(
-          docs => ParamSeparator(`(`, docs.map(_ => `,` + space).drop(1), `)`)
+        docss.map(docs =>
+          ParamSeparator(`(`, docs.map(_ => `,` + space).drop(1), `)`)
         )
       } else separators
 

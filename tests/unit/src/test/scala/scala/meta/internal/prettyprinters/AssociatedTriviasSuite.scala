@@ -74,7 +74,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    class [9..14) => [//∙test,¶,¶]
          |  Trailing =
          |
-         |)""",
+         |)"""
     )
   }
 
@@ -88,7 +88,7 @@ object AssociatedTriviasSuite extends DiffSuite {
          |    class [12..17) => [//∙c1,¶,//∙c2,¶]
          |  Trailing =
          |
-         |)""",
+         |)"""
     )
   }
 

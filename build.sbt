@@ -1,4 +1,9 @@
-lazy val metaV = "4.0.0"
+inThisBuild(
+  List(
+    scalaVersion := "2.12.10"
+  )
+)
+lazy val metaV = "4.3.0"
 
 lazy val format = project
   .settings(
@@ -9,8 +14,7 @@ lazy val format = project
     libraryDependencies ++= List(
       "com.lihaoyi" %% "pprint" % "0.5.2", // for debugging
       "org.scalameta" %% "paiges" % "0.2.2-SNAP1",
-      "org.scalameta" %% "scalameta" % metaV,
-      "org.scalameta" %% "contrib" % metaV
+      "org.scalameta" %% "scalameta" % metaV
     )
   )
 
