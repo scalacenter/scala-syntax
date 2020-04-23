@@ -91,8 +91,9 @@ object SyntaxTokensUtils {
         elems
           .sliding(2, 1)
           .map {
-            case List(l, r) => tree.findBetween[Comma](_ => l, _ => r).get
+            case List(l, r) => tree.findBetween[Comma](_ => l, _ => r)
           }
+          .collect { case Some(t) => t }
           .toList
     }
   }
